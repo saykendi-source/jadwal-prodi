@@ -47,7 +47,7 @@
 
     .topbar {
       display: grid;
-      grid-template-columns: 1.7fr 1fr;
+      grid-template-columns: 1.8fr 1fr;
       gap: 14px;
       margin-bottom: 14px;
     }
@@ -81,7 +81,6 @@
       margin: 0;
       color: var(--muted);
       font-size: clamp(13px, 1.2vw, 17px);
-      line-height: 1.45;
     }
 
     .clock {
@@ -179,8 +178,7 @@
       overflow: auto;
     }
 
-    table.schedule,
-    table.raw-table {
+    table.schedule {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
@@ -190,17 +188,14 @@
     }
 
     .schedule th,
-    .schedule td,
-    .raw-table th,
-    .raw-table td {
+    .schedule td {
       border: 1px solid var(--grid);
       text-align: center;
       vertical-align: middle;
       padding: 6px;
     }
 
-    .schedule thead th,
-    .raw-table thead th {
+    .schedule thead th {
       color: #fff;
       background: var(--navy);
       font-size: clamp(12px, 1vw, 16px);
@@ -220,6 +215,7 @@
 
     .col-session { width: 72px; }
     .col-time { width: 112px; }
+    .col-room { width: minmax(120px, 1fr); }
 
     td.session-cell {
       background: #f6f6f6;
@@ -304,25 +300,6 @@
       line-height: 1.5;
     }
 
-    .info-box {
-      background: #eff7ff;
-      border: 1px solid #bad8f7;
-      color: #17436f;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 10px;
-    }
-
-    .raw-table td {
-      font-size: 12px;
-      line-height: 1.35;
-      background: #fff;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
     @media (max-width: 1100px) {
       .topbar {
         grid-template-columns: 1fr;
@@ -344,7 +321,7 @@
       <section class="hero">
         <div>
           <h1>Jadwal Perkuliahan Mahasiswa</h1>
-          <p class="sub">Sumber utama memakai file Excel multi-sheet dari repository GitHub. Silakan perbarui file Excel di repo bila ada perubahan jadwal.</p>
+          <p class="sub">Template ini membaca data dari file Excel multi-sheet dan menampilkan jadwal per hari untuk layar besar.</p>
         </div>
         <div class="clock">
           <div class="time" id="clockTime">--:--:--</div>
@@ -355,23 +332,23 @@
       <aside class="sidepanel">
         <div class="controls-row" id="dayButtons"></div>
         <div class="controls-row">
-          <button class="action-btn" id="reloadExcelBtn" type="button">Muat ulang Excel default</button>
-          <label class="file-label" for="fileInput">Buka Excel lokal
+          <button class="action-btn" id="reloadBtn" type="button">Muat ulang file default</button>
+          <label class="file-label" for="fileInput">Buka file Excel lokal
             <input id="fileInput" type="file" accept=".xlsx,.xls" />
           </label>
         </div>
         <div class="status-line">
-          <span class="status-chip" id="modeStatus">Mode: -</span>
           <span class="status-chip" id="sheetStatus">Sheet: -</span>
-          <span class="status-chip" id="fileStatus">Sumber: -</span>
+          <span class="status-chip" id="fileStatus">Sumber: file default</span>
           <span class="status-chip" id="activeDayStatus">Hari aktif: -</span>
+          <span class="status-chip" id="refreshStatus">Auto-refresh: -</span>
           <div id="statusText">Menunggu data...</div>
         </div>
       </aside>
     </div>
 
     <div class="table-wrap" id="tableWrap">
-      <div class="error-box">Sedang memuat data jadwal...</div>
+      <div class="error-box">Sedang memuat file Excel...</div>
     </div>
   </div>
 
@@ -384,62 +361,30 @@
         F6: 'group-f6',
         F4: 'group-f4'
       },
-      defaultSlots: [
-        { ID_SLOT: 1, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 1', LABEL_TAMPIL: '07.00 - 07.50', URUTAN: 1, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 2, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 1', LABEL_TAMPIL: '07.50 - 08.40', URUTAN: 2, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 3, TIPE_BARIS: 'TRANSISI', SESI: '', LABEL_TAMPIL: '08.40 - 08.50', URUTAN: 3, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Pergantian sesi' },
-        { ID_SLOT: 4, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 2', LABEL_TAMPIL: '08.50 - 09.40', URUTAN: 4, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 5, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 2', LABEL_TAMPIL: '09.40 - 10.30', URUTAN: 5, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 6, TIPE_BARIS: 'TRANSISI', SESI: '', LABEL_TAMPIL: '10.30 - 10.40', URUTAN: 6, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Pergantian sesi' },
-        { ID_SLOT: 7, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 3', LABEL_TAMPIL: '10.40 - 11.30', URUTAN: 7, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 8, TIPE_BARIS: 'ISTIRAHAT', SESI: '', LABEL_TAMPIL: '11.30 - 12.20', URUTAN: 8, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Istirahat/Duhur/Pergantian Sesi Perkuliahan' },
-        { ID_SLOT: 9, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 4', LABEL_TAMPIL: '12.20 - 13.10', URUTAN: 9, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 10, TIPE_BARIS: 'TRANSISI', SESI: '', LABEL_TAMPIL: '13.10 - 13.20', URUTAN: 10, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Pergantian sesi' },
-        { ID_SLOT: 11, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 5', LABEL_TAMPIL: '13.20 - 14.10', URUTAN: 11, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 12, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 5', LABEL_TAMPIL: '14.10 - 15.00', URUTAN: 12, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 13, TIPE_BARIS: 'ISTIRAHAT', SESI: '', LABEL_TAMPIL: '15.00 - 15.30', URUTAN: 13, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Istirahat/Ashar/Pergantian Sesi Perkuliahan' },
-        { ID_SLOT: 14, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 6', LABEL_TAMPIL: '15.30 - 16.20', URUTAN: 14, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 15, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 6', LABEL_TAMPIL: '16.20 - 17.10', URUTAN: 15, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 16, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 6', LABEL_TAMPIL: '17.10 - 18.00', URUTAN: 16, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 17, TIPE_BARIS: 'ISTIRAHAT', SESI: '', LABEL_TAMPIL: '17.45 - 18.30', URUTAN: 17, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Istirahat/Maghrib/Pergantian Sesi Perkuliahan' },
-        { ID_SLOT: 18, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 7', LABEL_TAMPIL: '18.30 - 19.20', URUTAN: 18, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 19, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 7', LABEL_TAMPIL: '19.20 - 20.10', URUTAN: 19, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
-        { ID_SLOT: 20, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 7', LABEL_TAMPIL: '20.10 - 21.00', URUTAN: 20, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' }
-      ],
-      defaultRooms: [
-        { URUTAN_KOLOM: 1, KODE_RUANG: 'RKBESAR', NAMA_TAMPIL: 'RKBesar / F6.001', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 2, KODE_RUANG: 'F6.002', NAMA_TAMPIL: 'F6.002', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 3, KODE_RUANG: 'F6.003', NAMA_TAMPIL: 'F6.003', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 4, KODE_RUANG: 'F6.004', NAMA_TAMPIL: 'F6.004', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 5, KODE_RUANG: 'F6.101', NAMA_TAMPIL: 'F6.101', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 6, KODE_RUANG: 'F6.102', NAMA_TAMPIL: 'F6.102', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 7, KODE_RUANG: 'F6.103', NAMA_TAMPIL: 'F6.103', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 8, KODE_RUANG: 'F6.202', NAMA_TAMPIL: 'F6.202', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 9, KODE_RUANG: 'F6.203', NAMA_TAMPIL: 'F6.203', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 10, KODE_RUANG: 'F4.001', NAMA_TAMPIL: 'F4.001', GRUP_WARNA: 'F4', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 11, KODE_RUANG: 'F4.002', NAMA_TAMPIL: 'F4.002', GRUP_WARNA: 'F4', AKTIF: 'Ya' },
-        { URUTAN_KOLOM: 12, KODE_RUANG: 'F4.003', NAMA_TAMPIL: 'F4.003', GRUP_WARNA: 'F4', AKTIF: 'Ya' }
-      ]
+      autoRefreshMs: 60000
     };
 
     const state = {
       workbook: null,
       data: null,
       selectedDay: 'Senin',
-      sourceLabel: '-',
-      mode: '-',
-      rawCsvTable: null
+      sourceLabel: 'file default',
+      sourceKind: 'default',
+      workbookHash: '',
+      autoRefreshTimer: null,
+      autoRefreshBusy: false,
+      lastSyncText: '-'
     };
 
     const el = {
       tableWrap: document.getElementById('tableWrap'),
       dayButtons: document.getElementById('dayButtons'),
-      reloadExcelBtn: document.getElementById('reloadExcelBtn'),
+      reloadBtn: document.getElementById('reloadBtn'),
       fileInput: document.getElementById('fileInput'),
-      modeStatus: document.getElementById('modeStatus'),
       sheetStatus: document.getElementById('sheetStatus'),
       fileStatus: document.getElementById('fileStatus'),
       activeDayStatus: document.getElementById('activeDayStatus'),
+      refreshStatus: document.getElementById('refreshStatus'),
       statusText: document.getElementById('statusText'),
       clockTime: document.getElementById('clockTime'),
       clockDate: document.getElementById('clockDate')
@@ -469,37 +414,17 @@
         .replace(/'/g, '&#039;');
     }
 
-    function sheetToObjects(workbook, name) {
-      const sheet = workbook.Sheets[name];
-      if (!sheet) return [];
-      return XLSX.utils.sheet_to_json(sheet, { defval: '' });
-    }
-
-    function groupSessionRows(slots) {
-      const groups = new Map();
-      slots.forEach(slot => {
-        if (normalizeText(slot.TIPE_BARIS).toUpperCase() === 'KULIAH') {
-          const key = normalizeText(slot.SESI) || '-';
-          groups.set(key, (groups.get(key) || 0) + 1);
-        }
-      });
-      return groups;
-    }
-
-    function getRowspanBySlotId(startId, endId, visibleSlots) {
-      const startIndex = visibleSlots.findIndex(slot => Number(slot.ID_SLOT) === Number(startId));
-      const endIndex = visibleSlots.findIndex(slot => Number(slot.ID_SLOT) === Number(endId));
-      if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) return 1;
-      return (endIndex - startIndex) + 1;
-    }
-
-    function getRoomHeaderClass(room) {
-      const group = normalizeText(room.GRUP_WARNA).toUpperCase();
-      return CONFIG.roomHeaderClasses[group] || 'group-default';
-    }
-
-    function formatSpecialText(slot) {
-      return normalizeText(slot.KETERANGAN) || 'Informasi akademik';
+    function normalizeHexColor(value) {
+      const raw = normalizeText(value).replace(/[^#a-fA-F0-9]/g, '');
+      if (!raw) return '';
+      if (raw.startsWith('#')) {
+        if (raw.length === 4) return ('#' + raw.slice(1).split('').map(ch => ch + ch).join('')).toUpperCase();
+        if (raw.length === 7) return raw.toUpperCase();
+        if (raw.length === 9) return ('#' + raw.slice(3)).toUpperCase();
+      }
+      if (/^[A-Fa-f0-9]{6}$/.test(raw)) return ('#' + raw).toUpperCase();
+      if (/^[A-Fa-f0-9]{8}$/.test(raw)) return ('#' + raw.slice(2)).toUpperCase();
+      return '';
     }
 
     function getCanonicalKey(rawKey) {
@@ -542,6 +467,123 @@
       return aliasMap[key] || rawKey;
     }
 
+    function sheetToObjects(workbook, sheetName) {
+      const sheet = workbook.Sheets[sheetName];
+      if (!sheet) return [];
+      return XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    }
+
+    function sheetToObjectsWithMeta(workbook, sheetName) {
+      const sheet = workbook.Sheets[sheetName];
+      if (!sheet || !sheet['!ref']) return [];
+      const range = XLSX.utils.decode_range(sheet['!ref']);
+      const headers = [];
+      for (let c = range.s.c; c <= range.e.c; c += 1) {
+        const address = XLSX.utils.encode_cell({ r: range.s.r, c });
+        headers.push(normalizeText(sheet[address]?.v));
+      }
+
+      const rows = [];
+      for (let r = range.s.r + 1; r <= range.e.r; r += 1) {
+        const rowObj = { __sheetName: sheetName, __sheetRowNum: r + 1 };
+        let hasContent = false;
+        headers.forEach((header, index) => {
+          if (!header) return;
+          const address = XLSX.utils.encode_cell({ r, c: range.s.c + index });
+          const cell = sheet[address];
+          const value = cell?.v ?? '';
+          rowObj[getCanonicalKey(header)] = value;
+          if (normalizeText(value) !== '') hasContent = true;
+        });
+        if (hasContent) rows.push(rowObj);
+      }
+      return rows;
+    }
+
+    function getStyleColorToken(colorObj) {
+      if (!colorObj) return '';
+      if (typeof colorObj === 'string') return normalizeHexColor(colorObj);
+      return normalizeHexColor(colorObj.rgb || colorObj.argb || colorObj.value || colorObj.raw || colorObj.hex || '');
+    }
+
+    function extractColorsFromCell(cell) {
+      if (!cell || !cell.s) return { bg: '', text: '' };
+      const style = cell.s;
+      const bg =
+        getStyleColorToken(style.fill?.fgColor) ||
+        getStyleColorToken(style.fill?.bgColor) ||
+        getStyleColorToken(style.fgColor) ||
+        getStyleColorToken(style.bgColor) ||
+        getStyleColorToken(style.patternFill?.fgColor) ||
+        getStyleColorToken(style.patternFill?.bgColor);
+      const text =
+        getStyleColorToken(style.font?.color) ||
+        getStyleColorToken(style.color);
+      return { bg, text };
+    }
+
+    function buildCanonicalHeaderMap(workbook, sheetName) {
+      const map = new Map();
+      const sheet = workbook.Sheets[sheetName];
+      if (!sheet || !sheet['!ref']) return map;
+      const range = XLSX.utils.decode_range(sheet['!ref']);
+      for (let c = range.s.c; c <= range.e.c; c += 1) {
+        const address = XLSX.utils.encode_cell({ r: range.s.r, c });
+        const header = normalizeText(sheet[address]?.v);
+        if (!header) continue;
+        map.set(getCanonicalKey(header), c);
+      }
+      return map;
+    }
+
+    function getSheetCell(workbook, sheetName, rowNum, headerMap, canonicalHeader) {
+      const colIndex = headerMap.get(canonicalHeader);
+      if (colIndex === undefined) return null;
+      const sheet = workbook.Sheets[sheetName];
+      const address = XLSX.utils.encode_cell({ r: Number(rowNum) - 1, c: colIndex });
+      return sheet?.[address] || null;
+    }
+
+    function enrichScheduleColors(workbook, item, headerMap) {
+      item.WARNA_BG = normalizeHexColor(item.WARNA_BG);
+      item.WARNA_TEXT = normalizeHexColor(item.WARNA_TEXT);
+
+      if (item.WARNA_BG && item.WARNA_TEXT) return item;
+
+      const probeHeaders = ['NAMA_MK', 'KODE_MK', 'KELAS', 'DOSEN', 'CATATAN', 'WARNA_BG', 'WARNA_TEXT'];
+      for (const header of probeHeaders) {
+        const cell = getSheetCell(workbook, 'JADWAL_KULIAH', item.__sheetRowNum, headerMap, header);
+        const colors = extractColorsFromCell(cell);
+        if (!item.WARNA_BG && colors.bg) item.WARNA_BG = colors.bg;
+        if (!item.WARNA_TEXT && colors.text) item.WARNA_TEXT = colors.text;
+        if (item.WARNA_BG && item.WARNA_TEXT) break;
+      }
+
+      if (!item.WARNA_BG) item.WARNA_BG = '#D9D9D9';
+      if (!item.WARNA_TEXT) item.WARNA_TEXT = '#111111';
+      return item;
+    }
+
+    function groupSessionRows(slots) {
+      const groups = new Map();
+      slots.forEach(slot => {
+        if (normalizeText(slot.TIPE_BARIS).toUpperCase() === 'KULIAH') {
+          const key = normalizeText(slot.SESI) || '-';
+          groups.set(key, (groups.get(key) || 0) + 1);
+        }
+      });
+      return groups;
+    }
+
+    function getRoomHeaderClass(room) {
+      const group = normalizeText(room.GRUP_WARNA).toUpperCase();
+      return CONFIG.roomHeaderClasses[group] || 'group-default';
+    }
+
+    function formatSpecialText(slot) {
+      return normalizeText(slot.KETERANGAN) || 'Informasi akademik';
+    }
+
     function buildDataModel(workbook) {
       const sheetNames = workbook.SheetNames || [];
       const slots = sheetToObjects(workbook, 'SLOT_WAKTU')
@@ -552,8 +594,10 @@
         .filter(row => isYes(row.AKTIF))
         .sort((a, b) => Number(a.URUTAN_KOLOM || 0) - Number(b.URUTAN_KOLOM || 0));
 
-      const schedules = sheetToObjects(workbook, 'JADWAL_KULIAH')
-        .filter(row => !normalizeText(row.AKTIF) || isYes(row.AKTIF));
+      const scheduleHeaderMap = buildCanonicalHeaderMap(workbook, 'JADWAL_KULIAH');
+      const schedules = sheetToObjectsWithMeta(workbook, 'JADWAL_KULIAH')
+        .filter(row => !normalizeText(row.AKTIF) || isYes(row.AKTIF))
+        .map(row => enrichScheduleColors(workbook, row, scheduleHeaderMap));
 
       const holidays = sheetToObjects(workbook, 'LIBUR_AKADEMIK')
         .filter(row => isYes(row.TAMPIL_DI_APLIKASI));
@@ -573,34 +617,35 @@
         rooms,
         schedules,
         holidays,
-        days: finalDays.length ? finalDays : CONFIG.fallbackDays,
-        rawMode: false
+        days: finalDays.length ? finalDays : CONFIG.fallbackDays
       };
     }
 
-    function getScheduleMapForDay(day) {
-      const map = new Map();
-      state.data.schedules
-        .filter(item => normalizeText(item.HARI).toLowerCase() === normalizeText(day).toLowerCase())
-        .forEach(item => {
-          const key = `${normalizeText(item.KODE_RUANG)}__${Number(item.ID_SLOT_MULAI)}`;
-          map.set(key, item);
-        });
-      return map;
+    function getScheduleItemForSlot(day, roomCode, slotId) {
+      const targetDay = normalizeText(day).toLowerCase();
+      const targetRoom = normalizeText(roomCode);
+      const numericSlotId = Number(slotId);
+      return state.data.schedules.find(item => {
+        const itemDay = normalizeText(item.HARI).toLowerCase();
+        const itemRoom = normalizeText(item.KODE_RUANG);
+        const start = Number(item.ID_SLOT_MULAI);
+        const end = Number(item.ID_SLOT_SELESAI || item.ID_SLOT_MULAI);
+        return itemDay === targetDay && itemRoom === targetRoom && numericSlotId >= start && numericSlotId <= end;
+      }) || null;
     }
 
-    function getCoverMapForDay(day) {
-      const cover = new Set();
-      state.data.schedules
-        .filter(item => normalizeText(item.HARI).toLowerCase() === normalizeText(day).toLowerCase())
-        .forEach(item => {
-          const start = Number(item.ID_SLOT_MULAI);
-          const end = Number(item.ID_SLOT_SELESAI || item.ID_SLOT_MULAI);
-          for (let id = start + 1; id <= end; id += 1) {
-            cover.add(`${normalizeText(item.KODE_RUANG)}__${id}`);
-          }
-        });
-      return cover;
+    function renderCourseCell(item) {
+      const bg = normalizeHexColor(item.WARNA_BG) || '#D9D9D9';
+      const color = normalizeHexColor(item.WARNA_TEXT) || '#111111';
+      return `
+        <td class="course-cell" style="background:${escapeHtml(bg)};color:${escapeHtml(color)};">
+          <div class="course-code">${escapeHtml(item.KODE_MK || '')}${item.KELAS ? ` (${escapeHtml(item.KELAS)})` : ''}</div>
+          <div class="course-name">${escapeHtml(item.NAMA_MK || '')}</div>
+          ${item.DOSEN ? `<div class="course-meta">Dosen : ${escapeHtml(item.DOSEN)}</div>` : ''}
+          ${item['PROGRAM/ANGKATAN'] ? `<div class="course-meta">${escapeHtml(item['PROGRAM/ANGKATAN'])}</div>` : ''}
+          ${item.CATATAN ? `<div class="course-meta">${escapeHtml(item.CATATAN)}</div>` : ''}
+        </td>
+      `;
     }
 
     function renderTable(day) {
@@ -608,8 +653,6 @@
 
       const slots = state.data.slots;
       const rooms = state.data.rooms;
-      const scheduleMap = getScheduleMapForDay(day);
-      const coverMap = getCoverMapForDay(day);
       const sessionGroups = groupSessionRows(slots);
       const renderedSessionStart = new Set();
 
@@ -641,27 +684,8 @@
 
           for (const room of rooms) {
             const roomCode = normalizeText(room.KODE_RUANG);
-            const key = `${roomCode}__${slotId}`;
-            if (coverMap.has(key)) continue;
-
-            const item = scheduleMap.get(key);
-            if (!item) {
-              html += '<td class="empty-cell"></td>';
-              continue;
-            }
-
-            const rowspan = getRowspanBySlotId(item.ID_SLOT_MULAI, item.ID_SLOT_SELESAI || item.ID_SLOT_MULAI, slots);
-            const bg = normalizeText(item.WARNA_BG) || '#d9d9d9';
-            const color = normalizeText(item.WARNA_TEXT) || '#111111';
-            html += `
-              <td class="course-cell" rowspan="${rowspan}" style="background:${escapeHtml(bg)};color:${escapeHtml(color)};">
-                <div class="course-code">${escapeHtml(item.KODE_MK || '')}${item.KELAS ? ` (${escapeHtml(item.KELAS)})` : ''}</div>
-                <div class="course-name">${escapeHtml(item.NAMA_MK || '')}</div>
-                ${item.DOSEN ? `<div class="course-meta">Dosen : ${escapeHtml(item.DOSEN)}</div>` : ''}
-                ${item['PROGRAM/ANGKATAN'] ? `<div class="course-meta">${escapeHtml(item['PROGRAM/ANGKATAN'])}</div>` : ''}
-                ${item.CATATAN ? `<div class="course-meta">${escapeHtml(item.CATATAN)}</div>` : ''}
-              </td>
-            `;
+            const item = getScheduleItemForSlot(day, roomCode, slotId);
+            html += item ? renderCourseCell(item) : '<td class="empty-cell"></td>';
           }
         } else {
           html += '<td class="session-empty"></td>';
@@ -676,8 +700,8 @@
           </tbody>
         </table>
         <div class="footer-note">
-          <div>Mode tampilan aktif: <strong>${escapeHtml(state.mode)}</strong>.</div>
-          <div>Terbaca <strong>${rooms.length}</strong> ruang dan <strong>${state.data.schedules.length}</strong> jadwal aktif.</div>
+          <div>Warna sel diambil otomatis dari kolom <strong>WARNA_BG</strong> dan <strong>WARNA_TEXT</strong> pada sheet <strong>JADWAL_KULIAH</strong>. Jika kolom kosong, sistem akan mencoba membaca style warna langsung dari baris Excel.</div>
+          <div>Sinkron terakhir: <strong>${escapeHtml(state.lastSyncText)}</strong>.</div>
         </div>
       `;
 
@@ -691,8 +715,7 @@
         return;
       }
 
-      const days = state.data.days;
-      el.dayButtons.innerHTML = days
+      el.dayButtons.innerHTML = state.data.days
         .map(day => `<button type="button" class="day-btn ${day === state.selectedDay ? 'active' : ''}" data-day="${escapeHtml(day)}">${escapeHtml(day)}</button>`)
         .join('');
 
@@ -705,13 +728,20 @@
       });
     }
 
-    function renderStatus() {
+    function renderStatus(message = '') {
       if (!state.data) return;
-      el.modeStatus.textContent = `Mode: ${state.mode}`;
       el.sheetStatus.textContent = `Sheet: ${state.data.sheetNames.join(', ')}`;
       el.fileStatus.textContent = `Sumber: ${state.sourceLabel}`;
+      el.refreshStatus.textContent = `Auto-refresh: ${state.sourceKind === 'default' ? `aktif / ${Math.round(CONFIG.autoRefreshMs / 1000)} dtk` : 'nonaktif (file lokal)'}`;
 
-      el.statusText.innerHTML = `Terbaca ${state.data.rooms.length} ruang aktif, ${state.data.slots.length} slot tampil, dan ${state.data.schedules.length} jadwal aktif.`;
+      const missingRequired = CONFIG.requiredSheets.filter(name => !state.data.sheetNames.includes(name));
+      if (missingRequired.length) {
+        el.statusText.innerHTML = `Sheet wajib belum lengkap: <strong>${missingRequired.join(', ')}</strong>`;
+      } else if (message) {
+        el.statusText.innerHTML = message;
+      } else {
+        el.statusText.innerHTML = `Terbaca ${state.data.rooms.length} ruang aktif, ${state.data.slots.length} slot tampil, dan ${state.data.schedules.length} jadwal aktif. Sinkron terakhir: <strong>${escapeHtml(state.lastSyncText)}</strong>.`;
+      }
     }
 
     function validateRequiredSheets(data) {
@@ -721,40 +751,89 @@
       }
     }
 
-    async function loadWorkbookFromUrl(url, sourceLabel = 'Excel default') {
-      const response = await fetch(url);
+    function nowText() {
+      return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }).format(new Date());
+    }
+
+    async function computeBufferHash(arrayBuffer) {
+      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function fetchWorkbookArrayBuffer(url, bustCache = false) {
+      const fetchUrl = bustCache ? `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}` : url;
+      const response = await fetch(fetchUrl, { cache: 'no-store' });
       if (!response.ok) {
-        throw new Error(`Gagal mengambil file Excel dari ${url}`);
+        throw new Error(`Gagal mengambil file Excel. Pastikan file <strong>${url}</strong> ada di folder yang sama dengan index.html di GitHub Pages.`);
       }
-      const arrayBuffer = await response.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      return response.arrayBuffer();
+    }
+
+    function stopAutoRefresh() {
+      if (state.autoRefreshTimer) {
+        clearInterval(state.autoRefreshTimer);
+        state.autoRefreshTimer = null;
+      }
+    }
+
+    function startAutoRefresh() {
+      stopAutoRefresh();
+      if (state.sourceKind !== 'default') return;
+      state.autoRefreshTimer = setInterval(checkWorkbookUpdate, CONFIG.autoRefreshMs);
+    }
+
+    async function applyWorkbook(arrayBuffer, sourceLabel, sourceKind, knownHash = '') {
+      const workbook = XLSX.read(arrayBuffer, { type: 'array', cellStyles: true });
       state.workbook = workbook;
       state.data = buildDataModel(workbook);
       state.sourceLabel = sourceLabel;
-      state.mode = 'Excel multi-sheet';
+      state.sourceKind = sourceKind;
+      state.workbookHash = knownHash || await computeBufferHash(arrayBuffer);
+      state.lastSyncText = nowText();
       validateRequiredSheets(state.data);
       if (!state.data.days.includes(state.selectedDay)) {
         state.selectedDay = state.data.days[0] || 'Senin';
       }
-      renderStatus();
       renderDayButtons();
       renderTable(state.selectedDay);
+      renderStatus();
+      if (sourceKind === 'default') startAutoRefresh();
+      else stopAutoRefresh();
+    }
+
+    async function loadWorkbookFromUrl(url, sourceLabel = 'file default') {
+      const arrayBuffer = await fetchWorkbookArrayBuffer(url, true);
+      const hash = await computeBufferHash(arrayBuffer);
+      await applyWorkbook(arrayBuffer, sourceLabel, 'default', hash);
     }
 
     async function loadWorkbookFromFile(file) {
       const arrayBuffer = await file.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-      state.workbook = workbook;
-      state.data = buildDataModel(workbook);
-      state.sourceLabel = file.name;
-      state.mode = 'Excel multi-sheet';
-      validateRequiredSheets(state.data);
-      if (!state.data.days.includes(state.selectedDay)) {
-        state.selectedDay = state.data.days[0] || 'Senin';
+      await applyWorkbook(arrayBuffer, file.name, 'local');
+    }
+
+    async function checkWorkbookUpdate() {
+      if (state.autoRefreshBusy || state.sourceKind !== 'default') return;
+      state.autoRefreshBusy = true;
+      try {
+        const arrayBuffer = await fetchWorkbookArrayBuffer(CONFIG.workbookFile, true);
+        const hash = await computeBufferHash(arrayBuffer);
+        if (hash !== state.workbookHash) {
+          await applyWorkbook(arrayBuffer, state.sourceLabel || 'file default', 'default', hash);
+          renderStatus(`File Excel diperbarui otomatis. Sinkron terakhir: <strong>${escapeHtml(state.lastSyncText)}</strong>.`);
+        }
+      } catch (error) {
+        renderStatus(`Auto-refresh gagal sementara: <strong>${escapeHtml(error.message)}</strong>.`);
+      } finally {
+        state.autoRefreshBusy = false;
       }
-      renderStatus();
-      renderDayButtons();
-      renderTable(state.selectedDay);
     }
 
     function showError(message) {
@@ -784,9 +863,10 @@
       tick();
       setInterval(tick, 1000);
     }
-    el.reloadExcelBtn.addEventListener('click', async () => {
+
+    el.reloadBtn.addEventListener('click', async () => {
       try {
-        await loadWorkbookFromUrl(CONFIG.workbookFile, 'Excel default');
+        await loadWorkbookFromUrl(CONFIG.workbookFile, 'file default');
       } catch (error) {
         showError(error.message);
       }
@@ -804,8 +884,8 @@
 
     startClock();
 
-    loadWorkbookFromUrl(CONFIG.workbookFile, 'Excel default').catch((error) => {
-      showError(`${error.message}<br><br>Alternatif cepat: gunakan tombol <strong>Buka Excel lokal</strong>.`);
+    loadWorkbookFromUrl(CONFIG.workbookFile, 'file default').catch(error => {
+      showError(`${error.message}<br><br>Alternatif cepat: klik <strong>Buka file Excel lokal</strong> lalu pilih workbook Anda.`);
     });
   </script>
 </body>
