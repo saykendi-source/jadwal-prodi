@@ -747,7 +747,7 @@
       const table = el.tableStage.querySelector('#scheduleTable');
       if (!scaleBox || !table) return;
 
-      scaleBox.style.transform = 'translate(0px, 0px) scale(1)';
+      scaleBox.style.transform = 'scale(1, 1)';
       scaleBox.style.width = 'max-content';
       scaleBox.style.height = 'auto';
 
@@ -760,16 +760,10 @@
 
       const scaleX = stageWidth / tableWidth;
       const scaleY = stageHeight / tableHeight;
-      const scale = Math.min(scaleX, scaleY);
-
-      const scaledWidth = tableWidth * scale;
-      const scaledHeight = tableHeight * scale;
-      const offsetX = Math.max(0, (stageWidth - scaledWidth) / 2);
-      const offsetY = Math.max(0, (stageHeight - scaledHeight) / 2);
 
       scaleBox.style.width = `${tableWidth}px`;
       scaleBox.style.height = `${tableHeight}px`;
-      scaleBox.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+      scaleBox.style.transform = `scale(${scaleX}, ${scaleY})`;
     }
 
     function renderTable(day){
