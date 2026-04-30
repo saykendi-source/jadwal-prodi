@@ -13,7 +13,7 @@
       --navy-dark:#173d75;
       --text:#102030;
       --muted:#4d5b68;
-      --grid:#3d3d3d;
+      --grid:#4a4a4a;
       --special:#d9ead3;
       --special-dark:#244e14;
       --empty:#d9d9d9;
@@ -38,22 +38,16 @@
         radial-gradient(circle at top left, #ffffff 0%, #dfe7d6 46%, #c8d5bf 100%);
     }
 
-    body{
-      min-height:100vh;
-    }
-
     .app{
-      height:100vh;
       width:100%;
+      height:100vh;
+      padding:6px;
       display:flex;
       flex-direction:column;
       gap:8px;
-      padding:6px;
     }
 
-    .header-panel,
-    .ticker-panel,
-    .table-panel{
+    .header-panel,.ticker-panel,.table-panel{
       background:var(--panel);
       border:1px solid rgba(255,255,255,.55);
       border-radius:var(--radius);
@@ -73,7 +67,7 @@
       display:flex;
       justify-content:space-between;
       align-items:flex-start;
-      gap:20px;
+      gap:18px;
     }
 
     .title-wrap{
@@ -83,7 +77,7 @@
     .title-wrap h1{
       margin:0 0 6px;
       color:var(--navy-dark);
-      font-size:clamp(28px, 3.1vw, 64px);
+      font-size:clamp(28px, 3.15vw, 64px);
       line-height:1.03;
       letter-spacing:.2px;
     }
@@ -97,8 +91,8 @@
 
     .clock{
       flex:0 0 auto;
-      min-width:280px;
       text-align:right;
+      min-width:260px;
     }
 
     .clock-time{
@@ -118,12 +112,11 @@
     .toolbar{
       display:flex;
       align-items:center;
-      gap:12px;
+      gap:10px;
       flex-wrap:wrap;
     }
 
-    .day-buttons,
-    .action-buttons{
+    .day-buttons,.action-buttons{
       display:flex;
       align-items:center;
       gap:8px;
@@ -139,9 +132,7 @@
       text-align:right;
     }
 
-    .day-btn,
-    .action-btn,
-    .file-label{
+    .day-btn,.action-btn,.file-label{
       border:0;
       border-radius:999px;
       padding:9px 15px;
@@ -157,27 +148,22 @@
       color:var(--navy-dark);
     }
 
-    .day-btn.active,
-    .day-btn:hover{
+    .day-btn.active,.day-btn:hover{
       background:var(--navy);
       color:#fff;
     }
 
-    .action-btn,
-    .file-label{
+    .action-btn,.file-label{
       background:#eef4ea;
       color:#25440f;
       border:1px solid #cfddc3;
     }
 
-    .action-btn:hover,
-    .file-label:hover{
+    .action-btn:hover,.file-label:hover{
       background:#dfead7;
     }
 
-    .file-label input{
-      display:none;
-    }
+    .file-label input{ display:none; }
 
     .ticker-panel{
       flex:0 0 auto;
@@ -207,7 +193,6 @@
       height:22px;
       display:flex;
       align-items:center;
-      justify-content:flex-start;
     }
 
     .ticker-track{
@@ -241,34 +226,42 @@
       position:relative;
       border-radius:14px;
       background:rgba(255,255,255,.26);
+      display:flex;
     }
 
-    .table-scale{
-      position:absolute;
-      top:0;
-      left:0;
-      transform-origin:top left;
-      will-change:transform;
+    .table-fill{
+      width:100%;
+      height:100%;
     }
 
     table.schedule{
+      width:100%;
+      height:100%;
       border-collapse:collapse;
       table-layout:fixed;
       background:#fff;
       box-shadow:0 0 0 1px rgba(0,0,0,.06);
+      --thead-height:38px;
+      --row-height:42px;
+      --special-row-height:28px;
+      --header-font:12px;
+      --cell-font:11px;
+      --code-font:10px;
+      --meta-font:9.5px;
+      --special-font:11px;
+      --session-font:12px;
     }
 
-    .schedule th,
-    .schedule td{
+    .schedule th,.schedule td{
       border:1px solid var(--grid);
       text-align:center;
       vertical-align:middle;
-      padding:4px 4px;
+      padding:2px 4px;
     }
 
     .schedule thead th{
-      height:38px;
-      font-size:12px;
+      height:var(--thead-height);
+      font-size:var(--header-font);
       font-weight:800;
       color:#fff;
       background:var(--navy);
@@ -278,78 +271,78 @@
       color:#111;
     }
 
-    .schedule thead th.room-head.group-f6{background:var(--room-f6)}
-    .schedule thead th.room-head.group-f4{background:var(--room-f4)}
-    .schedule thead th.room-head.group-default{background:var(--room-default)}
+    .schedule thead th.room-head.group-f6{ background:var(--room-f6); }
+    .schedule thead th.room-head.group-f4{ background:var(--room-f4); }
+    .schedule thead th.room-head.group-default{ background:var(--room-default); }
 
-    .col-session{width:74px}
-    .col-time{width:112px}
-
-    td.session-cell,
-    td.session-empty{
+    td.session-cell,td.session-empty{
       background:#f7f7f7;
-      font-size:12px;
+      font-size:var(--session-font);
       font-weight:700;
     }
 
     td.time-cell{
       background:#f2f2f2;
-      font-size:12px;
+      font-size:var(--session-font);
       font-weight:700;
       white-space:nowrap;
-      height:42px;
+      height:var(--row-height);
     }
 
     td.empty-cell{
       background:var(--empty);
-      height:42px;
+      height:var(--row-height);
     }
 
     td.course-cell{
-      height:42px;
-      font-size:11px;
-      line-height:1.16;
+      height:var(--row-height);
+      font-size:var(--cell-font);
+      line-height:1.14;
       font-weight:700;
       word-break:break-word;
       overflow-wrap:anywhere;
     }
 
     .course-code{
-      font-size:10px;
-      margin-bottom:2px;
+      font-size:var(--code-font);
+      margin-bottom:1px;
+      line-height:1.05;
     }
 
     .course-name{
-      font-size:11px;
+      font-size:var(--cell-font);
       font-weight:800;
-      margin-bottom:2px;
+      margin-bottom:1px;
+      line-height:1.08;
     }
 
     .course-meta{
-      font-size:9.5px;
+      font-size:var(--meta-font);
       font-weight:600;
-      margin-top:2px;
+      margin-top:1px;
       opacity:.96;
+      line-height:1.05;
     }
 
     td.special-time{
       background:#eef5e8;
-      font-size:11px;
+      font-size:var(--special-font);
       font-weight:700;
-      height:28px;
+      height:var(--special-row-height);
     }
 
     td.special-cell{
       background:var(--special);
       color:var(--special-dark);
-      font-size:11px;
+      font-size:var(--special-font);
       font-weight:800;
-      letter-spacing:.15px;
-      padding:3px 6px;
-      height:28px;
+      letter-spacing:.12px;
+      padding:2px 6px;
+      height:var(--special-row-height);
     }
 
     .error-box{
+      margin:10px;
       padding:16px;
       border-radius:12px;
       background:#fff0f0;
@@ -357,7 +350,6 @@
       color:#7b1d1d;
       font-size:14px;
       line-height:1.5;
-      margin:10px;
     }
 
     @media (max-width:1100px){
@@ -385,7 +377,7 @@
       <div class="header-main">
         <div class="title-wrap">
           <h1>Jadwal Perkuliahan Mahasiswa</h1>
-          <p>Data dibaca dari file Excel multi-sheet. Tampilan diperbesar otomatis agar menyesuaikan area layar besar.</p>
+          <p>Data dibaca dari file Excel multi-sheet. Tampilan disesuaikan proporsional agar penuh di area layar tanpa terlihat ditarik.</p>
         </div>
         <div class="clock">
           <div class="clock-time" id="clockTime">--:--:--</div>
@@ -518,7 +510,6 @@
       if (!sheet || !sheet['!ref']) return [];
       const range = XLSX.utils.decode_range(sheet['!ref']);
       const headers = [];
-
       for (let c = range.s.c; c <= range.e.c; c += 1) {
         const address = XLSX.utils.encode_cell({ r: range.s.r, c });
         headers.push(normalizeText(sheet[address]?.v));
@@ -528,7 +519,6 @@
       for (let r = range.s.r + 1; r <= range.e.r; r += 1) {
         const rowObj = { __sheetName: sheetName, __sheetRowNum: r + 1 };
         let hasContent = false;
-
         headers.forEach((header, idx) => {
           if (!header) return;
           const address = XLSX.utils.encode_cell({ r, c: range.s.c + idx });
@@ -537,7 +527,6 @@
           rowObj[getCanonicalKey(header)] = value;
           if (normalizeText(value) !== '') hasContent = true;
         });
-
         if (hasContent) rows.push(rowObj);
       }
       return rows;
@@ -562,12 +551,10 @@
       const sheet = workbook.Sheets[sheetName];
       if (!sheet || !sheet['!ref']) return map;
       const range = XLSX.utils.decode_range(sheet['!ref']);
-
       for (let c = range.s.c; c <= range.e.c; c += 1) {
         const address = XLSX.utils.encode_cell({ r: range.s.r, c });
         const header = normalizeText(sheet[address]?.v);
-        if (!header) continue;
-        map.set(getCanonicalKey(header), c);
+        if (header) map.set(getCanonicalKey(header), c);
       }
       return map;
     }
@@ -658,6 +645,11 @@
       return normalizeText(slot.KETERANGAN) || 'Informasi akademik';
     }
 
+    function getTodayName(){
+      const names = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      return names[new Date().getDay()];
+    }
+
     function getScheduleItemForSlot(day, roomCode, slotId){
       const targetDay = normalizeText(day).toLowerCase();
       const targetRoom = normalizeText(roomCode);
@@ -686,6 +678,23 @@
       `;
     }
 
+    function buildTickerText(holidays){
+      const items = holidays
+        .map(row => {
+          const tanggal = normalizeText(row.TANGGAL);
+          const jenis = normalizeText(row.JENIS);
+          const ket = normalizeText(row.KETERANGAN);
+          return [tanggal, jenis, ket].filter(Boolean).join(' - ');
+        })
+        .filter(Boolean);
+
+      return items.length ? items.join('  •  ') : CONFIG.tickerFallback;
+    }
+
+    function renderTicker(){
+      el.tickerTrack.textContent = state.data ? buildTickerText(state.data.holidays) : CONFIG.tickerFallback;
+    }
+
     function updateStatus(){
       if (!state.data) {
         el.statusText.textContent = 'Menunggu data...';
@@ -703,23 +712,6 @@
         `Sumber: <strong>${escapeHtml(state.sourceLabel)}</strong>`,
         `Sinkron terakhir: <strong>${escapeHtml(state.lastSyncText)}</strong>`
       ].join(' &nbsp;&middot;&nbsp; ');
-    }
-
-    function buildTickerText(holidays){
-      const items = holidays
-        .map(row => {
-          const tanggal = normalizeText(row.TANGGAL);
-          const jenis = normalizeText(row.JENIS);
-          const ket = normalizeText(row.KETERANGAN);
-          return [tanggal, jenis, ket].filter(Boolean).join(' - ');
-        })
-        .filter(Boolean);
-
-      return items.length ? items.join('  •  ') : CONFIG.tickerFallback;
-    }
-
-    function renderTicker(){
-      el.tickerTrack.textContent = state.data ? buildTickerText(state.data.holidays) : CONFIG.tickerFallback;
     }
 
     function renderDayButtons(){
@@ -742,28 +734,41 @@
       });
     }
 
-    function fitTableToStage(){
-      const scaleBox = el.tableStage.querySelector('.table-scale');
-      const table = el.tableStage.querySelector('#scheduleTable');
-      if (!scaleBox || !table) return;
+    function applyResponsiveTableSize(){
+      const table = document.getElementById('scheduleTable');
+      if (!table || !state.data) return;
 
-      scaleBox.style.transform = 'scale(1, 1)';
-      scaleBox.style.width = 'max-content';
-      scaleBox.style.height = 'auto';
+      const slots = state.data.slots || [];
+      const kuliahCount = Math.max(1, slots.filter(slot => normalizeText(slot.TIPE_BARIS).toUpperCase() === 'KULIAH').length);
+      const specialCount = Math.max(0, slots.length - kuliahCount);
 
-      const stageWidth = Math.max(0, el.tableStage.clientWidth - 2);
-      const stageHeight = Math.max(0, el.tableStage.clientHeight - 2);
-      const tableWidth = table.offsetWidth;
-      const tableHeight = table.offsetHeight;
+      const stageWidth = Math.max(320, el.tableStage.clientWidth);
+      const stageHeight = Math.max(240, el.tableStage.clientHeight);
 
-      if (!stageWidth || !stageHeight || !tableWidth || !tableHeight) return;
+      const headerHeight = Math.max(32, Math.min(46, stageHeight * 0.04));
+      const specialWeight = 0.68;
+      const bodyHeight = Math.max(140, stageHeight - headerHeight);
+      const baseUnit = bodyHeight / (kuliahCount + (specialCount * specialWeight));
+      const rowHeight = Math.max(28, baseUnit);
+      const specialRowHeight = Math.max(20, baseUnit * specialWeight);
 
-      const scaleX = stageWidth / tableWidth;
-      const scaleY = stageHeight / tableHeight;
+      const roomCount = Math.max(1, state.data.rooms.length);
+      const headerFont = Math.max(10, Math.min(14, stageWidth / (roomCount * 10.5)));
+      const sessionFont = Math.max(10, Math.min(13, rowHeight * 0.29));
+      const cellFont = Math.max(9, Math.min(12.5, rowHeight * 0.24));
+      const codeFont = Math.max(8, Math.min(11, rowHeight * 0.2));
+      const metaFont = Math.max(7.5, Math.min(10.5, rowHeight * 0.18));
+      const specialFont = Math.max(9, Math.min(11.5, specialRowHeight * 0.42));
 
-      scaleBox.style.width = `${tableWidth}px`;
-      scaleBox.style.height = `${tableHeight}px`;
-      scaleBox.style.transform = `scale(${scaleX}, ${scaleY})`;
+      table.style.setProperty('--thead-height', `${headerHeight}px`);
+      table.style.setProperty('--row-height', `${rowHeight}px`);
+      table.style.setProperty('--special-row-height', `${specialRowHeight}px`);
+      table.style.setProperty('--header-font', `${headerFont}px`);
+      table.style.setProperty('--session-font', `${sessionFont}px`);
+      table.style.setProperty('--cell-font', `${cellFont}px`);
+      table.style.setProperty('--code-font', `${codeFont}px`);
+      table.style.setProperty('--meta-font', `${metaFont}px`);
+      table.style.setProperty('--special-font', `${specialFont}px`);
     }
 
     function renderTable(day){
@@ -775,12 +780,17 @@
       const renderedSessionStart = new Set();
 
       let html = `
-        <div class="table-scale">
+        <div class="table-fill">
           <table class="schedule" id="scheduleTable">
+            <colgroup>
+              <col style="width:66px;">
+              <col style="width:96px;">
+              ${rooms.map(() => '<col>').join('')}
+            </colgroup>
             <thead>
               <tr>
-                <th class="col-session">SESI</th>
-                <th class="col-time">JAM</th>
+                <th>SESI</th>
+                <th>JAM</th>
                 ${rooms.map(room => `<th class="room-head ${getRoomHeaderClass(room)}">${escapeHtml(room.NAMA_TAMPIL || room.KODE_RUANG)}</th>`).join('')}
               </tr>
             </thead>
@@ -821,7 +831,7 @@
       `;
 
       el.tableStage.innerHTML = html;
-      requestAnimationFrame(fitTableToStage);
+      requestAnimationFrame(applyResponsiveTableSize);
     }
 
     function showError(message){
@@ -834,8 +844,11 @@
     }
 
     async function hashArrayBuffer(arrayBuffer){
-      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-      return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+      if (window.crypto?.subtle) {
+        const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer.slice(0));
+        return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+      return `len-${arrayBuffer.byteLength}`;
     }
 
     function timeStampText(){
@@ -862,7 +875,8 @@
       state.lastSyncText = timeStampText();
 
       if (!data.days.includes(state.selectedDay)) {
-        state.selectedDay = data.days[0] || CONFIG.fallbackDays[0];
+        const todayName = getTodayName();
+        state.selectedDay = data.days.includes(todayName) ? todayName : (data.days[0] || CONFIG.fallbackDays[0]);
       }
 
       renderTicker();
@@ -873,8 +887,7 @@
     }
 
     async function fetchWorkbookArrayBuffer(){
-      const url = `${CONFIG.workbookFile}?v=${Date.now()}`;
-      const response = await fetch(url, { cache: 'no-store' });
+      const response = await fetch(`${CONFIG.workbookFile}?v=${Date.now()}`, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Gagal mengambil file Excel dari ${CONFIG.workbookFile}`);
       return await response.arrayBuffer();
     }
@@ -898,10 +911,7 @@
 
     function configureAutoRefresh(){
       stopAutoRefresh();
-      if (state.sourceKind !== 'default') {
-        updateStatus();
-        return;
-      }
+      if (state.sourceKind !== 'default') return;
 
       state.autoRefreshTimer = setInterval(async () => {
         if (state.autoRefreshBusy) return;
@@ -921,8 +931,6 @@
           state.autoRefreshBusy = false;
         }
       }, CONFIG.autoRefreshMs);
-
-      updateStatus();
     }
 
     function startClock(){
@@ -949,7 +957,7 @@
     }
 
     window.addEventListener('resize', () => {
-      requestAnimationFrame(fitTableToStage);
+      requestAnimationFrame(applyResponsiveTableSize);
     });
 
     el.reloadBtn.addEventListener('click', async () => {
