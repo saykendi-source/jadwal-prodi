@@ -7,7 +7,6 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root{
-      --bg:#dfe7d6;
       --panel:rgba(255,255,255,.82);
       --navy:#1f4e95;
       --navy-dark:#173d75;
@@ -58,9 +57,6 @@
     .header-panel{
       flex:0 0 auto;
       padding:10px 16px 8px;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
     }
 
     .header-main{
@@ -77,7 +73,7 @@
     .title-wrap h1{
       margin:0 0 4px;
       color:var(--navy-dark);
-      font-size:clamp(28px, 3.05vw, 62px);
+      font-size:clamp(28px, 3.0vw, 60px);
       line-height:1.02;
       letter-spacing:.2px;
     }
@@ -86,7 +82,7 @@
       margin:0;
       color:var(--muted);
       font-size:clamp(13px, .95vw, 18px);
-      line-height:1.25;
+      line-height:1.2;
     }
 
     .clock{
@@ -97,22 +93,21 @@
 
     .clock-time{
       color:var(--navy-dark);
-      font-size:clamp(40px, 4vw, 84px);
+      font-size:clamp(40px, 4vw, 82px);
       font-weight:800;
       line-height:1;
       letter-spacing:1px;
     }
 
     .clock-date{
-      margin-top:6px;
+      margin-top:4px;
       color:var(--muted);
-      font-size:clamp(14px, 1.1vw, 22px);
+      font-size:clamp(14px, 1.05vw, 21px);
     }
 
-    
     .ticker-panel{
       flex:0 0 auto;
-      min-height:32px;
+      min-height:30px;
       display:flex;
       align-items:center;
       overflow:hidden;
@@ -123,7 +118,7 @@
 
     .ticker-label{
       flex:0 0 auto;
-      margin-right:12px;
+      margin-right:10px;
       font-size:12px;
       font-weight:800;
       letter-spacing:.3px;
@@ -135,7 +130,7 @@
       white-space:nowrap;
       overflow:hidden;
       position:relative;
-      height:20px;
+      height:18px;
       display:flex;
       align-items:center;
     }
@@ -160,23 +155,15 @@
       min-height:0;
       padding:6px;
       overflow:hidden;
-      display:flex;
     }
 
     .table-stage{
-      flex:1 1 auto;
-      min-width:0;
-      min-height:0;
-      overflow:hidden;
+      width:100%;
+      height:100%;
       position:relative;
+      overflow:hidden;
       border-radius:14px;
       background:rgba(255,255,255,.26);
-    }
-
-    .table-scale-wrap{
-      position:absolute;
-      inset:0;
-      overflow:hidden;
     }
 
     .table-scale{
@@ -194,22 +181,22 @@
       table-layout:fixed;
       background:#fff;
       box-shadow:0 0 0 1px rgba(0,0,0,.06);
-      --thead-height:38px;
-      --row-height:42px;
-      --special-row-height:28px;
-      --header-font:12px;
-      --cell-font:11px;
-      --code-font:10px;
-      --meta-font:9.5px;
-      --special-font:11px;
-      --session-font:12px;
+      --thead-height:34px;
+      --row-height:28px;
+      --special-row-height:18px;
+      --header-font:11px;
+      --cell-font:9px;
+      --code-font:8px;
+      --meta-font:7px;
+      --special-font:9px;
+      --session-font:10px;
     }
 
     .schedule th,.schedule td{
       border:1px solid var(--grid);
       text-align:center;
       vertical-align:middle;
-      padding:2px 4px;
+      padding:1px 3px;
     }
 
     .schedule thead th{
@@ -220,10 +207,7 @@
       background:var(--navy);
     }
 
-    .schedule thead th.room-head{
-      color:#111;
-    }
-
+    .schedule thead th.room-head{ color:#111; }
     .schedule thead th.room-head.group-f6{ background:var(--room-f6); }
     .schedule thead th.room-head.group-f4{ background:var(--room-f4); }
     .schedule thead th.room-head.group-default{ background:var(--room-default); }
@@ -250,7 +234,7 @@
     td.course-cell{
       height:var(--row-height);
       font-size:var(--cell-font);
-      line-height:1.14;
+      line-height:1.07;
       font-weight:700;
       word-break:break-word;
       overflow-wrap:anywhere;
@@ -259,14 +243,14 @@
     .course-code{
       font-size:var(--code-font);
       margin-bottom:1px;
-      line-height:1.05;
+      line-height:1.02;
     }
 
     .course-name{
       font-size:var(--cell-font);
       font-weight:800;
       margin-bottom:1px;
-      line-height:1.08;
+      line-height:1.03;
     }
 
     .course-meta{
@@ -274,7 +258,7 @@
       font-weight:600;
       margin-top:1px;
       opacity:.96;
-      line-height:1.05;
+      line-height:1.02;
     }
 
     td.special-time{
@@ -289,8 +273,8 @@
       color:var(--special-dark);
       font-size:var(--special-font);
       font-weight:800;
-      letter-spacing:.12px;
-      padding:2px 6px;
+      letter-spacing:.08px;
+      padding:1px 4px;
       height:var(--special-row-height);
     }
 
@@ -322,14 +306,12 @@
       <div class="header-main">
         <div class="title-wrap">
           <h1>Jadwal Perkuliahan Mahasiswa</h1>
-          <p>Data dibaca dari file Excel multi-sheet. Tampilan disesuaikan proporsional agar penuh di area layar tanpa terlihat ditarik.</p>
+          <p>Data dibaca dari file Excel multi-sheet. Ukuran font dan tabel disesuaikan otomatis agar seluruh jadwal fit di layar.</p>
         </div>
         <div class="clock">
           <div class="clock-time" id="clockTime">--:--:--</div>
           <div class="clock-date" id="clockDate">Memuat tanggal...</div>
         </div>
-      </div>
-
       </div>
     </section>
 
@@ -361,51 +343,32 @@
       workbook: null,
       data: null,
       selectedDay: 'Senin',
-      sourceLabel: 'file default',
-      sourceKind: 'default',
       workbookHash: '',
       autoRefreshTimer: null,
-      autoRefreshBusy: false,
-      lastSyncText: '-'
+      autoRefreshBusy: false
     };
 
     const el = {
       tableStage: document.getElementById('tableStage'),
-      dayButtons: document.getElementById('dayButtons'),
-      reloadBtn: document.getElementById('reloadBtn'),
-      fileInput: document.getElementById('fileInput'),
-      statusText: document.getElementById('statusText'),
       tickerTrack: document.getElementById('tickerTrack'),
       clockTime: document.getElementById('clockTime'),
       clockDate: document.getElementById('clockDate')
     };
 
-    function normalizeText(value){
-      return String(value ?? '').trim();
-    }
-
+    function normalizeText(value){ return String(value ?? '').trim(); }
     function normalizeKey(value){
-      return normalizeText(value)
-        .normalize('NFKD')
-        .replace(/[^a-zA-Z0-9/]+/g, '')
-        .toUpperCase();
+      return normalizeText(value).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g, '').toUpperCase();
     }
-
     function isYes(value){
-      return ['ya', 'y', 'true', '1', 'aktif'].includes(normalizeText(value).toLowerCase());
+      return ['ya','y','true','1','aktif'].includes(normalizeText(value).toLowerCase());
     }
-
     function escapeHtml(value){
       return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
     }
-
     function normalizeHexColor(value){
-      const raw = normalizeText(value).replace(/[^#a-fA-F0-9]/g, '');
+      const raw = normalizeText(value).replace(/[^#a-fA-F0-9]/g,'');
       if (!raw) return '';
       if (raw.startsWith('#')) {
         if (raw.length === 4) return ('#' + raw.slice(1).split('').map(ch => ch + ch).join('')).toUpperCase();
@@ -420,17 +383,17 @@
     function getCanonicalKey(rawKey){
       const key = normalizeKey(rawKey);
       const aliasMap = {
-        HARI: 'HARI', HARIKULIAH: 'HARI', DAY: 'HARI',
-        KODERUANG: 'KODE_RUANG', RUANG: 'KODE_RUANG', RUANGAN: 'KODE_RUANG',
-        IDSLOTMULAI: 'ID_SLOT_MULAI', SLOTMULAI: 'ID_SLOT_MULAI', STARTSLOT: 'ID_SLOT_MULAI',
-        IDSLOTSELESAI: 'ID_SLOT_SELESAI', SLOTSELESAI: 'ID_SLOT_SELESAI', ENDSLOT: 'ID_SLOT_SELESAI',
-        KODEMK: 'KODE_MK', MATAKULIAHKODE: 'KODE_MK',
-        NAMAMK: 'NAMA_MK', MATAKULIAH: 'NAMA_MK', NAMAMATAKULIAH: 'NAMA_MK',
-        DOSEN: 'DOSEN', DOSENPENGAMPU: 'DOSEN',
-        PROGRAMANGKATAN: 'PROGRAM/ANGKATAN', PROGRAM: 'PROGRAM/ANGKATAN', ANGKATAN: 'PROGRAM/ANGKATAN',
-        WARNABG: 'WARNA_BG', BACKGROUND: 'WARNA_BG', BGCOLOR: 'WARNA_BG',
-        WARNATEXT: 'WARNA_TEXT', TEXTCOLOR: 'WARNA_TEXT', FONTCOLOR: 'WARNA_TEXT',
-        KETERANGAN: 'CATATAN', NOTE: 'CATATAN'
+        HARI:'HARI', HARIKULIAH:'HARI', DAY:'HARI',
+        KODERUANG:'KODE_RUANG', RUANG:'KODE_RUANG', RUANGAN:'KODE_RUANG',
+        IDSLOTMULAI:'ID_SLOT_MULAI', SLOTMULAI:'ID_SLOT_MULAI', STARTSLOT:'ID_SLOT_MULAI',
+        IDSLOTSELESAI:'ID_SLOT_SELESAI', SLOTSELESAI:'ID_SLOT_SELESAI', ENDSLOT:'ID_SLOT_SELESAI',
+        KODEMK:'KODE_MK', MATAKULIAHKODE:'KODE_MK',
+        NAMAMK:'NAMA_MK', MATAKULIAH:'NAMA_MK', NAMAMATAKULIAH:'NAMA_MK',
+        DOSEN:'DOSEN', DOSENPENGAMPU:'DOSEN',
+        PROGRAMANGKATAN:'PROGRAM/ANGKATAN', PROGRAM:'PROGRAM/ANGKATAN', ANGKATAN:'PROGRAM/ANGKATAN',
+        WARNABG:'WARNA_BG', BACKGROUND:'WARNA_BG', BGCOLOR:'WARNA_BG',
+        WARNATEXT:'WARNA_TEXT', TEXTCOLOR:'WARNA_TEXT', FONTCOLOR:'WARNA_TEXT',
+        KETERANGAN:'CATATAN', NOTE:'CATATAN'
       };
       return aliasMap[key] || rawKey;
     }
@@ -438,7 +401,7 @@
     function sheetToObjects(workbook, sheetName){
       const sheet = workbook.Sheets[sheetName];
       if (!sheet) return [];
-      return XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      return XLSX.utils.sheet_to_json(sheet, { defval:'' });
     }
 
     function sheetToObjectsWithMeta(workbook, sheetName){
@@ -450,7 +413,6 @@
         const address = XLSX.utils.encode_cell({ r: range.s.r, c });
         headers.push(normalizeText(sheet[address]?.v));
       }
-
       const rows = [];
       for (let r = range.s.r + 1; r <= range.e.r; r += 1) {
         const rowObj = { __sheetName: sheetName, __sheetRowNum: r + 1 };
@@ -458,28 +420,13 @@
         headers.forEach((header, idx) => {
           if (!header) return;
           const address = XLSX.utils.encode_cell({ r, c: range.s.c + idx });
-          const cell = sheet[address];
-          const value = cell?.v ?? '';
+          const value = sheet[address]?.v ?? '';
           rowObj[getCanonicalKey(header)] = value;
           if (normalizeText(value) !== '') hasContent = true;
         });
         if (hasContent) rows.push(rowObj);
       }
       return rows;
-    }
-
-    function getStyleColorToken(colorObj){
-      if (!colorObj) return '';
-      if (typeof colorObj === 'string') return normalizeHexColor(colorObj);
-      return normalizeHexColor(colorObj.rgb || colorObj.argb || colorObj.value || colorObj.raw || colorObj.hex || '');
-    }
-
-    function extractColorsFromCell(cell){
-      if (!cell || !cell.s) return { bg: '', text: '' };
-      const style = cell.s;
-      const bg = getStyleColorToken(style.fill?.fgColor) || getStyleColorToken(style.fill?.bgColor) || getStyleColorToken(style.fgColor) || getStyleColorToken(style.bgColor);
-      const text = getStyleColorToken(style.font?.color) || getStyleColorToken(style.color);
-      return { bg, text };
     }
 
     function buildCanonicalHeaderMap(workbook, sheetName){
@@ -503,19 +450,32 @@
       return sheet?.[address] || null;
     }
 
+    function getStyleColorToken(colorObj){
+      if (!colorObj) return '';
+      if (typeof colorObj === 'string') return normalizeHexColor(colorObj);
+      return normalizeHexColor(colorObj.rgb || colorObj.argb || colorObj.value || colorObj.raw || colorObj.hex || '');
+    }
+
+    function extractColorsFromCell(cell){
+      if (!cell || !cell.s) return { bg:'', text:'' };
+      const style = cell.s;
+      const bg = getStyleColorToken(style.fill?.fgColor) || getStyleColorToken(style.fill?.bgColor) || getStyleColorToken(style.fgColor) || getStyleColorToken(style.bgColor);
+      const text = getStyleColorToken(style.font?.color) || getStyleColorToken(style.color);
+      return { bg, text };
+    }
+
     function enrichScheduleColors(workbook, row, headerMap){
       row.WARNA_BG = normalizeHexColor(row.WARNA_BG);
       row.WARNA_TEXT = normalizeHexColor(row.WARNA_TEXT);
 
-      if (row.WARNA_BG && row.WARNA_TEXT) return row;
-
-      const probeHeaders = ['WARNA_BG', 'WARNA_TEXT', 'NAMA_MK', 'KODE_MK', 'CATATAN'];
-      for (const header of probeHeaders) {
-        const cell = getSheetCell(workbook, 'JADWAL_KULIAH', row.__sheetRowNum, headerMap, header);
-        const colors = extractColorsFromCell(cell);
-        if (!row.WARNA_BG && colors.bg) row.WARNA_BG = colors.bg;
-        if (!row.WARNA_TEXT && colors.text) row.WARNA_TEXT = colors.text;
-        if (row.WARNA_BG && row.WARNA_TEXT) break;
+      if (!row.WARNA_BG || !row.WARNA_TEXT) {
+        const probeHeaders = ['WARNA_BG', 'WARNA_TEXT', 'NAMA_MK', 'KODE_MK', 'CATATAN'];
+        for (const header of probeHeaders) {
+          const cell = getSheetCell(workbook, 'JADWAL_KULIAH', row.__sheetRowNum, headerMap, header);
+          const colors = extractColorsFromCell(cell);
+          if (!row.WARNA_BG && colors.bg) row.WARNA_BG = colors.bg;
+          if (!row.WARNA_TEXT && colors.text) row.WARNA_TEXT = colors.text;
+        }
       }
 
       if (!row.WARNA_BG) row.WARNA_BG = '#D9D9D9';
@@ -525,7 +485,6 @@
 
     function buildDataModel(workbook){
       const sheetNames = workbook.SheetNames || [];
-
       const slots = sheetToObjects(workbook, 'SLOT_WAKTU')
         .filter(row => !normalizeText(row.TAMPIL_DI_LAYAR) || isYes(row.TAMPIL_DI_LAYAR))
         .sort((a,b) => Number(a.URUTAN || 0) - Number(b.URUTAN || 0));
@@ -548,17 +507,22 @@
         if (day) availableDaysSet.add(day);
       });
 
-      const orderedDays = CONFIG.fallbackDays.filter(day => availableDaysSet.has(day));
-      const extraDays = [...availableDaysSet].filter(day => !orderedDays.includes(day));
-
       return {
         sheetNames,
         slots,
         rooms,
         schedules,
         holidays,
-        days: [...orderedDays, ...extraDays]
+        days: CONFIG.fallbackDays.filter(day => availableDaysSet.has(day))
       };
+    }
+
+    function getCurrentAcademicDay(days){
+      const jsDay = new Date().getDay();
+      const map = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      const current = map[jsDay];
+      if (days.includes(current)) return current;
+      return days[0] || 'Senin';
     }
 
     function groupSessionRows(slots){
@@ -581,16 +545,10 @@
       return normalizeText(slot.KETERANGAN) || 'Informasi akademik';
     }
 
-    function getTodayName(){
-      const names = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-      return names[new Date().getDay()];
-    }
-
     function getScheduleItemForSlot(day, roomCode, slotId){
       const targetDay = normalizeText(day).toLowerCase();
       const targetRoom = normalizeText(roomCode);
       const numericSlot = Number(slotId);
-
       return state.data.schedules.find(item => {
         const itemDay = normalizeText(item.HARI).toLowerCase();
         const itemRoom = normalizeText(item.KODE_RUANG);
@@ -598,6 +556,20 @@
         const end = Number(item.ID_SLOT_SELESAI || item.ID_SLOT_MULAI);
         return itemDay === targetDay && itemRoom === targetRoom && numericSlot >= start && numericSlot <= end;
       }) || null;
+    }
+
+    function buildTickerText(holidays){
+      const items = holidays.map(row => {
+        const tanggal = normalizeText(row.TANGGAL);
+        const jenis = normalizeText(row.JENIS);
+        const ket = normalizeText(row.KETERANGAN);
+        return [tanggal, jenis, ket].filter(Boolean).join(' - ');
+      }).filter(Boolean);
+      return items.length ? items.join('  •  ') : CONFIG.tickerFallback;
+    }
+
+    function renderTicker(){
+      el.tickerTrack.textContent = state.data ? buildTickerText(state.data.holidays) : CONFIG.tickerFallback;
     }
 
     function renderCourseCell(item){
@@ -614,64 +586,6 @@
       `;
     }
 
-    function buildTickerText(holidays){
-      const items = holidays
-        .map(row => {
-          const tanggal = normalizeText(row.TANGGAL);
-          const jenis = normalizeText(row.JENIS);
-          const ket = normalizeText(row.KETERANGAN);
-          return [tanggal, jenis, ket].filter(Boolean).join(' - ');
-        })
-        .filter(Boolean);
-
-      return items.length ? items.join('  •  ') : CONFIG.tickerFallback;
-    }
-
-    function renderTicker(){
-      el.tickerTrack.textContent = state.data ? buildTickerText(state.data.holidays) : CONFIG.tickerFallback;
-    }
-
-    function updateStatus(){
-      if (!el.statusText) return;
-      if (!state.data) {
-        el.statusText.textContent = 'Menunggu data...';
-        return;
-      }
-      const refreshLabel = state.sourceKind === 'default'
-        ? `auto-refresh aktif / ${Math.round(CONFIG.autoRefreshMs / 1000)} dtk`
-        : 'auto-refresh nonaktif';
-      el.statusText.innerHTML = [
-        `Hari aktif: <strong>${escapeHtml(state.selectedDay)}</strong>`,
-        `Ruang: <strong>${state.data.rooms.length}</strong>`,
-        `Slot tampil: <strong>${state.data.slots.length}</strong>`,
-        `Jadwal aktif: <strong>${state.data.schedules.length}</strong>`,
-        refreshLabel,
-        `Sumber: <strong>${escapeHtml(state.sourceLabel)}</strong>`,
-        `Sinkron terakhir: <strong>${escapeHtml(state.lastSyncText)}</strong>`
-      ].join(' &nbsp;&middot;&nbsp; ');
-    }
-
-    function renderDayButtons(){
-      if (!el.dayButtons) return;
-      if (!state.data || !state.data.days.length) {
-        el.dayButtons.innerHTML = '';
-        return;
-      }
-
-      el.dayButtons.innerHTML = state.data.days
-        .map(day => `<button type="button" class="day-btn ${day === state.selectedDay ? 'active' : ''}" data-day="${escapeHtml(day)}">${escapeHtml(day)}</button>`)
-        .join('');
-
-      el.dayButtons.querySelectorAll('.day-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.selectedDay = btn.dataset.day;
-          renderDayButtons();
-          renderTable(state.selectedDay);
-          updateStatus();
-        });
-      });
-    }
-
     function applyResponsiveTableSize(){
       const table = document.getElementById('scheduleTable');
       if (!table || !state.data) return;
@@ -680,24 +594,25 @@
       const kuliahCount = Math.max(1, slots.filter(slot => normalizeText(slot.TIPE_BARIS).toUpperCase() === 'KULIAH').length);
       const specialCount = Math.max(0, slots.length - kuliahCount);
 
-      const stageWidth = Math.max(320, el.tableStage.clientWidth);
       const stageHeight = Math.max(240, el.tableStage.clientHeight);
+      const stageWidth = Math.max(320, el.tableStage.clientWidth);
 
-      const headerHeight = Math.max(28, Math.min(40, stageHeight * 0.034));
-      const specialWeight = 0.60;
+      const headerHeight = Math.max(28, Math.min(34, stageHeight * 0.032));
+      const specialWeight = 0.58;
       const borderReserve = (slots.length + 6) * 2;
-      const bodyHeight = Math.max(110, stageHeight - headerHeight - borderReserve);
-      const baseUnit = bodyHeight / (kuliahCount + (specialCount * specialWeight));
-      const rowHeight = Math.max(24, Math.min(38, baseUnit));
-      const specialRowHeight = Math.max(18, Math.min(25, baseUnit * specialWeight));
+      const bodyHeight = Math.max(120, stageHeight - headerHeight - borderReserve);
+      const baseUnit = bodyHeight / (kuliahCount + specialCount * specialWeight);
+
+      const rowHeight = Math.max(22, Math.min(30, baseUnit));
+      const specialRowHeight = Math.max(16, Math.min(20, baseUnit * specialWeight));
 
       const roomCount = Math.max(1, state.data.rooms.length);
-      const headerFont = Math.max(10, Math.min(14, stageWidth / (roomCount * 10.8)));
-      const sessionFont = Math.max(9.5, Math.min(12.5, rowHeight * 0.28));
-      const cellFont = Math.max(8.5, Math.min(11.5, rowHeight * 0.23));
-      const codeFont = Math.max(7.5, Math.min(10.5, rowHeight * 0.19));
-      const metaFont = Math.max(7, Math.min(9.8, rowHeight * 0.17));
-      const specialFont = Math.max(8.5, Math.min(10.5, specialRowHeight * 0.42));
+      const headerFont = Math.max(10, Math.min(12, stageWidth / (roomCount * 11.5)));
+      const sessionFont = Math.max(9, Math.min(11, rowHeight * 0.35));
+      const cellFont = Math.max(8, Math.min(10, rowHeight * 0.30));
+      const codeFont = Math.max(7, Math.min(9, rowHeight * 0.24));
+      const metaFont = Math.max(6.6, Math.min(8.2, rowHeight * 0.20));
+      const specialFont = Math.max(8, Math.min(9.5, specialRowHeight * 0.46));
 
       table.style.setProperty('--thead-height', `${headerHeight}px`);
       table.style.setProperty('--row-height', `${rowHeight}px`);
@@ -709,18 +624,17 @@
       table.style.setProperty('--meta-font', `${metaFont}px`);
       table.style.setProperty('--special-font', `${specialFont}px`);
 
-      requestAnimationFrame(fitTableWithoutStretch);
+      requestAnimationFrame(fitTableIfNeeded);
     }
 
-    function fitTableWithoutStretch(){
-      const stage = el.tableStage;
+    function fitTableIfNeeded(){
       const scaleBox = document.getElementById('tableScale');
       const table = document.getElementById('scheduleTable');
-      if (!stage || !scaleBox || !table) return;
+      if (!scaleBox || !table) return;
 
       scaleBox.style.transform = 'translate(0px, 0px) scale(1)';
-      const stageWidth = Math.max(320, stage.clientWidth);
-      const stageHeight = Math.max(240, stage.clientHeight);
+      const stageWidth = el.tableStage.clientWidth;
+      const stageHeight = el.tableStage.clientHeight;
       const tableHeight = table.offsetHeight;
 
       let scale = 1;
@@ -745,12 +659,11 @@
       const renderedSessionStart = new Set();
 
       let html = `
-        <div class="table-scale-wrap">
-          <div class="table-scale" id="tableScale">
-            <table class="schedule" id="scheduleTable">
+        <div class="table-scale" id="tableScale">
+          <table class="schedule" id="scheduleTable">
             <colgroup>
-              <col style="width:66px;">
-              <col style="width:96px;">
+              <col style="width:64px">
+              <col style="width:86px">
               ${rooms.map(() => '<col>').join('')}
             </colgroup>
             <thead>
@@ -792,15 +705,14 @@
 
       html += `
             </tbody>
-            </table>
-          </div>
+          </table>
         </div>
       `;
 
       el.tableStage.innerHTML = html;
       requestAnimationFrame(() => {
         applyResponsiveTableSize();
-        requestAnimationFrame(fitTableWithoutStretch);
+        requestAnimationFrame(fitTableIfNeeded);
       });
     }
 
@@ -814,62 +726,28 @@
     }
 
     async function hashArrayBuffer(arrayBuffer){
-      if (window.crypto?.subtle) {
-        const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer.slice(0));
-        return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
-      }
-      return `len-${arrayBuffer.byteLength}`;
+      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2,'0')).join('');
     }
 
-    function timeStampText(){
-      return new Intl.DateTimeFormat('id-ID', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      }).format(new Date());
+    async function fetchWorkbookArrayBuffer(){
+      const response = await fetch(`${CONFIG.workbookFile}?v=${Date.now()}`, { cache:'no-store' });
+      if (!response.ok) throw new Error(`Gagal mengambil file Excel dari ${CONFIG.workbookFile}`);
+      return await response.arrayBuffer();
     }
 
-    async function applyWorkbook(arrayBuffer, sourceLabel, sourceKind){
-      const workbook = XLSX.read(arrayBuffer, { type: 'array', cellStyles: true });
+    async function applyWorkbook(arrayBuffer){
+      const workbook = XLSX.read(arrayBuffer, { type:'array', cellStyles:true });
       const data = buildDataModel(workbook);
       validateRequiredSheets(data);
 
       state.workbook = workbook;
       state.data = data;
-      state.sourceLabel = sourceLabel;
-      state.sourceKind = sourceKind;
       state.workbookHash = await hashArrayBuffer(arrayBuffer);
-      state.lastSyncText = timeStampText();
-
-      if (!data.days.includes(state.selectedDay)) {
-        const todayName = getTodayName();
-        state.selectedDay = data.days.includes(todayName) ? todayName : (data.days[0] || CONFIG.fallbackDays[0]);
-      }
+      state.selectedDay = getCurrentAcademicDay(data.days);
 
       renderTicker();
-      renderDayButtons();
       renderTable(state.selectedDay);
-      updateStatus();
-      configureAutoRefresh();
-    }
-
-    async function fetchWorkbookArrayBuffer(){
-      const response = await fetch(`${CONFIG.workbookFile}?v=${Date.now()}`, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Gagal mengambil file Excel dari ${CONFIG.workbookFile}`);
-      return await response.arrayBuffer();
-    }
-
-    async function loadDefaultWorkbook(){
-      const buffer = await fetchWorkbookArrayBuffer();
-      await applyWorkbook(buffer, 'file default', 'default');
-    }
-
-    async function loadLocalWorkbook(file){
-      const buffer = await file.arrayBuffer();
-      await applyWorkbook(buffer, file.name, 'local');
     }
 
     function stopAutoRefresh(){
@@ -879,10 +757,16 @@
       }
     }
 
+    function startAutoRefresh(){
+      stopAutoRefresh();
+      state.autoRefreshTimer = setInterval(async () => {
+        if (state.autoRefreshBusy) return;
+        state.autoRefreshBusy = true;
+      }, 1000);
+    }
+
     function configureAutoRefresh(){
       stopAutoRefresh();
-      if (state.sourceKind !== 'default') return;
-
       state.autoRefreshTimer = setInterval(async () => {
         if (state.autoRefreshBusy) return;
         state.autoRefreshBusy = true;
@@ -890,10 +774,7 @@
           const buffer = await fetchWorkbookArrayBuffer();
           const nextHash = await hashArrayBuffer(buffer);
           if (nextHash !== state.workbookHash) {
-            await applyWorkbook(buffer, 'file default', 'default');
-          } else {
-            state.lastSyncText = timeStampText();
-            updateStatus();
+            await applyWorkbook(buffer);
           }
         } catch (error) {
           console.error(error);
@@ -904,24 +785,13 @@
     }
 
     function startClock(){
-      const timeFormatter = new Intl.DateTimeFormat('id-ID', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      const dateFormatter = new Intl.DateTimeFormat('id-ID', {
-        weekday: 'long',
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      });
-
+      const timeFormatter = new Intl.DateTimeFormat('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      const dateFormatter = new Intl.DateTimeFormat('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
       const tick = () => {
         const now = new Date();
         el.clockTime.textContent = timeFormatter.format(now);
         el.clockDate.textContent = dateFormatter.format(now);
       };
-
       tick();
       setInterval(tick, 1000);
     }
@@ -929,36 +799,18 @@
     window.addEventListener('resize', () => {
       requestAnimationFrame(() => {
         applyResponsiveTableSize();
-        requestAnimationFrame(fitTableWithoutStretch);
+        requestAnimationFrame(fitTableIfNeeded);
       });
     });
-
-    if (el.reloadBtn) {
-      el.reloadBtn.addEventListener('click', async () => {
-        try {
-          await loadDefaultWorkbook();
-        } catch (error) {
-          showError(error.message);
-        }
-      });
-    }
-
-    if (el.fileInput) {
-      el.fileInput.addEventListener('change', async (event) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        try {
-          await loadLocalWorkbook(file);
-        } catch (error) {
-          showError(error.message);
-        }
-      });
-    }
 
     startClock();
-    loadDefaultWorkbook().catch(error => {
-      showError(`${error.message}<br><br>Silakan gunakan tombol <strong>Buka file Excel lokal</strong> sebagai alternatif.`);
-    });
+
+    fetchWorkbookArrayBuffer()
+      .then(applyWorkbook)
+      .then(configureAutoRefresh)
+      .catch(error => {
+        showError(`${error.message}<br><br>Pastikan file <strong>template_jadwal_perkuliahan_mahasiswa_github.xlsx</strong> ada di folder yang sama dengan halaman ini.`);
+      });
   </script>
 </body>
 </html>
