@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jadwal Perkuliahan Mahasiswa</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #dfe7d6;
+      --panel: #f2f5ec;
+      --navy: #1f4e95;
+      --navy-dark: #173d75;
+      --grid: #333;
+      --soft-grid: #8c8c8c;
+      --text: #102030;
+      --muted: #4d5b68;
+      --special: #d9ead3;
+      --special-dark: #2d5c16;
+      --empty: #d9d9d9;
+      --chip: #eef5ff;
+      --danger: #b10000;
+      --radius: 14px;
+      --shadow: 0 10px 28px rgba(0,0,0,.12);
+      --room-f6: #f1f500;
+      --room-f4: #00d8e6;
+      --room-default: #dce6f1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(rgba(223, 231, 214, 0.88), rgba(223, 231, 214, 0.88)),
+        radial-gradient(circle at top left, #ffffff 0%, #dfe7d6 48%, #c8d6bf 100%);
+      min-height: 100vh;
+    }
+
+    .app {
+      width: min(1900px, 100%);
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .hero, .sidepanel, .table-wrap {
+      background: rgba(255,255,255,.74);
+      backdrop-filter: blur(3px);
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      min-height: 108px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 3vw, 42px);
+      line-height: 1.05;
+      color: var(--navy-dark);
+      letter-spacing: .2px;
+    }
+
+    .hero .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(13px, 1.2vw, 17px);
+      line-height: 1.45;
+    }
+
+    .clock {
+      min-width: 230px;
+      text-align: right;
+    }
+
+    .clock .time {
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 700;
+      color: var(--navy-dark);
+      line-height: 1;
+      letter-spacing: 1px;
+    }
+
+    .clock .date {
+      margin-top: 6px;
+      font-size: clamp(13px, 1.2vw, 18px);
+      color: var(--muted);
+    }
+
+    .sidepanel {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .day-btn, .action-btn, .file-label {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .18s ease;
+      font-size: 14px;
+    }
+
+    .day-btn {
+      background: #e8eef8;
+      color: var(--navy-dark);
+    }
+
+    .day-btn.active,
+    .day-btn:hover {
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .action-btn,
+    .file-label {
+      background: #eef4ea;
+      color: #24440f;
+      border: 1px solid #d0ddc5;
+    }
+
+    .action-btn:hover,
+    .file-label:hover {
+      background: #dfead8;
+    }
+
+    .file-label input {
+      display: none;
+    }
+
+    .status-line {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      color: var(--navy-dark);
+      font-weight: 700;
+      margin-right: 6px;
+      margin-bottom: 4px;
+    }
+
+    .table-wrap {
+      padding: 12px;
+      overflow: auto;
+    }
+
+    table.schedule,
+    table.raw-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .schedule th,
+    .schedule td,
+    .raw-table th,
+    .raw-table td {
+      border: 1px solid var(--grid);
+      text-align: center;
+      vertical-align: middle;
+      padding: 6px;
+    }
+
+    .schedule thead th,
+    .raw-table thead th {
+      color: #fff;
+      background: var(--navy);
+      font-size: clamp(12px, 1vw, 16px);
+      font-weight: 700;
+      padding: 10px 6px;
+    }
+
+    .schedule thead th.room-head {
+      color: #111;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .schedule thead th.room-head.group-f6 { background: var(--room-f6); }
+    .schedule thead th.room-head.group-f4 { background: var(--room-f4); }
+    .schedule thead th.room-head.group-default { background: var(--room-default); }
+
+    .col-session { width: 72px; }
+    .col-time { width: 112px; }
+
+    td.session-cell {
+      background: #f6f6f6;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    td.session-empty {
+      background: #f6f6f6;
+    }
+
+    td.time-cell {
+      background: #f3f3f3;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    td.empty-cell {
+      background: var(--empty);
+      height: 38px;
+    }
+
+    td.course-cell {
+      font-size: 12px;
+      line-height: 1.25;
+      font-weight: 700;
+      padding: 6px 5px;
+      word-break: break-word;
+    }
+
+    .course-code {
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .course-name {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .course-meta {
+      font-size: 10.5px;
+      font-weight: 600;
+      opacity: .95;
+      margin-top: 3px;
+    }
+
+    td.special-time {
+      background: #eef5e8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    td.special-cell {
+      background: var(--special);
+      color: var(--special-dark);
+      font-weight: 800;
+      letter-spacing: .2px;
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .error-box {
+      background: #fff0f0;
+      border: 1px solid #f1b1b1;
+      color: #7b1d1d;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .info-box {
+      background: #eff7ff;
+      border: 1px solid #bad8f7;
+      color: #17436f;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .raw-table td {
+      font-size: 12px;
+      line-height: 1.35;
+      background: #fff;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    @media (max-width: 1100px) {
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .clock {
+        text-align: left;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <section class="hero">
+        <div>
+          <h1>Jadwal Perkuliahan Mahasiswa</h1>
+          <p class="sub">Sumber utama memakai file Excel multi-sheet dari repository GitHub. Silakan perbarui file Excel di repo bila ada perubahan jadwal.</p>
+        </div>
+        <div class="clock">
+          <div class="time" id="clockTime">--:--:--</div>
+          <div class="date" id="clockDate">Memuat tanggal...</div>
+        </div>
+      </section>
+
+      <aside class="sidepanel">
+        <div class="controls-row" id="dayButtons"></div>
+        <div class="controls-row">
+          <button class="action-btn" id="reloadExcelBtn" type="button">Muat ulang Excel default</button>
+          <label class="file-label" for="fileInput">Buka Excel lokal
+            <input id="fileInput" type="file" accept=".xlsx,.xls" />
+          </label>
+        </div>
+        <div class="status-line">
+          <span class="status-chip" id="modeStatus">Mode: -</span>
+          <span class="status-chip" id="sheetStatus">Sheet: -</span>
+          <span class="status-chip" id="fileStatus">Sumber: -</span>
+          <span class="status-chip" id="activeDayStatus">Hari aktif: -</span>
+          <div id="statusText">Menunggu data...</div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="table-wrap" id="tableWrap">
+      <div class="error-box">Sedang memuat data jadwal...</div>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      workbookFile: './template_jadwal_perkuliahan_mahasiswa_github.xlsx',
+      requiredSheets: ['SLOT_WAKTU', 'RUANG_DISPLAY', 'JADWAL_KULIAH'],
+      fallbackDays: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+      roomHeaderClasses: {
+        F6: 'group-f6',
+        F4: 'group-f4'
+      },
+      defaultSlots: [
+        { ID_SLOT: 1, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 1', LABEL_TAMPIL: '07.00 - 07.50', URUTAN: 1, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 2, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 1', LABEL_TAMPIL: '07.50 - 08.40', URUTAN: 2, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 3, TIPE_BARIS: 'TRANSISI', SESI: '', LABEL_TAMPIL: '08.40 - 08.50', URUTAN: 3, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Pergantian sesi' },
+        { ID_SLOT: 4, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 2', LABEL_TAMPIL: '08.50 - 09.40', URUTAN: 4, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 5, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 2', LABEL_TAMPIL: '09.40 - 10.30', URUTAN: 5, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 6, TIPE_BARIS: 'TRANSISI', SESI: '', LABEL_TAMPIL: '10.30 - 10.40', URUTAN: 6, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Pergantian sesi' },
+        { ID_SLOT: 7, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 3', LABEL_TAMPIL: '10.40 - 11.30', URUTAN: 7, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 8, TIPE_BARIS: 'ISTIRAHAT', SESI: '', LABEL_TAMPIL: '11.30 - 12.20', URUTAN: 8, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Istirahat/Duhur/Pergantian Sesi Perkuliahan' },
+        { ID_SLOT: 9, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 4', LABEL_TAMPIL: '12.20 - 13.10', URUTAN: 9, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 10, TIPE_BARIS: 'TRANSISI', SESI: '', LABEL_TAMPIL: '13.10 - 13.20', URUTAN: 10, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Pergantian sesi' },
+        { ID_SLOT: 11, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 5', LABEL_TAMPIL: '13.20 - 14.10', URUTAN: 11, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 12, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 5', LABEL_TAMPIL: '14.10 - 15.00', URUTAN: 12, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 13, TIPE_BARIS: 'ISTIRAHAT', SESI: '', LABEL_TAMPIL: '15.00 - 15.30', URUTAN: 13, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Istirahat/Ashar/Pergantian Sesi Perkuliahan' },
+        { ID_SLOT: 14, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 6', LABEL_TAMPIL: '15.30 - 16.20', URUTAN: 14, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 15, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 6', LABEL_TAMPIL: '16.20 - 17.10', URUTAN: 15, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 16, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 6', LABEL_TAMPIL: '17.10 - 18.00', URUTAN: 16, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 17, TIPE_BARIS: 'ISTIRAHAT', SESI: '', LABEL_TAMPIL: '17.45 - 18.30', URUTAN: 17, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: 'Istirahat/Maghrib/Pergantian Sesi Perkuliahan' },
+        { ID_SLOT: 18, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 7', LABEL_TAMPIL: '18.30 - 19.20', URUTAN: 18, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 19, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 7', LABEL_TAMPIL: '19.20 - 20.10', URUTAN: 19, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' },
+        { ID_SLOT: 20, TIPE_BARIS: 'KULIAH', SESI: 'Sesi 7', LABEL_TAMPIL: '20.10 - 21.00', URUTAN: 20, TAMPIL_DI_LAYAR: 'Ya', KETERANGAN: '' }
+      ],
+      defaultRooms: [
+        { URUTAN_KOLOM: 1, KODE_RUANG: 'RKBESAR', NAMA_TAMPIL: 'RKBesar / F6.001', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 2, KODE_RUANG: 'F6.002', NAMA_TAMPIL: 'F6.002', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 3, KODE_RUANG: 'F6.003', NAMA_TAMPIL: 'F6.003', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 4, KODE_RUANG: 'F6.004', NAMA_TAMPIL: 'F6.004', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 5, KODE_RUANG: 'F6.101', NAMA_TAMPIL: 'F6.101', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 6, KODE_RUANG: 'F6.102', NAMA_TAMPIL: 'F6.102', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 7, KODE_RUANG: 'F6.103', NAMA_TAMPIL: 'F6.103', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 8, KODE_RUANG: 'F6.202', NAMA_TAMPIL: 'F6.202', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 9, KODE_RUANG: 'F6.203', NAMA_TAMPIL: 'F6.203', GRUP_WARNA: 'F6', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 10, KODE_RUANG: 'F4.001', NAMA_TAMPIL: 'F4.001', GRUP_WARNA: 'F4', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 11, KODE_RUANG: 'F4.002', NAMA_TAMPIL: 'F4.002', GRUP_WARNA: 'F4', AKTIF: 'Ya' },
+        { URUTAN_KOLOM: 12, KODE_RUANG: 'F4.003', NAMA_TAMPIL: 'F4.003', GRUP_WARNA: 'F4', AKTIF: 'Ya' }
+      ]
+    };
+
+    const state = {
+      workbook: null,
+      data: null,
+      selectedDay: 'Senin',
+      sourceLabel: '-',
+      mode: '-',
+      rawCsvTable: null
+    };
+
+    const el = {
+      tableWrap: document.getElementById('tableWrap'),
+      dayButtons: document.getElementById('dayButtons'),
+      reloadExcelBtn: document.getElementById('reloadExcelBtn'),
+      fileInput: document.getElementById('fileInput'),
+      modeStatus: document.getElementById('modeStatus'),
+      sheetStatus: document.getElementById('sheetStatus'),
+      fileStatus: document.getElementById('fileStatus'),
+      activeDayStatus: document.getElementById('activeDayStatus'),
+      statusText: document.getElementById('statusText'),
+      clockTime: document.getElementById('clockTime'),
+      clockDate: document.getElementById('clockDate')
+    };
+
+    function normalizeText(value) {
+      return String(value ?? '').trim();
+    }
+
+    function normalizeKey(value) {
+      return normalizeText(value)
+        .normalize('NFKD')
+        .replace(/[^a-zA-Z0-9/]+/g, '')
+        .toUpperCase();
+    }
+
+    function isYes(value) {
+      return ['ya', 'y', 'true', '1', 'aktif'].includes(normalizeText(value).toLowerCase());
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function sheetToObjects(workbook, name) {
+      const sheet = workbook.Sheets[name];
+      if (!sheet) return [];
+      return XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    }
+
+    function groupSessionRows(slots) {
+      const groups = new Map();
+      slots.forEach(slot => {
+        if (normalizeText(slot.TIPE_BARIS).toUpperCase() === 'KULIAH') {
+          const key = normalizeText(slot.SESI) || '-';
+          groups.set(key, (groups.get(key) || 0) + 1);
+        }
+      });
+      return groups;
+    }
+
+    function getRowspanBySlotId(startId, endId, visibleSlots) {
+      const startIndex = visibleSlots.findIndex(slot => Number(slot.ID_SLOT) === Number(startId));
+      const endIndex = visibleSlots.findIndex(slot => Number(slot.ID_SLOT) === Number(endId));
+      if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) return 1;
+      return (endIndex - startIndex) + 1;
+    }
+
+    function getRoomHeaderClass(room) {
+      const group = normalizeText(room.GRUP_WARNA).toUpperCase();
+      return CONFIG.roomHeaderClasses[group] || 'group-default';
+    }
+
+    function formatSpecialText(slot) {
+      return normalizeText(slot.KETERANGAN) || 'Informasi akademik';
+    }
+
+    function getCanonicalKey(rawKey) {
+      const key = normalizeKey(rawKey);
+      const aliasMap = {
+        HARI: 'HARI',
+        HARIKULIAH: 'HARI',
+        DAY: 'HARI',
+        KODERUANG: 'KODE_RUANG',
+        RUANG: 'KODE_RUANG',
+        RUANGAN: 'KODE_RUANG',
+        IDSLOTMULAI: 'ID_SLOT_MULAI',
+        SLOTMULAI: 'ID_SLOT_MULAI',
+        STARTSLOT: 'ID_SLOT_MULAI',
+        IDSLOTSELESAI: 'ID_SLOT_SELESAI',
+        SLOTSELESAI: 'ID_SLOT_SELESAI',
+        ENDSLOT: 'ID_SLOT_SELESAI',
+        KODEMK: 'KODE_MK',
+        MATAKULIAHKODE: 'KODE_MK',
+        NAMAMK: 'NAMA_MK',
+        MATAKULIAH: 'NAMA_MK',
+        NAMAMATAKULIAH: 'NAMA_MK',
+        DOSEN: 'DOSEN',
+        DOSENPENGAMPU: 'DOSEN',
+        KELAS: 'KELAS',
+        PROGRAMANGKATAN: 'PROGRAM/ANGKATAN',
+        PROGRAM: 'PROGRAM/ANGKATAN',
+        ANGKATAN: 'PROGRAM/ANGKATAN',
+        CATATAN: 'CATATAN',
+        KETERANGAN: 'CATATAN',
+        NOTE: 'CATATAN',
+        WARNABG: 'WARNA_BG',
+        BACKGROUND: 'WARNA_BG',
+        BGCOLOR: 'WARNA_BG',
+        WARNATEXT: 'WARNA_TEXT',
+        TEXTCOLOR: 'WARNA_TEXT',
+        FONTCOLOR: 'WARNA_TEXT',
+        AKTIF: 'AKTIF'
+      };
+      return aliasMap[key] || rawKey;
+    }
+
+    function buildDataModel(workbook) {
+      const sheetNames = workbook.SheetNames || [];
+      const slots = sheetToObjects(workbook, 'SLOT_WAKTU')
+        .filter(row => isYes(row.TAMPIL_DI_LAYAR))
+        .sort((a, b) => Number(a.URUTAN || 0) - Number(b.URUTAN || 0));
+
+      const rooms = sheetToObjects(workbook, 'RUANG_DISPLAY')
+        .filter(row => isYes(row.AKTIF))
+        .sort((a, b) => Number(a.URUTAN_KOLOM || 0) - Number(b.URUTAN_KOLOM || 0));
+
+      const schedules = sheetToObjects(workbook, 'JADWAL_KULIAH')
+        .filter(row => !normalizeText(row.AKTIF) || isYes(row.AKTIF));
+
+      const holidays = sheetToObjects(workbook, 'LIBUR_AKADEMIK')
+        .filter(row => isYes(row.TAMPIL_DI_APLIKASI));
+
+      const availableDaysSet = new Set();
+      schedules.forEach(row => {
+        const day = normalizeText(row.HARI);
+        if (day) availableDaysSet.add(day);
+      });
+
+      const availableDays = CONFIG.fallbackDays.filter(day => availableDaysSet.has(day));
+      const finalDays = availableDays.length ? availableDays : [...availableDaysSet];
+
+      return {
+        sheetNames,
+        slots,
+        rooms,
+        schedules,
+        holidays,
+        days: finalDays.length ? finalDays : CONFIG.fallbackDays,
+        rawMode: false
+      };
+    }
+
+    function getScheduleMapForDay(day) {
+      const map = new Map();
+      state.data.schedules
+        .filter(item => normalizeText(item.HARI).toLowerCase() === normalizeText(day).toLowerCase())
+        .forEach(item => {
+          const key = `${normalizeText(item.KODE_RUANG)}__${Number(item.ID_SLOT_MULAI)}`;
+          map.set(key, item);
+        });
+      return map;
+    }
+
+    function getCoverMapForDay(day) {
+      const cover = new Set();
+      state.data.schedules
+        .filter(item => normalizeText(item.HARI).toLowerCase() === normalizeText(day).toLowerCase())
+        .forEach(item => {
+          const start = Number(item.ID_SLOT_MULAI);
+          const end = Number(item.ID_SLOT_SELESAI || item.ID_SLOT_MULAI);
+          for (let id = start + 1; id <= end; id += 1) {
+            cover.add(`${normalizeText(item.KODE_RUANG)}__${id}`);
+          }
+        });
+      return cover;
+    }
+
+    function renderTable(day) {
+      if (!state.data) return;
+
+      const slots = state.data.slots;
+      const rooms = state.data.rooms;
+      const scheduleMap = getScheduleMapForDay(day);
+      const coverMap = getCoverMapForDay(day);
+      const sessionGroups = groupSessionRows(slots);
+      const renderedSessionStart = new Set();
+
+      let html = `
+        <table class="schedule">
+          <thead>
+            <tr>
+              <th class="col-session">SESI</th>
+              <th class="col-time">JAM</th>
+              ${rooms.map(room => `<th class="room-head ${getRoomHeaderClass(room)}">${escapeHtml(room.NAMA_TAMPIL || room.KODE_RUANG)}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      for (const slot of slots) {
+        const slotId = Number(slot.ID_SLOT);
+        const slotType = normalizeText(slot.TIPE_BARIS).toUpperCase();
+        html += '<tr>';
+
+        if (slotType === 'KULIAH') {
+          const sesi = normalizeText(slot.SESI) || '-';
+          if (!renderedSessionStart.has(sesi)) {
+            html += `<td class="session-cell" rowspan="${sessionGroups.get(sesi) || 1}">${escapeHtml(sesi)}</td>`;
+            renderedSessionStart.add(sesi);
+          }
+
+          html += `<td class="time-cell">${escapeHtml(slot.LABEL_TAMPIL)}</td>`;
+
+          for (const room of rooms) {
+            const roomCode = normalizeText(room.KODE_RUANG);
+            const key = `${roomCode}__${slotId}`;
+            if (coverMap.has(key)) continue;
+
+            const item = scheduleMap.get(key);
+            if (!item) {
+              html += '<td class="empty-cell"></td>';
+              continue;
+            }
+
+            const rowspan = getRowspanBySlotId(item.ID_SLOT_MULAI, item.ID_SLOT_SELESAI || item.ID_SLOT_MULAI, slots);
+            const bg = normalizeText(item.WARNA_BG) || '#d9d9d9';
+            const color = normalizeText(item.WARNA_TEXT) || '#111111';
+            html += `
+              <td class="course-cell" rowspan="${rowspan}" style="background:${escapeHtml(bg)};color:${escapeHtml(color)};">
+                <div class="course-code">${escapeHtml(item.KODE_MK || '')}${item.KELAS ? ` (${escapeHtml(item.KELAS)})` : ''}</div>
+                <div class="course-name">${escapeHtml(item.NAMA_MK || '')}</div>
+                ${item.DOSEN ? `<div class="course-meta">Dosen : ${escapeHtml(item.DOSEN)}</div>` : ''}
+                ${item['PROGRAM/ANGKATAN'] ? `<div class="course-meta">${escapeHtml(item['PROGRAM/ANGKATAN'])}</div>` : ''}
+                ${item.CATATAN ? `<div class="course-meta">${escapeHtml(item.CATATAN)}</div>` : ''}
+              </td>
+            `;
+          }
+        } else {
+          html += '<td class="session-empty"></td>';
+          html += `<td class="special-time">${escapeHtml(slot.LABEL_TAMPIL)}</td>`;
+          html += `<td class="special-cell" colspan="${rooms.length}">${escapeHtml(formatSpecialText(slot))}</td>`;
+        }
+
+        html += '</tr>';
+      }
+
+      html += `
+          </tbody>
+        </table>
+        <div class="footer-note">
+          <div>Mode tampilan aktif: <strong>${escapeHtml(state.mode)}</strong>.</div>
+          <div>Terbaca <strong>${rooms.length}</strong> ruang dan <strong>${state.data.schedules.length}</strong> jadwal aktif.</div>
+        </div>
+      `;
+
+      el.tableWrap.innerHTML = html;
+      el.activeDayStatus.textContent = `Hari aktif: ${day}`;
+    }
+
+    function renderDayButtons() {
+      if (!state.data || !state.data.days.length) {
+        el.dayButtons.innerHTML = '';
+        return;
+      }
+
+      const days = state.data.days;
+      el.dayButtons.innerHTML = days
+        .map(day => `<button type="button" class="day-btn ${day === state.selectedDay ? 'active' : ''}" data-day="${escapeHtml(day)}">${escapeHtml(day)}</button>`)
+        .join('');
+
+      el.dayButtons.querySelectorAll('.day-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.selectedDay = btn.dataset.day;
+          renderDayButtons();
+          renderTable(state.selectedDay);
+        });
+      });
+    }
+
+    function renderStatus() {
+      if (!state.data) return;
+      el.modeStatus.textContent = `Mode: ${state.mode}`;
+      el.sheetStatus.textContent = `Sheet: ${state.data.sheetNames.join(', ')}`;
+      el.fileStatus.textContent = `Sumber: ${state.sourceLabel}`;
+
+      el.statusText.innerHTML = `Terbaca ${state.data.rooms.length} ruang aktif, ${state.data.slots.length} slot tampil, dan ${state.data.schedules.length} jadwal aktif.`;
+    }
+
+    function validateRequiredSheets(data) {
+      const missing = CONFIG.requiredSheets.filter(name => !data.sheetNames.includes(name));
+      if (missing.length) {
+        throw new Error(`Sheet wajib belum ditemukan: ${missing.join(', ')}`);
+      }
+    }
+
+    async function loadWorkbookFromUrl(url, sourceLabel = 'Excel default') {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Gagal mengambil file Excel dari ${url}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      state.workbook = workbook;
+      state.data = buildDataModel(workbook);
+      state.sourceLabel = sourceLabel;
+      state.mode = 'Excel multi-sheet';
+      validateRequiredSheets(state.data);
+      if (!state.data.days.includes(state.selectedDay)) {
+        state.selectedDay = state.data.days[0] || 'Senin';
+      }
+      renderStatus();
+      renderDayButtons();
+      renderTable(state.selectedDay);
+    }
+
+    async function loadWorkbookFromFile(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      state.workbook = workbook;
+      state.data = buildDataModel(workbook);
+      state.sourceLabel = file.name;
+      state.mode = 'Excel multi-sheet';
+      validateRequiredSheets(state.data);
+      if (!state.data.days.includes(state.selectedDay)) {
+        state.selectedDay = state.data.days[0] || 'Senin';
+      }
+      renderStatus();
+      renderDayButtons();
+      renderTable(state.selectedDay);
+    }
+
+    function showError(message) {
+      el.tableWrap.innerHTML = `<div class="error-box">${message}</div>`;
+      el.statusText.textContent = 'Terjadi masalah saat membaca file.';
+    }
+
+    function startClock() {
+      const formatterTime = new Intl.DateTimeFormat('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      const formatterDate = new Intl.DateTimeFormat('id-ID', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      const tick = () => {
+        const now = new Date();
+        el.clockTime.textContent = formatterTime.format(now);
+        el.clockDate.textContent = formatterDate.format(now);
+      };
+
+      tick();
+      setInterval(tick, 1000);
+    }
+    el.reloadExcelBtn.addEventListener('click', async () => {
+      try {
+        await loadWorkbookFromUrl(CONFIG.workbookFile, 'Excel default');
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+
+    el.fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        await loadWorkbookFromFile(file);
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+
+    startClock();
+
+    loadWorkbookFromUrl(CONFIG.workbookFile, 'Excel default').catch((error) => {
+      showError(`${error.message}<br><br>Alternatif cepat: gunakan tombol <strong>Buka Excel lokal</strong>.`);
+    });
+  </script>
+</body>
+</html>
