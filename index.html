@@ -226,17 +226,25 @@
       position:relative;
       border-radius:14px;
       background:rgba(255,255,255,.26);
-      display:flex;
     }
 
-    .table-fill{
+    .table-scale-wrap{
+      position:absolute;
+      inset:0;
+      overflow:hidden;
+    }
+
+    .table-scale{
+      position:absolute;
+      top:0;
+      left:0;
       width:100%;
-      height:100%;
+      transform-origin:top left;
+      will-change:transform;
     }
 
     table.schedule{
       width:100%;
-      height:100%;
       border-collapse:collapse;
       table-layout:fixed;
       background:#fff;
@@ -745,20 +753,21 @@
       const stageWidth = Math.max(320, el.tableStage.clientWidth);
       const stageHeight = Math.max(240, el.tableStage.clientHeight);
 
-      const headerHeight = Math.max(32, Math.min(46, stageHeight * 0.04));
-      const specialWeight = 0.68;
-      const bodyHeight = Math.max(140, stageHeight - headerHeight);
+      const headerHeight = Math.max(28, Math.min(40, stageHeight * 0.034));
+      const specialWeight = 0.60;
+      const borderReserve = (slots.length + 6) * 2;
+      const bodyHeight = Math.max(110, stageHeight - headerHeight - borderReserve);
       const baseUnit = bodyHeight / (kuliahCount + (specialCount * specialWeight));
-      const rowHeight = Math.max(28, baseUnit);
-      const specialRowHeight = Math.max(20, baseUnit * specialWeight);
+      const rowHeight = Math.max(24, Math.min(36, baseUnit));
+      const specialRowHeight = Math.max(18, Math.min(24, baseUnit * specialWeight));
 
       const roomCount = Math.max(1, state.data.rooms.length);
-      const headerFont = Math.max(10, Math.min(14, stageWidth / (roomCount * 10.5)));
-      const sessionFont = Math.max(10, Math.min(13, rowHeight * 0.29));
-      const cellFont = Math.max(9, Math.min(12.5, rowHeight * 0.24));
-      const codeFont = Math.max(8, Math.min(11, rowHeight * 0.2));
-      const metaFont = Math.max(7.5, Math.min(10.5, rowHeight * 0.18));
-      const specialFont = Math.max(9, Math.min(11.5, specialRowHeight * 0.42));
+      const headerFont = Math.max(10, Math.min(14, stageWidth / (roomCount * 10.8)));
+      const sessionFont = Math.max(9.5, Math.min(12.5, rowHeight * 0.28));
+      const cellFont = Math.max(8.5, Math.min(11.5, rowHeight * 0.23));
+      const codeFont = Math.max(7.5, Math.min(10.5, rowHeight * 0.19));
+      const metaFont = Math.max(7, Math.min(9.8, rowHeight * 0.17));
+      const specialFont = Math.max(8.5, Math.min(10.5, specialRowHeight * 0.42));
 
       table.style.setProperty('--thead-height', `${headerHeight}px`);
       table.style.setProperty('--row-height', `${rowHeight}px`);
@@ -769,6 +778,32 @@
       table.style.setProperty('--code-font', `${codeFont}px`);
       table.style.setProperty('--meta-font', `${metaFont}px`);
       table.style.setProperty('--special-font', `${specialFont}px`);
+
+      requestAnimationFrame(fitTableWithoutStretch);
+    }
+
+    function fitTableWithoutStretch(){
+      const stage = el.tableStage;
+      const scaleBox = document.getElementById('tableScale');
+      const table = document.getElementById('scheduleTable');
+      if (!stage || !scaleBox || !table) return;
+
+      scaleBox.style.transform = 'translate(0px, 0px) scale(1)';
+      const stageWidth = Math.max(320, stage.clientWidth);
+      const stageHeight = Math.max(240, stage.clientHeight);
+      const tableHeight = table.offsetHeight;
+
+      let scale = 1;
+      if (tableHeight > stageHeight) {
+        scale = stageHeight / tableHeight;
+      }
+
+      const scaledWidth = stageWidth * scale;
+      const scaledHeight = tableHeight * scale;
+      const offsetX = Math.max(0, (stageWidth - scaledWidth) / 2);
+      const offsetY = Math.max(0, (stageHeight - scaledHeight) / 2);
+
+      scaleBox.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
     }
 
     function renderTable(day){
@@ -780,8 +815,9 @@
       const renderedSessionStart = new Set();
 
       let html = `
-        <div class="table-fill">
-          <table class="schedule" id="scheduleTable">
+        <div class="table-scale-wrap">
+          <div class="table-scale" id="tableScale">
+            <table class="schedule" id="scheduleTable">
             <colgroup>
               <col style="width:66px;">
               <col style="width:96px;">
@@ -826,12 +862,16 @@
 
       html += `
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       `;
 
       el.tableStage.innerHTML = html;
-      requestAnimationFrame(applyResponsiveTableSize);
+      requestAnimationFrame(() => {
+        applyResponsiveTableSize();
+        requestAnimationFrame(fitTableWithoutStretch);
+      });
     }
 
     function showError(message){
@@ -957,7 +997,10 @@
     }
 
     window.addEventListener('resize', () => {
-      requestAnimationFrame(applyResponsiveTableSize);
+      requestAnimationFrame(() => {
+        applyResponsiveTableSize();
+        requestAnimationFrame(fitTableWithoutStretch);
+      });
     });
 
     el.reloadBtn.addEventListener('click', async () => {
