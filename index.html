@@ -6,365 +6,375 @@
   <title>Jadwal Perkuliahan Mahasiswa</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
-    :root {
-      --panel: rgba(255,255,255,.82);
-      --navy: #1f4e95;
-      --navy-dark: #183d74;
-      --text: #122235;
-      --muted: #526272;
-      --grid: #4a4a4a;
-      --soft: #d9d9d9;
-      --special: #d9ead3;
-      --special-dark: #204610;
-      --room-f6: #f2f500;
-      --room-f4: #10d9e7;
-      --room-default: #dbe4ef;
-      --radius: 16px;
-      --shadow: 0 12px 30px rgba(0,0,0,.12);
+    :root{
+      --bg:#dfe7d6;
+      --panel:rgba(255,255,255,.82);
+      --navy:#1f4e95;
+      --navy-dark:#173d75;
+      --text:#102030;
+      --muted:#4d5b68;
+      --grid:#3d3d3d;
+      --special:#d9ead3;
+      --special-dark:#244e14;
+      --empty:#d9d9d9;
+      --room-f6:#f2f500;
+      --room-f4:#12d9e7;
+      --room-default:#dce6f1;
+      --radius:18px;
+      --shadow:0 12px 32px rgba(0,0,0,.12);
     }
 
-    * { box-sizing: border-box; }
+    *{box-sizing:border-box}
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--text);
+    html,body{
+      width:100%;
+      height:100%;
+      margin:0;
+      overflow:hidden;
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--text);
       background:
-        linear-gradient(rgba(223, 231, 214, 0.9), rgba(223, 231, 214, 0.9)),
-        radial-gradient(circle at top left, #ffffff 0%, #dfe7d6 48%, #c7d5be 100%);
+        linear-gradient(rgba(223,231,214,.90), rgba(223,231,214,.90)),
+        radial-gradient(circle at top left, #ffffff 0%, #dfe7d6 46%, #c8d5bf 100%);
     }
 
-    .app {
-      width: 100%;
-      height: 100vh;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    body{
+      min-height:100vh;
+    }
+
+    .app{
+      height:100vh;
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding:6px;
     }
 
     .header-panel,
     .ticker-panel,
-    .table-panel {
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,.5);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(3px);
+    .table-panel{
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,.55);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(3px);
     }
 
-    .header-panel {
-      padding: 12px 16px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex: 0 0 auto;
+    .header-panel{
+      flex:0 0 auto;
+      padding:12px 16px 10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
-    .header-main {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
+    .header-main{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:20px;
     }
 
-    .title-wrap h1 {
-      margin: 0 0 6px;
-      font-size: clamp(28px, 2.7vw, 54px);
-      line-height: 1.02;
-      color: var(--navy-dark);
+    .title-wrap{
+      min-width:0;
     }
 
-    .title-wrap p {
-      margin: 0;
-      font-size: clamp(12px, 0.95vw, 18px);
-      color: var(--muted);
-      line-height: 1.35;
+    .title-wrap h1{
+      margin:0 0 6px;
+      color:var(--navy-dark);
+      font-size:clamp(28px, 3.1vw, 64px);
+      line-height:1.03;
+      letter-spacing:.2px;
     }
 
-    .clock {
-      text-align: right;
-      flex-shrink: 0;
-      min-width: 240px;
+    .title-wrap p{
+      margin:0;
+      color:var(--muted);
+      font-size:clamp(13px, 1vw, 20px);
+      line-height:1.35;
     }
 
-    .clock-time {
-      font-size: clamp(38px, 3.5vw, 72px);
-      line-height: 1;
-      font-weight: 800;
-      color: var(--navy-dark);
-      letter-spacing: 1px;
+    .clock{
+      flex:0 0 auto;
+      min-width:280px;
+      text-align:right;
     }
 
-    .clock-date {
-      margin-top: 6px;
-      font-size: clamp(13px, 1vw, 19px);
-      color: var(--muted);
+    .clock-time{
+      color:var(--navy-dark);
+      font-size:clamp(40px, 4vw, 84px);
+      font-weight:800;
+      line-height:1;
+      letter-spacing:1px;
     }
 
-    .toolbar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+    .clock-date{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:clamp(14px, 1.1vw, 22px);
+    }
+
+    .toolbar{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
     }
 
     .day-buttons,
-    .action-buttons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+    .action-buttons{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
     }
 
-    .status-inline {
-      margin-left: auto;
-      font-size: 14px;
-      color: var(--muted);
-      font-weight: 600;
-      line-height: 1.4;
-      text-align: right;
+    .status-inline{
+      margin-left:auto;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+      line-height:1.45;
+      text-align:right;
     }
 
     .day-btn,
     .action-btn,
-    .file-label {
-      border: 0;
-      border-radius: 999px;
-      padding: 9px 14px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: .18s ease;
-      white-space: nowrap;
+    .file-label{
+      border:0;
+      border-radius:999px;
+      padding:9px 15px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:.18s ease;
     }
 
-    .day-btn {
-      background: #e7eef9;
-      color: var(--navy-dark);
+    .day-btn{
+      background:#e8eef8;
+      color:var(--navy-dark);
     }
 
     .day-btn.active,
-    .day-btn:hover {
-      background: var(--navy);
-      color: #fff;
+    .day-btn:hover{
+      background:var(--navy);
+      color:#fff;
     }
 
     .action-btn,
-    .file-label {
-      background: #eef4ea;
-      color: #29470f;
-      border: 1px solid #d2dec8;
+    .file-label{
+      background:#eef4ea;
+      color:#25440f;
+      border:1px solid #cfddc3;
     }
 
     .action-btn:hover,
-    .file-label:hover {
-      background: #e0ebd8;
+    .file-label:hover{
+      background:#dfead7;
     }
 
-    .file-label input {
-      display: none;
+    .file-label input{
+      display:none;
     }
 
-    .ticker-panel {
-      min-height: 40px;
-      display: flex;
-      align-items: center;
-      padding: 0 14px;
-      overflow: hidden;
-      background: linear-gradient(90deg, #173d76 0%, #2458a7 50%, #1b458a 100%);
-      color: #fff;
-      flex: 0 0 auto;
+    .ticker-panel{
+      flex:0 0 auto;
+      min-height:36px;
+      display:flex;
+      align-items:center;
+      overflow:hidden;
+      padding:0 12px;
+      color:#fff;
+      background:linear-gradient(90deg, #173d76 0%, #2458a7 50%, #173d76 100%);
     }
 
-    .ticker-label {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: .3px;
-      flex-shrink: 0;
-      margin-right: 14px;
+    .ticker-label{
+      flex:0 0 auto;
+      margin-right:14px;
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.3px;
     }
 
-    .ticker-viewport {
-      flex: 1;
-      overflow: hidden;
-      white-space: nowrap;
-      position: relative;
-      height: 22px;
-      display: flex;
-      align-items: center;
+    .ticker-viewport{
+      flex:1 1 auto;
+      min-width:0;
+      white-space:nowrap;
+      overflow:hidden;
+      position:relative;
+      height:22px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
     }
 
-    .ticker-track {
-      display: inline-block;
-      white-space: nowrap;
-      padding-left: 100%;
-      will-change: transform;
-      animation: tickerMove 40s linear infinite;
-      font-size: 13px;
-      font-weight: 700;
+    .ticker-track{
+      display:inline-block;
+      white-space:nowrap;
+      padding-left:100%;
+      will-change:transform;
+      animation:tickerMove 38s linear infinite;
+      font-size:13px;
+      font-weight:700;
     }
 
-    @keyframes tickerMove {
-      from { transform: translateX(0); }
-      to { transform: translateX(-100%); }
+    @keyframes tickerMove{
+      from{transform:translateX(0)}
+      to{transform:translateX(-100%)}
     }
 
-    .table-panel {
-      flex: 1 1 auto;
-      min-height: 0;
-      padding: 8px;
-      display: flex;
-      overflow: hidden;
+    .table-panel{
+      flex:1 1 auto;
+      min-height:0;
+      padding:6px;
+      overflow:hidden;
+      display:flex;
     }
 
-    .table-stage {
-      flex: 1;
-      min-height: 0;
-      min-width: 0;
-      position: relative;
-      overflow: hidden;
-      border-radius: 12px;
-      background: rgba(255,255,255,.28);
+    .table-stage{
+      flex:1 1 auto;
+      min-width:0;
+      min-height:0;
+      overflow:hidden;
+      position:relative;
+      border-radius:14px;
+      background:rgba(255,255,255,.26);
     }
 
-    .table-scale {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform-origin: top center;
-      will-change: transform;
+    .table-scale{
+      position:absolute;
+      top:0;
+      left:0;
+      transform-origin:top left;
+      will-change:transform;
     }
 
-    table.schedule {
-      border-collapse: collapse;
-      table-layout: fixed;
-      background: #fff;
-      box-shadow: 0 0 0 1px rgba(0,0,0,.08);
+    table.schedule{
+      border-collapse:collapse;
+      table-layout:fixed;
+      background:#fff;
+      box-shadow:0 0 0 1px rgba(0,0,0,.06);
     }
 
     .schedule th,
-    .schedule td {
-      border: 1px solid var(--grid);
-      text-align: center;
-      vertical-align: middle;
-      padding: 4px 5px;
+    .schedule td{
+      border:1px solid var(--grid);
+      text-align:center;
+      vertical-align:middle;
+      padding:4px 4px;
     }
 
-    .schedule thead th {
-      height: 38px;
-      font-size: 12px;
-      font-weight: 800;
-      color: #fff;
-      background: var(--navy);
+    .schedule thead th{
+      height:38px;
+      font-size:12px;
+      font-weight:800;
+      color:#fff;
+      background:var(--navy);
     }
 
-    .schedule thead th.room-head {
-      color: #111;
+    .schedule thead th.room-head{
+      color:#111;
     }
 
-    .schedule thead th.room-head.group-f6 { background: var(--room-f6); }
-    .schedule thead th.room-head.group-f4 { background: var(--room-f4); }
-    .schedule thead th.room-head.group-default { background: var(--room-default); }
+    .schedule thead th.room-head.group-f6{background:var(--room-f6)}
+    .schedule thead th.room-head.group-f4{background:var(--room-f4)}
+    .schedule thead th.room-head.group-default{background:var(--room-default)}
 
-    .col-session { width: 74px; }
-    .col-time { width: 110px; }
+    .col-session{width:74px}
+    .col-time{width:112px}
 
     td.session-cell,
-    td.session-empty {
-      background: #f6f6f6;
-      font-size: 12px;
-      font-weight: 700;
+    td.session-empty{
+      background:#f7f7f7;
+      font-size:12px;
+      font-weight:700;
     }
 
-    td.time-cell {
-      background: #f1f1f1;
-      font-size: 12px;
-      font-weight: 700;
-      white-space: nowrap;
-      height: 42px;
+    td.time-cell{
+      background:#f2f2f2;
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+      height:42px;
     }
 
-    td.empty-cell {
-      background: var(--soft);
-      height: 42px;
+    td.empty-cell{
+      background:var(--empty);
+      height:42px;
     }
 
-    td.course-cell {
-      font-size: 11px;
-      line-height: 1.18;
-      font-weight: 700;
-      height: 42px;
-      word-break: break-word;
-      overflow-wrap: anywhere;
+    td.course-cell{
+      height:42px;
+      font-size:11px;
+      line-height:1.16;
+      font-weight:700;
+      word-break:break-word;
+      overflow-wrap:anywhere;
     }
 
-    .course-code {
-      font-size: 10px;
-      margin-bottom: 2px;
+    .course-code{
+      font-size:10px;
+      margin-bottom:2px;
     }
 
-    .course-name {
-      font-size: 11px;
-      font-weight: 800;
-      margin-bottom: 2px;
+    .course-name{
+      font-size:11px;
+      font-weight:800;
+      margin-bottom:2px;
     }
 
-    .course-meta {
-      font-size: 9.5px;
-      font-weight: 600;
-      margin-top: 2px;
-      opacity: .96;
+    .course-meta{
+      font-size:9.5px;
+      font-weight:600;
+      margin-top:2px;
+      opacity:.96;
     }
 
-    td.special-time {
-      background: #eef5e8;
-      font-size: 11px;
-      font-weight: 700;
-      height: 28px;
+    td.special-time{
+      background:#eef5e8;
+      font-size:11px;
+      font-weight:700;
+      height:28px;
     }
 
-    td.special-cell {
-      background: var(--special);
-      color: var(--special-dark);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: .2px;
-      padding: 3px 6px;
-      height: 28px;
+    td.special-cell{
+      background:var(--special);
+      color:var(--special-dark);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.15px;
+      padding:3px 6px;
+      height:28px;
     }
 
-    .error-box {
-      padding: 16px;
-      border-radius: 12px;
-      background: #fff0f0;
-      border: 1px solid #efb0b0;
-      color: #7b1d1d;
-      font-size: 14px;
-      line-height: 1.5;
+    .error-box{
+      padding:16px;
+      border-radius:12px;
+      background:#fff0f0;
+      border:1px solid #efb0b0;
+      color:#7b1d1d;
+      font-size:14px;
+      line-height:1.5;
+      margin:10px;
     }
 
-    @media (max-width: 1200px) {
-      .status-inline {
-        margin-left: 0;
-        width: 100%;
-        text-align: left;
+    @media (max-width:1100px){
+      .status-inline{
+        margin-left:0;
+        width:100%;
+        text-align:left;
       }
     }
 
-    @media (max-width: 880px) {
-      .header-main {
-        flex-direction: column;
-        align-items: flex-start;
+    @media (max-width:880px){
+      .header-main{
+        flex-direction:column;
       }
-      .clock {
-        text-align: left;
+      .clock{
+        text-align:left;
+        min-width:0;
       }
     }
   </style>
@@ -375,7 +385,7 @@
       <div class="header-main">
         <div class="title-wrap">
           <h1>Jadwal Perkuliahan Mahasiswa</h1>
-          <p>Data dibaca dari file Excel multi-sheet. Tampilan diatur otomatis agar penuh di layar besar tanpa perlu scroll ke bawah.</p>
+          <p>Data dibaca dari file Excel multi-sheet. Tampilan diperbesar otomatis agar menyesuaikan area layar besar.</p>
         </div>
         <div class="clock">
           <div class="clock-time" id="clockTime">--:--:--</div>
@@ -391,7 +401,7 @@
             <input id="fileInput" type="file" accept=".xlsx,.xls" />
           </label>
         </div>
-        <div class="status-inline" id="statusInline">Menunggu data...</div>
+        <div class="status-inline" id="statusText">Menunggu data...</div>
       </div>
     </section>
 
@@ -415,37 +425,58 @@
       requiredSheets: ['SLOT_WAKTU', 'RUANG_DISPLAY', 'JADWAL_KULIAH'],
       fallbackDays: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
       roomHeaderClasses: { F6: 'group-f6', F4: 'group-f4' },
-      autoRefreshMs: 60000
+      autoRefreshMs: 60000,
+      tickerFallback: 'Selamat datang. Pastikan hadir tepat waktu dan perhatikan informasi akademik terbaru.'
     };
 
     const state = {
       workbook: null,
       data: null,
       selectedDay: 'Senin',
+      sourceLabel: 'file default',
       sourceKind: 'default',
       workbookHash: '',
       autoRefreshTimer: null,
       autoRefreshBusy: false,
-      lastSyncText: '-',
-      currentScale: 1
+      lastSyncText: '-'
     };
 
     const el = {
+      tableStage: document.getElementById('tableStage'),
       dayButtons: document.getElementById('dayButtons'),
       reloadBtn: document.getElementById('reloadBtn'),
       fileInput: document.getElementById('fileInput'),
-      statusInline: document.getElementById('statusInline'),
+      statusText: document.getElementById('statusText'),
       tickerTrack: document.getElementById('tickerTrack'),
-      tableStage: document.getElementById('tableStage'),
       clockTime: document.getElementById('clockTime'),
       clockDate: document.getElementById('clockDate')
     };
 
-    function normalizeText(value) {
+    function normalizeText(value){
       return String(value ?? '').trim();
     }
 
-    function normalizeHexColor(value) {
+    function normalizeKey(value){
+      return normalizeText(value)
+        .normalize('NFKD')
+        .replace(/[^a-zA-Z0-9/]+/g, '')
+        .toUpperCase();
+    }
+
+    function isYes(value){
+      return ['ya', 'y', 'true', '1', 'aktif'].includes(normalizeText(value).toLowerCase());
+    }
+
+    function escapeHtml(value){
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function normalizeHexColor(value){
       const raw = normalizeText(value).replace(/[^#a-fA-F0-9]/g, '');
       if (!raw) return '';
       if (raw.startsWith('#')) {
@@ -458,27 +489,7 @@
       return '';
     }
 
-    function normalizeKey(value) {
-      return normalizeText(value)
-        .normalize('NFKD')
-        .replace(/[^a-zA-Z0-9/]+/g, '')
-        .toUpperCase();
-    }
-
-    function isYes(value) {
-      return ['ya', 'y', 'true', '1', 'aktif'].includes(normalizeText(value).toLowerCase());
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    function getCanonicalKey(rawKey) {
+    function getCanonicalKey(rawKey){
       const key = normalizeKey(rawKey);
       const aliasMap = {
         HARI: 'HARI', HARIKULIAH: 'HARI', DAY: 'HARI',
@@ -487,76 +498,58 @@
         IDSLOTSELESAI: 'ID_SLOT_SELESAI', SLOTSELESAI: 'ID_SLOT_SELESAI', ENDSLOT: 'ID_SLOT_SELESAI',
         KODEMK: 'KODE_MK', MATAKULIAHKODE: 'KODE_MK',
         NAMAMK: 'NAMA_MK', MATAKULIAH: 'NAMA_MK', NAMAMATAKULIAH: 'NAMA_MK',
-        DOSEN: 'DOSEN', DOSENPENGAMPU: 'DOSEN', KELAS: 'KELAS',
+        DOSEN: 'DOSEN', DOSENPENGAMPU: 'DOSEN',
         PROGRAMANGKATAN: 'PROGRAM/ANGKATAN', PROGRAM: 'PROGRAM/ANGKATAN', ANGKATAN: 'PROGRAM/ANGKATAN',
-        CATATAN: 'CATATAN', KETERANGAN: 'CATATAN', NOTE: 'CATATAN',
         WARNABG: 'WARNA_BG', BACKGROUND: 'WARNA_BG', BGCOLOR: 'WARNA_BG',
         WARNATEXT: 'WARNA_TEXT', TEXTCOLOR: 'WARNA_TEXT', FONTCOLOR: 'WARNA_TEXT',
-        AKTIF: 'AKTIF'
+        KETERANGAN: 'CATATAN', NOTE: 'CATATAN'
       };
       return aliasMap[key] || rawKey;
     }
 
-    function sheetToObjects(workbook, sheetName) {
+    function sheetToObjects(workbook, sheetName){
       const sheet = workbook.Sheets[sheetName];
       if (!sheet) return [];
       return XLSX.utils.sheet_to_json(sheet, { defval: '' });
     }
 
-    function sheetToObjectsWithMeta(workbook, sheetName) {
+    function sheetToObjectsWithMeta(workbook, sheetName){
       const sheet = workbook.Sheets[sheetName];
       if (!sheet || !sheet['!ref']) return [];
       const range = XLSX.utils.decode_range(sheet['!ref']);
       const headers = [];
+
       for (let c = range.s.c; c <= range.e.c; c += 1) {
         const address = XLSX.utils.encode_cell({ r: range.s.r, c });
         headers.push(normalizeText(sheet[address]?.v));
       }
+
       const rows = [];
       for (let r = range.s.r + 1; r <= range.e.r; r += 1) {
-        const rowObj = { __sheetRowNum: r + 1 };
+        const rowObj = { __sheetName: sheetName, __sheetRowNum: r + 1 };
         let hasContent = false;
-        headers.forEach((header, index) => {
+
+        headers.forEach((header, idx) => {
           if (!header) return;
-          const address = XLSX.utils.encode_cell({ r, c: range.s.c + index });
+          const address = XLSX.utils.encode_cell({ r, c: range.s.c + idx });
           const cell = sheet[address];
           const value = cell?.v ?? '';
           rowObj[getCanonicalKey(header)] = value;
           if (normalizeText(value) !== '') hasContent = true;
         });
+
         if (hasContent) rows.push(rowObj);
       }
       return rows;
     }
 
-    function buildCanonicalHeaderMap(workbook, sheetName) {
-      const map = new Map();
-      const sheet = workbook.Sheets[sheetName];
-      if (!sheet || !sheet['!ref']) return map;
-      const range = XLSX.utils.decode_range(sheet['!ref']);
-      for (let c = range.s.c; c <= range.e.c; c += 1) {
-        const address = XLSX.utils.encode_cell({ r: range.s.r, c });
-        const header = normalizeText(sheet[address]?.v);
-        if (header) map.set(getCanonicalKey(header), c);
-      }
-      return map;
-    }
-
-    function getSheetCell(workbook, sheetName, rowNum, headerMap, canonicalHeader) {
-      const colIndex = headerMap.get(canonicalHeader);
-      if (colIndex === undefined) return null;
-      const sheet = workbook.Sheets[sheetName];
-      const address = XLSX.utils.encode_cell({ r: Number(rowNum) - 1, c: colIndex });
-      return sheet?.[address] || null;
-    }
-
-    function getStyleColorToken(colorObj) {
+    function getStyleColorToken(colorObj){
       if (!colorObj) return '';
       if (typeof colorObj === 'string') return normalizeHexColor(colorObj);
       return normalizeHexColor(colorObj.rgb || colorObj.argb || colorObj.value || colorObj.raw || colorObj.hex || '');
     }
 
-    function extractColorsFromCell(cell) {
+    function extractColorsFromCell(cell){
       if (!cell || !cell.s) return { bg: '', text: '' };
       const style = cell.s;
       const bg = getStyleColorToken(style.fill?.fgColor) || getStyleColorToken(style.fill?.bgColor) || getStyleColorToken(style.fgColor) || getStyleColorToken(style.bgColor);
@@ -564,40 +557,88 @@
       return { bg, text };
     }
 
-    function enrichScheduleColors(workbook, item, headerMap) {
-      item.WARNA_BG = normalizeHexColor(item.WARNA_BG);
-      item.WARNA_TEXT = normalizeHexColor(item.WARNA_TEXT);
-      if (item.WARNA_BG && item.WARNA_TEXT) return item;
-      for (const header of ['WARNA_BG', 'WARNA_TEXT', 'NAMA_MK', 'KODE_MK', 'KELAS', 'DOSEN', 'CATATAN']) {
-        const cell = getSheetCell(workbook, 'JADWAL_KULIAH', item.__sheetRowNum, headerMap, header);
+    function buildCanonicalHeaderMap(workbook, sheetName){
+      const map = new Map();
+      const sheet = workbook.Sheets[sheetName];
+      if (!sheet || !sheet['!ref']) return map;
+      const range = XLSX.utils.decode_range(sheet['!ref']);
+
+      for (let c = range.s.c; c <= range.e.c; c += 1) {
+        const address = XLSX.utils.encode_cell({ r: range.s.r, c });
+        const header = normalizeText(sheet[address]?.v);
+        if (!header) continue;
+        map.set(getCanonicalKey(header), c);
+      }
+      return map;
+    }
+
+    function getSheetCell(workbook, sheetName, rowNum, headerMap, canonicalHeader){
+      const colIndex = headerMap.get(canonicalHeader);
+      if (colIndex === undefined) return null;
+      const sheet = workbook.Sheets[sheetName];
+      const address = XLSX.utils.encode_cell({ r: Number(rowNum) - 1, c: colIndex });
+      return sheet?.[address] || null;
+    }
+
+    function enrichScheduleColors(workbook, row, headerMap){
+      row.WARNA_BG = normalizeHexColor(row.WARNA_BG);
+      row.WARNA_TEXT = normalizeHexColor(row.WARNA_TEXT);
+
+      if (row.WARNA_BG && row.WARNA_TEXT) return row;
+
+      const probeHeaders = ['WARNA_BG', 'WARNA_TEXT', 'NAMA_MK', 'KODE_MK', 'CATATAN'];
+      for (const header of probeHeaders) {
+        const cell = getSheetCell(workbook, 'JADWAL_KULIAH', row.__sheetRowNum, headerMap, header);
         const colors = extractColorsFromCell(cell);
-        if (!item.WARNA_BG && colors.bg) item.WARNA_BG = colors.bg;
-        if (!item.WARNA_TEXT && colors.text) item.WARNA_TEXT = colors.text;
-        if (item.WARNA_BG && item.WARNA_TEXT) break;
+        if (!row.WARNA_BG && colors.bg) row.WARNA_BG = colors.bg;
+        if (!row.WARNA_TEXT && colors.text) row.WARNA_TEXT = colors.text;
+        if (row.WARNA_BG && row.WARNA_TEXT) break;
       }
-      if (!item.WARNA_BG) item.WARNA_BG = '#D9D9D9';
-      if (!item.WARNA_TEXT) item.WARNA_TEXT = '#111111';
-      return item;
+
+      if (!row.WARNA_BG) row.WARNA_BG = '#D9D9D9';
+      if (!row.WARNA_TEXT) row.WARNA_TEXT = '#111111';
+      return row;
     }
 
-    function formatDateIndo(value) {
-      const raw = normalizeText(value);
-      if (!raw) return '';
-      const parsed = new Date(raw);
-      if (!Number.isNaN(parsed.getTime())) {
-        return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(parsed);
-      }
-      return raw;
+    function buildDataModel(workbook){
+      const sheetNames = workbook.SheetNames || [];
+
+      const slots = sheetToObjects(workbook, 'SLOT_WAKTU')
+        .filter(row => !normalizeText(row.TAMPIL_DI_LAYAR) || isYes(row.TAMPIL_DI_LAYAR))
+        .sort((a,b) => Number(a.URUTAN || 0) - Number(b.URUTAN || 0));
+
+      const rooms = sheetToObjects(workbook, 'RUANG_DISPLAY')
+        .filter(row => !normalizeText(row.AKTIF) || isYes(row.AKTIF))
+        .sort((a,b) => Number(a.URUTAN_KOLOM || 0) - Number(b.URUTAN_KOLOM || 0));
+
+      const scheduleHeaderMap = buildCanonicalHeaderMap(workbook, 'JADWAL_KULIAH');
+      const schedules = sheetToObjectsWithMeta(workbook, 'JADWAL_KULIAH')
+        .filter(row => !normalizeText(row.AKTIF) || isYes(row.AKTIF))
+        .map(row => enrichScheduleColors(workbook, row, scheduleHeaderMap));
+
+      const holidays = sheetToObjects(workbook, 'LIBUR_AKADEMIK')
+        .filter(row => !normalizeText(row.TAMPIL_DI_APLIKASI) || isYes(row.TAMPIL_DI_APLIKASI));
+
+      const availableDaysSet = new Set();
+      schedules.forEach(row => {
+        const day = normalizeText(row.HARI);
+        if (day) availableDaysSet.add(day);
+      });
+
+      const orderedDays = CONFIG.fallbackDays.filter(day => availableDaysSet.has(day));
+      const extraDays = [...availableDaysSet].filter(day => !orderedDays.includes(day));
+
+      return {
+        sheetNames,
+        slots,
+        rooms,
+        schedules,
+        holidays,
+        days: [...orderedDays, ...extraDays]
+      };
     }
 
-    function buildTickerText(holidays) {
-      const visible = holidays.filter(row => isYes(row.TAMPIL_DI_APLIKASI));
-      if (!visible.length) return 'Selamat datang. Informasi tambahan perkuliahan akan tampil di sini.';
-      const text = visible.map(row => [formatDateIndo(row.TANGGAL), normalizeText(row.JENIS), normalizeText(row.KETERANGAN)].filter(Boolean).join(' - ')).join('   •   ');
-      return `${text}   •   ${text}`;
-    }
-
-    function groupSessionRows(slots) {
+    function groupSessionRows(slots){
       const groups = new Map();
       slots.forEach(slot => {
         if (normalizeText(slot.TIPE_BARIS).toUpperCase() === 'KULIAH') {
@@ -608,232 +649,336 @@
       return groups;
     }
 
-    function getRoomHeaderClass(room) {
-      return CONFIG.roomHeaderClasses[normalizeText(room.GRUP_WARNA).toUpperCase()] || 'group-default';
+    function getRoomHeaderClass(room){
+      const group = normalizeText(room.GRUP_WARNA).toUpperCase();
+      return CONFIG.roomHeaderClasses[group] || 'group-default';
     }
 
-    function buildDataModel(workbook) {
-      const sheetNames = workbook.SheetNames || [];
-      const slots = sheetToObjects(workbook, 'SLOT_WAKTU').filter(row => isYes(row.TAMPIL_DI_LAYAR)).sort((a, b) => Number(a.URUTAN || 0) - Number(b.URUTAN || 0));
-      const rooms = sheetToObjects(workbook, 'RUANG_DISPLAY').filter(row => isYes(row.AKTIF)).sort((a, b) => Number(a.URUTAN_KOLOM || 0) - Number(b.URUTAN_KOLOM || 0));
-      const scheduleHeaderMap = buildCanonicalHeaderMap(workbook, 'JADWAL_KULIAH');
-      const schedules = sheetToObjectsWithMeta(workbook, 'JADWAL_KULIAH').filter(row => !normalizeText(row.AKTIF) || isYes(row.AKTIF)).map(row => enrichScheduleColors(workbook, row, scheduleHeaderMap));
-      const holidays = sheetToObjects(workbook, 'LIBUR_AKADEMIK');
-      const availableDays = new Set();
-      schedules.forEach(row => { if (normalizeText(row.HARI)) availableDays.add(normalizeText(row.HARI)); });
-      const ordered = CONFIG.fallbackDays.filter(day => availableDays.has(day));
-      const extra = [...availableDays].filter(day => !ordered.includes(day));
-      return { sheetNames, slots, rooms, schedules, holidays, days: [...ordered, ...extra] };
+    function formatSpecialText(slot){
+      return normalizeText(slot.KETERANGAN) || 'Informasi akademik';
     }
 
-    function validateRequiredSheets(data) {
-      const missing = CONFIG.requiredSheets.filter(name => !data.sheetNames.includes(name));
-      if (missing.length) throw new Error(`Sheet wajib belum ditemukan: ${missing.join(', ')}`);
-    }
-
-    function getTodayName() {
-      return ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][new Date().getDay()];
-    }
-
-    function getScheduleItemForSlot(day, roomCode, slotId) {
+    function getScheduleItemForSlot(day, roomCode, slotId){
       const targetDay = normalizeText(day).toLowerCase();
       const targetRoom = normalizeText(roomCode);
-      const nSlot = Number(slotId);
+      const numericSlot = Number(slotId);
+
       return state.data.schedules.find(item => {
+        const itemDay = normalizeText(item.HARI).toLowerCase();
+        const itemRoom = normalizeText(item.KODE_RUANG);
         const start = Number(item.ID_SLOT_MULAI);
         const end = Number(item.ID_SLOT_SELESAI || item.ID_SLOT_MULAI);
-        return normalizeText(item.HARI).toLowerCase() === targetDay && normalizeText(item.KODE_RUANG) === targetRoom && nSlot >= start && nSlot <= end;
+        return itemDay === targetDay && itemRoom === targetRoom && numericSlot >= start && numericSlot <= end;
       }) || null;
     }
 
-    function renderCourseCell(item) {
+    function renderCourseCell(item){
+      const bg = normalizeHexColor(item.WARNA_BG) || '#D9D9D9';
+      const color = normalizeHexColor(item.WARNA_TEXT) || '#111111';
       return `
-        <td class="course-cell" style="background:${escapeHtml(item.WARNA_BG || '#D9D9D9')};color:${escapeHtml(item.WARNA_TEXT || '#111111')};">
+        <td class="course-cell" style="background:${escapeHtml(bg)};color:${escapeHtml(color)};">
           <div class="course-code">${escapeHtml(item.KODE_MK || '')}${item.KELAS ? ` (${escapeHtml(item.KELAS)})` : ''}</div>
           <div class="course-name">${escapeHtml(item.NAMA_MK || '')}</div>
           ${item.DOSEN ? `<div class="course-meta">Dosen : ${escapeHtml(item.DOSEN)}</div>` : ''}
           ${item['PROGRAM/ANGKATAN'] ? `<div class="course-meta">${escapeHtml(item['PROGRAM/ANGKATAN'])}</div>` : ''}
           ${item.CATATAN ? `<div class="course-meta">${escapeHtml(item.CATATAN)}</div>` : ''}
-        </td>`;
+        </td>
+      `;
     }
 
-    function renderDayButtons() {
-      if (!state.data || !state.data.days.length) { el.dayButtons.innerHTML = ''; return; }
-      el.dayButtons.innerHTML = state.data.days.map(day => `<button type="button" class="day-btn ${day === state.selectedDay ? 'active' : ''}" data-day="${escapeHtml(day)}">${escapeHtml(day)}</button>`).join('');
-      el.dayButtons.querySelectorAll('.day-btn').forEach(btn => btn.addEventListener('click', () => {
-        state.selectedDay = btn.dataset.day;
-        renderDayButtons();
-        renderSchedule();
-        renderStatusInline();
-      }));
+    function updateStatus(){
+      if (!state.data) {
+        el.statusText.textContent = 'Menunggu data...';
+        return;
+      }
+      const refreshLabel = state.sourceKind === 'default'
+        ? `auto-refresh aktif / ${Math.round(CONFIG.autoRefreshMs / 1000)} dtk`
+        : 'auto-refresh nonaktif';
+      el.statusText.innerHTML = [
+        `Hari aktif: <strong>${escapeHtml(state.selectedDay)}</strong>`,
+        `Ruang: <strong>${state.data.rooms.length}</strong>`,
+        `Slot tampil: <strong>${state.data.slots.length}</strong>`,
+        `Jadwal aktif: <strong>${state.data.schedules.length}</strong>`,
+        refreshLabel,
+        `Sumber: <strong>${escapeHtml(state.sourceLabel)}</strong>`,
+        `Sinkron terakhir: <strong>${escapeHtml(state.lastSyncText)}</strong>`
+      ].join(' &nbsp;&middot;&nbsp; ');
     }
 
-    function renderStatusInline() {
-      if (!state.data) { el.statusInline.textContent = 'Menunggu data...'; return; }
-      const refreshText = state.sourceKind === 'default' ? `auto-refresh aktif / ${Math.round(CONFIG.autoRefreshMs / 1000)} dtk` : 'auto-refresh nonaktif (file lokal)';
-      el.statusInline.innerHTML = `Hari aktif: <strong>${escapeHtml(state.selectedDay)}</strong> · Ruang: <strong>${state.data.rooms.length}</strong> · Slot tampil: <strong>${state.data.slots.length}</strong> · Jadwal aktif: <strong>${state.data.schedules.length}</strong> · ${refreshText} · Sinkron terakhir: <strong>${escapeHtml(state.lastSyncText)}</strong>`;
+    function buildTickerText(holidays){
+      const items = holidays
+        .map(row => {
+          const tanggal = normalizeText(row.TANGGAL);
+          const jenis = normalizeText(row.JENIS);
+          const ket = normalizeText(row.KETERANGAN);
+          return [tanggal, jenis, ket].filter(Boolean).join(' - ');
+        })
+        .filter(Boolean);
+
+      return items.length ? items.join('  •  ') : CONFIG.tickerFallback;
     }
 
-    function renderTicker() {
-      el.tickerTrack.textContent = state.data ? buildTickerText(state.data.holidays) : 'Memuat informasi perkuliahan tambahan...';
+    function renderTicker(){
+      el.tickerTrack.textContent = state.data ? buildTickerText(state.data.holidays) : CONFIG.tickerFallback;
     }
 
-    function fitSchedule() {
+    function renderDayButtons(){
+      if (!state.data || !state.data.days.length) {
+        el.dayButtons.innerHTML = '';
+        return;
+      }
+
+      el.dayButtons.innerHTML = state.data.days
+        .map(day => `<button type="button" class="day-btn ${day === state.selectedDay ? 'active' : ''}" data-day="${escapeHtml(day)}">${escapeHtml(day)}</button>`)
+        .join('');
+
+      el.dayButtons.querySelectorAll('.day-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.selectedDay = btn.dataset.day;
+          renderDayButtons();
+          renderTable(state.selectedDay);
+          updateStatus();
+        });
+      });
+    }
+
+    function fitTableToStage(){
       const scaleBox = el.tableStage.querySelector('.table-scale');
-      const table = scaleBox?.querySelector('table.schedule');
+      const table = el.tableStage.querySelector('#scheduleTable');
       if (!scaleBox || !table) return;
-      scaleBox.style.transform = 'translateX(-50%) scale(1)';
-      const naturalWidth = table.offsetWidth;
-      const naturalHeight = table.offsetHeight;
-      if (!naturalWidth || !naturalHeight) return;
-      const stageWidth = el.tableStage.clientWidth - 4;
-      const stageHeight = el.tableStage.clientHeight - 4;
-      const scale = Math.min(stageWidth / naturalWidth, stageHeight / naturalHeight, 1.45);
-      scaleBox.style.width = `${naturalWidth}px`;
-      scaleBox.style.height = `${naturalHeight}px`;
-      scaleBox.style.transform = `translateX(-50%) scale(${scale})`;
+
+      scaleBox.style.transform = 'translate(0px, 0px) scale(1)';
+      scaleBox.style.width = 'max-content';
+      scaleBox.style.height = 'auto';
+
+      const stageWidth = Math.max(0, el.tableStage.clientWidth - 2);
+      const stageHeight = Math.max(0, el.tableStage.clientHeight - 2);
+      const tableWidth = table.offsetWidth;
+      const tableHeight = table.offsetHeight;
+
+      if (!stageWidth || !stageHeight || !tableWidth || !tableHeight) return;
+
+      const scaleX = stageWidth / tableWidth;
+      const scaleY = stageHeight / tableHeight;
+      const scale = Math.min(scaleX, scaleY);
+
+      const scaledWidth = tableWidth * scale;
+      const scaledHeight = tableHeight * scale;
+      const offsetX = Math.max(0, (stageWidth - scaledWidth) / 2);
+      const offsetY = Math.max(0, (stageHeight - scaledHeight) / 2);
+
+      scaleBox.style.width = `${tableWidth}px`;
+      scaleBox.style.height = `${tableHeight}px`;
+      scaleBox.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
     }
 
-    function renderSchedule() {
+    function renderTable(day){
       if (!state.data) return;
+
       const slots = state.data.slots;
       const rooms = state.data.rooms;
       const sessionGroups = groupSessionRows(slots);
-      const rendered = new Set();
-      const tableWidth = 74 + 110 + (rooms.length * 98);
-      let html = `<div class="table-scale"><table class="schedule" style="width:${tableWidth}px"><thead><tr><th class="col-session">SESI</th><th class="col-time">JAM</th>${rooms.map(room => `<th class="room-head ${getRoomHeaderClass(room)}">${escapeHtml(room.NAMA_TAMPIL || room.KODE_RUANG)}</th>`).join('')}</tr></thead><tbody>`;
+      const renderedSessionStart = new Set();
+
+      let html = `
+        <div class="table-scale">
+          <table class="schedule" id="scheduleTable">
+            <thead>
+              <tr>
+                <th class="col-session">SESI</th>
+                <th class="col-time">JAM</th>
+                ${rooms.map(room => `<th class="room-head ${getRoomHeaderClass(room)}">${escapeHtml(room.NAMA_TAMPIL || room.KODE_RUANG)}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
       for (const slot of slots) {
-        const slotId = Number(slot.ID_SLOT);
         const slotType = normalizeText(slot.TIPE_BARIS).toUpperCase();
+        const slotId = Number(slot.ID_SLOT);
         html += '<tr>';
+
         if (slotType === 'KULIAH') {
           const sesi = normalizeText(slot.SESI) || '-';
-          if (!rendered.has(sesi)) {
+          if (!renderedSessionStart.has(sesi)) {
             html += `<td class="session-cell" rowspan="${sessionGroups.get(sesi) || 1}">${escapeHtml(sesi)}</td>`;
-            rendered.add(sesi);
+            renderedSessionStart.add(sesi);
           }
+
           html += `<td class="time-cell">${escapeHtml(slot.LABEL_TAMPIL)}</td>`;
+
           for (const room of rooms) {
-            const item = getScheduleItemForSlot(state.selectedDay, room.KODE_RUANG, slotId);
+            const item = getScheduleItemForSlot(day, room.KODE_RUANG, slotId);
             html += item ? renderCourseCell(item) : '<td class="empty-cell"></td>';
           }
         } else {
           html += '<td class="session-empty"></td>';
           html += `<td class="special-time">${escapeHtml(slot.LABEL_TAMPIL)}</td>`;
-          html += `<td class="special-cell" colspan="${rooms.length}">${escapeHtml(normalizeText(slot.KETERANGAN) || 'Informasi akademik')}</td>`;
+          html += `<td class="special-cell" colspan="${rooms.length}">${escapeHtml(formatSpecialText(slot))}</td>`;
         }
+
         html += '</tr>';
       }
-      html += '</tbody></table></div>';
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
       el.tableStage.innerHTML = html;
-      requestAnimationFrame(() => requestAnimationFrame(fitSchedule));
+      requestAnimationFrame(fitTableToStage);
     }
 
-    async function computeHash(arrayBuffer) {
-      if (window.crypto?.subtle) {
-        const digest = await crypto.subtle.digest('SHA-256', arrayBuffer);
-        return Array.from(new Uint8Array(digest)).map(v => v.toString(16).padStart(2, '0')).join('');
-      }
-      return `len-${arrayBuffer.byteLength}`;
+    function showError(message){
+      el.tableStage.innerHTML = `<div class="error-box">${message}</div>`;
     }
 
-    async function readWorkbookFromArrayBuffer(arrayBuffer) {
-      return { workbook: XLSX.read(arrayBuffer, { type: 'array', cellStyles: true }), hash: await computeHash(arrayBuffer.slice(0)) };
+    function validateRequiredSheets(data){
+      const missing = CONFIG.requiredSheets.filter(name => !data.sheetNames.includes(name));
+      if (missing.length) throw new Error(`Sheet wajib belum ditemukan: ${missing.join(', ')}`);
     }
 
-    function updateStateFromWorkbook(workbook, hash, sourceKind) {
+    async function hashArrayBuffer(arrayBuffer){
+      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function timeStampText(){
+      return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }).format(new Date());
+    }
+
+    async function applyWorkbook(arrayBuffer, sourceLabel, sourceKind){
+      const workbook = XLSX.read(arrayBuffer, { type: 'array', cellStyles: true });
       const data = buildDataModel(workbook);
       validateRequiredSheets(data);
+
       state.workbook = workbook;
       state.data = data;
-      state.workbookHash = hash;
+      state.sourceLabel = sourceLabel;
       state.sourceKind = sourceKind;
-      state.lastSyncText = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date());
+      state.workbookHash = await hashArrayBuffer(arrayBuffer);
+      state.lastSyncText = timeStampText();
+
       if (!data.days.includes(state.selectedDay)) {
-        const todayName = getTodayName();
-        state.selectedDay = data.days.includes(todayName) ? todayName : (data.days[0] || 'Senin');
+        state.selectedDay = data.days[0] || CONFIG.fallbackDays[0];
       }
-      renderDayButtons();
+
       renderTicker();
-      renderStatusInline();
-      renderSchedule();
+      renderDayButtons();
+      renderTable(state.selectedDay);
+      updateStatus();
       configureAutoRefresh();
     }
 
-    async function loadWorkbookFromUrl(url) {
-      const response = await fetch(`${url}?v=${Date.now()}`, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Gagal mengambil file Excel dari ${url}`);
-      const arrayBuffer = await response.arrayBuffer();
-      const { workbook, hash } = await readWorkbookFromArrayBuffer(arrayBuffer);
-      updateStateFromWorkbook(workbook, hash, 'default');
+    async function fetchWorkbookArrayBuffer(){
+      const url = `${CONFIG.workbookFile}?v=${Date.now()}`;
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Gagal mengambil file Excel dari ${CONFIG.workbookFile}`);
+      return await response.arrayBuffer();
     }
 
-    async function loadWorkbookFromFile(file) {
-      const arrayBuffer = await file.arrayBuffer();
-      const { workbook, hash } = await readWorkbookFromArrayBuffer(arrayBuffer);
-      updateStateFromWorkbook(workbook, hash, 'local');
+    async function loadDefaultWorkbook(){
+      const buffer = await fetchWorkbookArrayBuffer();
+      await applyWorkbook(buffer, 'file default', 'default');
     }
 
-    function stopAutoRefresh() {
-      if (state.autoRefreshTimer) clearInterval(state.autoRefreshTimer);
-      state.autoRefreshTimer = null;
+    async function loadLocalWorkbook(file){
+      const buffer = await file.arrayBuffer();
+      await applyWorkbook(buffer, file.name, 'local');
     }
 
-    function configureAutoRefresh() {
+    function stopAutoRefresh(){
+      if (state.autoRefreshTimer) {
+        clearInterval(state.autoRefreshTimer);
+        state.autoRefreshTimer = null;
+      }
+    }
+
+    function configureAutoRefresh(){
       stopAutoRefresh();
-      if (state.sourceKind !== 'default') return;
+      if (state.sourceKind !== 'default') {
+        updateStatus();
+        return;
+      }
+
       state.autoRefreshTimer = setInterval(async () => {
         if (state.autoRefreshBusy) return;
         state.autoRefreshBusy = true;
         try {
-          const response = await fetch(`${CONFIG.workbookFile}?v=${Date.now()}`, { cache: 'no-store' });
-          if (!response.ok) throw new Error('Gagal mengecek file Excel terbaru.');
-          const arrayBuffer = await response.arrayBuffer();
-          const nextHash = await computeHash(arrayBuffer.slice(0));
+          const buffer = await fetchWorkbookArrayBuffer();
+          const nextHash = await hashArrayBuffer(buffer);
           if (nextHash !== state.workbookHash) {
-            updateStateFromWorkbook(XLSX.read(arrayBuffer, { type: 'array', cellStyles: true }), nextHash, 'default');
+            await applyWorkbook(buffer, 'file default', 'default');
+          } else {
+            state.lastSyncText = timeStampText();
+            updateStatus();
           }
         } catch (error) {
-          console.warn(error);
+          console.error(error);
         } finally {
           state.autoRefreshBusy = false;
         }
       }, CONFIG.autoRefreshMs);
+
+      updateStatus();
     }
 
-    function showError(message) {
-      el.tableStage.innerHTML = `<div class="error-box">${message}</div>`;
-      el.statusInline.textContent = 'Terjadi masalah saat membaca file.';
-    }
+    function startClock(){
+      const timeFormatter = new Intl.DateTimeFormat('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      const dateFormatter = new Intl.DateTimeFormat('id-ID', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
 
-    function startClock() {
-      const timeFormatter = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const dateFormatter = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
       const tick = () => {
         const now = new Date();
         el.clockTime.textContent = timeFormatter.format(now);
         el.clockDate.textContent = dateFormatter.format(now);
       };
+
       tick();
       setInterval(tick, 1000);
     }
 
-    el.reloadBtn.addEventListener('click', async () => {
-      try { await loadWorkbookFromUrl(CONFIG.workbookFile); }
-      catch (error) { showError(error.message); }
+    window.addEventListener('resize', () => {
+      requestAnimationFrame(fitTableToStage);
     });
 
-    el.fileInput.addEventListener('change', async event => {
+    el.reloadBtn.addEventListener('click', async () => {
+      try {
+        await loadDefaultWorkbook();
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+
+    el.fileInput.addEventListener('change', async (event) => {
       const file = event.target.files?.[0];
       if (!file) return;
-      try { await loadWorkbookFromFile(file); }
-      catch (error) { showError(error.message); }
+      try {
+        await loadLocalWorkbook(file);
+      } catch (error) {
+        showError(error.message);
+      }
     });
 
-    window.addEventListener('resize', () => requestAnimationFrame(fitSchedule));
     startClock();
-    loadWorkbookFromUrl(CONFIG.workbookFile).catch(error => {
-      showError(`${error.message}<br><br>Alternatif cepat: gunakan tombol <strong>Buka file Excel lokal</strong>.`);
+    loadDefaultWorkbook().catch(error => {
+      showError(`${error.message}<br><br>Silakan gunakan tombol <strong>Buka file Excel lokal</strong> sebagai alternatif.`);
     });
   </script>
 </body>
