@@ -57,10 +57,10 @@
 
     .header-panel{
       flex:0 0 auto;
-      padding:12px 16px 10px;
+      padding:10px 16px 8px;
       display:flex;
       flex-direction:column;
-      gap:10px;
+      gap:6px;
     }
 
     .header-main{
@@ -75,18 +75,18 @@
     }
 
     .title-wrap h1{
-      margin:0 0 6px;
+      margin:0 0 4px;
       color:var(--navy-dark);
-      font-size:clamp(28px, 3.15vw, 64px);
-      line-height:1.03;
+      font-size:clamp(28px, 3.05vw, 62px);
+      line-height:1.02;
       letter-spacing:.2px;
     }
 
     .title-wrap p{
       margin:0;
       color:var(--muted);
-      font-size:clamp(13px, 1vw, 20px);
-      line-height:1.35;
+      font-size:clamp(13px, .95vw, 18px);
+      line-height:1.25;
     }
 
     .clock{
@@ -109,65 +109,10 @@
       font-size:clamp(14px, 1.1vw, 22px);
     }
 
-    .toolbar{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .day-buttons,.action-buttons{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .status-inline{
-      margin-left:auto;
-      color:var(--muted);
-      font-size:13px;
-      font-weight:700;
-      line-height:1.45;
-      text-align:right;
-    }
-
-    .day-btn,.action-btn,.file-label{
-      border:0;
-      border-radius:999px;
-      padding:9px 15px;
-      font-size:14px;
-      font-weight:700;
-      cursor:pointer;
-      white-space:nowrap;
-      transition:.18s ease;
-    }
-
-    .day-btn{
-      background:#e8eef8;
-      color:var(--navy-dark);
-    }
-
-    .day-btn.active,.day-btn:hover{
-      background:var(--navy);
-      color:#fff;
-    }
-
-    .action-btn,.file-label{
-      background:#eef4ea;
-      color:#25440f;
-      border:1px solid #cfddc3;
-    }
-
-    .action-btn:hover,.file-label:hover{
-      background:#dfead7;
-    }
-
-    .file-label input{ display:none; }
-
+    
     .ticker-panel{
       flex:0 0 auto;
-      min-height:36px;
+      min-height:32px;
       display:flex;
       align-items:center;
       overflow:hidden;
@@ -178,8 +123,8 @@
 
     .ticker-label{
       flex:0 0 auto;
-      margin-right:14px;
-      font-size:13px;
+      margin-right:12px;
+      font-size:12px;
       font-weight:800;
       letter-spacing:.3px;
     }
@@ -190,7 +135,7 @@
       white-space:nowrap;
       overflow:hidden;
       position:relative;
-      height:22px;
+      height:20px;
       display:flex;
       align-items:center;
     }
@@ -201,7 +146,7 @@
       padding-left:100%;
       will-change:transform;
       animation:tickerMove 38s linear infinite;
-      font-size:13px;
+      font-size:12px;
       font-weight:700;
     }
 
@@ -360,14 +305,6 @@
       line-height:1.5;
     }
 
-    @media (max-width:1100px){
-      .status-inline{
-        margin-left:0;
-        width:100%;
-        text-align:left;
-      }
-    }
-
     @media (max-width:880px){
       .header-main{
         flex-direction:column;
@@ -393,15 +330,6 @@
         </div>
       </div>
 
-      <div class="toolbar">
-        <div class="day-buttons" id="dayButtons"></div>
-        <div class="action-buttons">
-          <button class="action-btn" id="reloadBtn" type="button">Muat ulang file default</button>
-          <label class="file-label" for="fileInput">Buka file Excel lokal
-            <input id="fileInput" type="file" accept=".xlsx,.xls" />
-          </label>
-        </div>
-        <div class="status-inline" id="statusText">Menunggu data...</div>
       </div>
     </section>
 
@@ -704,6 +632,7 @@
     }
 
     function updateStatus(){
+      if (!el.statusText) return;
       if (!state.data) {
         el.statusText.textContent = 'Menunggu data...';
         return;
@@ -723,6 +652,7 @@
     }
 
     function renderDayButtons(){
+      if (!el.dayButtons) return;
       if (!state.data || !state.data.days.length) {
         el.dayButtons.innerHTML = '';
         return;
@@ -758,8 +688,8 @@
       const borderReserve = (slots.length + 6) * 2;
       const bodyHeight = Math.max(110, stageHeight - headerHeight - borderReserve);
       const baseUnit = bodyHeight / (kuliahCount + (specialCount * specialWeight));
-      const rowHeight = Math.max(24, Math.min(36, baseUnit));
-      const specialRowHeight = Math.max(18, Math.min(24, baseUnit * specialWeight));
+      const rowHeight = Math.max(24, Math.min(38, baseUnit));
+      const specialRowHeight = Math.max(18, Math.min(25, baseUnit * specialWeight));
 
       const roomCount = Math.max(1, state.data.rooms.length);
       const headerFont = Math.max(10, Math.min(14, stageWidth / (roomCount * 10.8)));
@@ -1003,23 +933,27 @@
       });
     });
 
-    el.reloadBtn.addEventListener('click', async () => {
-      try {
-        await loadDefaultWorkbook();
-      } catch (error) {
-        showError(error.message);
-      }
-    });
+    if (el.reloadBtn) {
+      el.reloadBtn.addEventListener('click', async () => {
+        try {
+          await loadDefaultWorkbook();
+        } catch (error) {
+          showError(error.message);
+        }
+      });
+    }
 
-    el.fileInput.addEventListener('change', async (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      try {
-        await loadLocalWorkbook(file);
-      } catch (error) {
-        showError(error.message);
-      }
-    });
+    if (el.fileInput) {
+      el.fileInput.addEventListener('change', async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        try {
+          await loadLocalWorkbook(file);
+        } catch (error) {
+          showError(error.message);
+        }
+      });
+    }
 
     startClock();
     loadDefaultWorkbook().catch(error => {
