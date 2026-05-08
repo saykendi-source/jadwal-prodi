@@ -314,7 +314,7 @@
       <div class="header-main">
         <div class="title-wrap">
           <h1>Jadwal Perkuliahan Mahasiswa</h1>
-          <p>Data dibaca langsung dari Google Spreadsheet 1 sheet. Warna mata kuliah dibuat otomatis berdasarkan kelompok kode MK seperti TI4xx dengan warna pastel yang mudah dibaca.</p>
+          <p>Data dibaca langsung dari Google Spreadsheet 1 sheet. Semua warna mata kuliah dibuat otomatis dalam palet pastel lembut berdasarkan kelompok kode MK seperti TI4xx agar lebih nyaman dibaca di layar.</p>
           <div class="mini-status" id="miniStatus">Memuat data spreadsheet...</div>
         </div>
         <div class="clock">
@@ -585,15 +585,15 @@
       const groupKey = m ? `${m[1]}${m[2]}xx` : code.slice(0, 2) || 'DEFAULT';
 
       const pastelMap = {
-        'TI1xx': { bg: '#DDEBF7', text: '#1F1F1F' },
-        'TI2xx': { bg: '#E2F0D9', text: '#1F1F1F' },
-        'TI3xx': { bg: '#FFF2CC', text: '#1F1F1F' },
-        'TI4xx': { bg: '#FCE4D6', text: '#1F1F1F' },
-        'TI5xx': { bg: '#E4DFEC', text: '#1F1F1F' },
-        'TI6xx': { bg: '#D9EAD3', text: '#1F1F1F' },
-        'TI7xx': { bg: '#D0E0E3', text: '#1F1F1F' },
-        'TI8xx': { bg: '#F4CCCC', text: '#1F1F1F' },
-        'DEFAULT': { bg: '#E7E6E6', text: '#1F1F1F' }
+        'TI1xx': { bg: '#EAF2FB', text: '#243447' },
+        'TI2xx': { bg: '#EDF7ED', text: '#243447' },
+        'TI3xx': { bg: '#FFF8E8', text: '#243447' },
+        'TI4xx': { bg: '#FDEFE6', text: '#243447' },
+        'TI5xx': { bg: '#F1ECF8', text: '#243447' },
+        'TI6xx': { bg: '#EAF5EE', text: '#243447' },
+        'TI7xx': { bg: '#EAF4F5', text: '#243447' },
+        'TI8xx': { bg: '#FBEDEE', text: '#243447' },
+        'DEFAULT': { bg: '#F2F2F2', text: '#243447' }
       };
 
       return pastelMap[groupKey] || pastelMap.DEFAULT;
@@ -601,8 +601,8 @@
 
     function renderCourseCell(item){
       const autoColor = getPastelColorByKodeMk(item.KODE_MK || '');
-      const bg = normalizeHexColor(item.WARNA_BG) || autoColor.bg;
-      const color = normalizeHexColor(item.WARNA_TEXT) || autoColor.text;
+      const bg = autoColor.bg;
+      const color = autoColor.text;
       return `
         <td class="course-cell" style="background:${escapeHtml(bg)};color:${escapeHtml(color)};">
           <div class="course-code">${escapeHtml(item.KODE_MK || '')}${item.KELAS ? ` (${escapeHtml(item.KELAS)})` : ''}</div>
