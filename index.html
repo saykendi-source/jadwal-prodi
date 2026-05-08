@@ -472,7 +472,8 @@
         .sort((a,b) => Number(a.URUTAN_KOLOM_RUANG || 0) - Number(b.URUTAN_KOLOM_RUANG || 0));
 
       const slotRows = rows
-        .filter(row => normalizeText(row.JENIS_DATA).toUpperCase() === 'SLOT' && isYes(row.AKTIF));
+        .filter(row => normalizeText(row.JENIS_DATA).toUpperCase() === 'SLOT' && isYes(row.AKTIF))
+        .sort((a,b) => Number(a.URUTAN_SLOT || a.ID_SLOT || 0) - Number(b.URUTAN_SLOT || b.ID_SLOT || 0));
 
       const scheduleRows = rows
         .filter(row => normalizeText(row.JENIS_DATA).toUpperCase() === 'JADWAL' && isYes(row.AKTIF))
@@ -491,12 +492,14 @@
 
       const orderedDays = CONFIG.fallbackDays.filter(day => daysSet.has(day));
       const extraDays = [...daysSet].filter(day => !orderedDays.includes(day));
+      const hasGlobalSlots = slotRows.some(row => !normalizeText(row.HARI));
 
       return {
         rooms,
         slots: slotRows,
         schedules: scheduleRows,
         infos: infoRows,
+        hasGlobalSlots,
         days: [...orderedDays, ...extraDays]
       };
     }
@@ -510,8 +513,20 @@
     }
 
     function getSlotsForDay(day){
+      const targetDay = normalizeText(day).toLowerCase();
+      const specificSlots = state.data.slots
+        .filter(row => normalizeText(row.HARI).toLowerCase() === targetDay)
+        .sort((a,b) => Number(a.URUTAN_SLOT || a.ID_SLOT || 0) - Number(b.URUTAN_SLOT || b.ID_SLOT || 0));
+
+      if (specificSlots.length) return specificSlots;
+
+      const globalSlots = state.data.slots
+        .filter(row => !normalizeText(row.HARI))
+        .sort((a,b) => Number(a.URUTAN_SLOT || a.ID_SLOT || 0) - Number(b.URUTAN_SLOT || b.ID_SLOT || 0));
+
+      if (globalSlots.length) return globalSlots;
+
       return state.data.slots
-        .filter(row => normalizeText(row.HARI).toLowerCase() === normalizeText(day).toLowerCase())
         .sort((a,b) => Number(a.URUTAN_SLOT || a.ID_SLOT || 0) - Number(b.URUTAN_SLOT || b.ID_SLOT || 0));
     }
 
@@ -649,8 +664,13 @@
       const sessionGroups = groupSessionRows(slots);
       const renderedSessionStart = new Set();
 
-      if (!slots.length || !rooms.length) {
-        el.tableStage.innerHTML = '<div class="error-box">Data SLOT atau RUANG belum ditemukan pada spreadsheet.</div>';
+      if (!rooms.length) {
+        el.tableStage.innerHTML = '<div class="error-box">Data RUANG belum ditemukan pada spreadsheet.</div>';
+        return;
+      }
+
+      if (!slots.length) {
+        el.tableStage.innerHTML = '<div class="error-box">Data SLOT belum ditemukan pada spreadsheet. Pastikan baris dengan JENIS_DATA = SLOT sudah terisi.</div>';
         return;
       }
 
@@ -719,10 +739,14 @@
       }
 
       const slots = getSlotsForDay(state.selectedDay);
+      const slotLabel = state.data.hasGlobalSlots && !state.data.slots.some(x => normalizeText(x.HARI).toLowerCase() === normalizeText(state.selectedDay).toLowerCase())
+        ? `${slots.length} (slot global)`
+        : `${slots.length}`;
+
       el.miniStatus.innerHTML = [
         `Hari tampil: <strong>${escapeHtml(state.selectedDay)}</strong>`,
         `Ruang: <strong>${state.data.rooms.length}</strong>`,
-        `Slot: <strong>${slots.length}</strong>`,
+        `Slot: <strong>${slotLabel}</strong>`,
         `Jadwal: <strong>${state.data.schedules.filter(x => normalizeText(x.HARI).toLowerCase() === normalizeText(state.selectedDay).toLowerCase()).length}</strong>`,
         'Sumber: spreadsheet 1 sheet'
       ].join(' &nbsp;&middot;&nbsp; ');
@@ -748,7 +772,12 @@
     async function applyCsv(csvText){
       state.data = buildDataModel(csvText);
       state.csvHash = await hashText(csvText);
-      state.selectedDay = getCurrentAcademicDay(state.data.days);
+
+      const candidateDays = state.data.days.length
+        ? state.data.days
+        : CONFIG.fallbackDays.filter(day => state.data.schedules.some(row => normalizeText(row.HARI).toLowerCase() === day.toLowerCase()));
+
+      state.selectedDay = getCurrentAcademicDay(candidateDays);
       renderTicker();
       updateMiniStatus();
       renderTable(state.selectedDay);
