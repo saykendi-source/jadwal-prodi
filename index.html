@@ -314,7 +314,7 @@
       <div class="header-main">
         <div class="title-wrap">
           <h1>Jadwal Perkuliahan Mahasiswa</h1>
-          <p>Data dibaca langsung dari Google Spreadsheet 1 sheet. Ukuran tabel disesuaikan otomatis agar seluruh jadwal fit di layar.</p>
+          <p>Data dibaca langsung dari Google Spreadsheet 1 sheet. Warna mata kuliah dibuat otomatis berdasarkan kelompok kode MK seperti TI4xx dengan warna pastel yang mudah dibaca.</p>
           <div class="mini-status" id="miniStatus">Memuat data spreadsheet...</div>
         </div>
         <div class="clock">
@@ -578,9 +578,31 @@
       el.tickerTrack.textContent = state.data ? buildTickerText(state.data.infos) : CONFIG.tickerFallback;
     }
 
+
+    function getPastelColorByKodeMk(kodeMk){
+      const code = normalizeText(kodeMk).toUpperCase().replace(/\s+/g, '');
+      const m = code.match(/^([A-Z]+)(\d)/);
+      const groupKey = m ? `${m[1]}${m[2]}xx` : code.slice(0, 2) || 'DEFAULT';
+
+      const pastelMap = {
+        'TI1xx': { bg: '#DDEBF7', text: '#1F1F1F' },
+        'TI2xx': { bg: '#E2F0D9', text: '#1F1F1F' },
+        'TI3xx': { bg: '#FFF2CC', text: '#1F1F1F' },
+        'TI4xx': { bg: '#FCE4D6', text: '#1F1F1F' },
+        'TI5xx': { bg: '#E4DFEC', text: '#1F1F1F' },
+        'TI6xx': { bg: '#D9EAD3', text: '#1F1F1F' },
+        'TI7xx': { bg: '#D0E0E3', text: '#1F1F1F' },
+        'TI8xx': { bg: '#F4CCCC', text: '#1F1F1F' },
+        'DEFAULT': { bg: '#E7E6E6', text: '#1F1F1F' }
+      };
+
+      return pastelMap[groupKey] || pastelMap.DEFAULT;
+    }
+
     function renderCourseCell(item){
-      const bg = normalizeHexColor(item.WARNA_BG) || '#D9D9D9';
-      const color = normalizeHexColor(item.WARNA_TEXT) || '#111111';
+      const autoColor = getPastelColorByKodeMk(item.KODE_MK || '');
+      const bg = normalizeHexColor(item.WARNA_BG) || autoColor.bg;
+      const color = normalizeHexColor(item.WARNA_TEXT) || autoColor.text;
       return `
         <td class="course-cell" style="background:${escapeHtml(bg)};color:${escapeHtml(color)};">
           <div class="course-code">${escapeHtml(item.KODE_MK || '')}${item.KELAS ? ` (${escapeHtml(item.KELAS)})` : ''}</div>
