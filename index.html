@@ -15,10 +15,10 @@
       --grid:#4a4a4a;
       --special:#d9ead3;
       --special-dark:#244e14;
-      --empty:#d9d9d9;
-      --room-f6:#f2f500;
-      --room-f4:#12d9e7;
-      --room-default:#dce6f1;
+      --empty:#ECECEC;
+      --room-f6:#F7F4D8;
+      --room-f4:#DDF2F4;
+      --room-default:#EAF0F7;
       --radius:18px;
       --shadow:0 12px 32px rgba(0,0,0,.12);
     }
@@ -161,7 +161,7 @@
     .table-panel{
       flex:1 1 auto;
       min-height:0;
-      padding:6px;
+      padding:4px;
       overflow:hidden;
     }
 
@@ -287,18 +287,18 @@
     }
 
     .schedule tr.current-row td{
-      border-top:2px solid #D6A300;
-      border-bottom:2px solid #D6A300;
+      border-top:2px solid #C9B36B;
+      border-bottom:2px solid #C9B36B;
     }
 
     td.time-cell.current-time{
-      background:#FFF3CD;
-      color:#5C4500;
+      background:#F8EFCF;
+      color:#4F4632;
       font-weight:800;
     }
 
     td.course-cell.current-course{
-      box-shadow: inset 0 0 0 2px #D6A300;
+      box-shadow: inset 0 0 0 2px #C9B36B;
       position:relative;
     }
 
@@ -307,8 +307,8 @@
       margin-bottom:2px;
       padding:1px 6px;
       border-radius:999px;
-      background:#FFF3CD;
-      color:#5C4500;
+      background:#F8EFCF;
+      color:#4F4632;
       font-size:calc(var(--meta-font) + .6px);
       font-weight:800;
       letter-spacing:.2px;
@@ -675,15 +675,15 @@
       const groupKey = m ? `${m[1]}${m[2]}xx` : code.slice(0, 2) || 'DEFAULT';
 
       const pastelMap = {
-        'TI1xx': { bg: '#EAF2FB', text: '#243447' },
-        'TI2xx': { bg: '#EDF7ED', text: '#243447' },
-        'TI3xx': { bg: '#FFF8E8', text: '#243447' },
-        'TI4xx': { bg: '#FDEFE6', text: '#243447' },
-        'TI5xx': { bg: '#F1ECF8', text: '#243447' },
-        'TI6xx': { bg: '#EAF5EE', text: '#243447' },
-        'TI7xx': { bg: '#EAF4F5', text: '#243447' },
-        'TI8xx': { bg: '#FBEDEE', text: '#243447' },
-        'DEFAULT': { bg: '#F2F2F2', text: '#243447' }
+        'TI1xx': { bg: '#EEF4FA', text: '#2B3645' },
+        'TI2xx': { bg: '#F0F7F0', text: '#2B3645' },
+        'TI3xx': { bg: '#FFF9ED', text: '#2B3645' },
+        'TI4xx': { bg: '#FAF0E9', text: '#2B3645' },
+        'TI5xx': { bg: '#F3EEF8', text: '#2B3645' },
+        'TI6xx': { bg: '#EEF6F1', text: '#2B3645' },
+        'TI7xx': { bg: '#EEF5F6', text: '#2B3645' },
+        'TI8xx': { bg: '#FAEFF0', text: '#2B3645' },
+        'DEFAULT': { bg: '#F4F4F4', text: '#2B3645' }
       };
 
       return pastelMap[groupKey] || pastelMap.DEFAULT;
@@ -716,22 +716,22 @@
       const stageHeight = Math.max(240, el.tableStage.clientHeight);
       const stageWidth = Math.max(320, el.tableStage.clientWidth);
 
-      const headerHeight = Math.max(28, Math.min(34, stageHeight * 0.032));
-      const specialWeight = 0.58;
-      const borderReserve = (slots.length + 6) * 2;
-      const bodyHeight = Math.max(120, stageHeight - headerHeight - borderReserve);
+      const headerHeight = Math.max(28, Math.min(33, stageHeight * 0.03));
+      const specialWeight = 0.55;
+      const borderReserve = (slots.length + 8) * 2.2;
+      const bodyHeight = Math.max(110, stageHeight - headerHeight - borderReserve);
       const baseUnit = bodyHeight / (kuliahCount + specialCount * specialWeight);
 
-      const rowHeight = Math.max(22, Math.min(30, baseUnit));
-      const specialRowHeight = Math.max(16, Math.min(20, baseUnit * specialWeight));
+      const rowHeight = Math.max(21, Math.min(28, baseUnit));
+      const specialRowHeight = Math.max(15, Math.min(18, baseUnit * specialWeight));
 
       const roomCount = Math.max(1, state.data.rooms.length);
-      const headerFont = Math.max(10, Math.min(12, stageWidth / (roomCount * 11.5)));
-      const sessionFont = Math.max(9, Math.min(11, rowHeight * 0.35));
-      const cellFont = Math.max(8, Math.min(10, rowHeight * 0.30));
-      const codeFont = Math.max(7, Math.min(9, rowHeight * 0.24));
-      const metaFont = Math.max(6.6, Math.min(8.2, rowHeight * 0.20));
-      const specialFont = Math.max(8, Math.min(9.5, specialRowHeight * 0.46));
+      const headerFont = Math.max(9.5, Math.min(11.5, stageWidth / (roomCount * 12.2)));
+      const sessionFont = Math.max(8.5, Math.min(10.5, rowHeight * 0.33));
+      const cellFont = Math.max(7.8, Math.min(9.4, rowHeight * 0.28));
+      const codeFont = Math.max(6.8, Math.min(8.2, rowHeight * 0.22));
+      const metaFont = Math.max(6.2, Math.min(7.5, rowHeight * 0.18));
+      const specialFont = Math.max(7.8, Math.min(8.8, specialRowHeight * 0.42));
 
       table.style.setProperty('--thead-height', `${headerHeight}px`);
       table.style.setProperty('--row-height', `${rowHeight}px`);
@@ -751,7 +751,9 @@
       const table = document.getElementById('scheduleTable');
       if (!scaleBox || !table) return;
 
+      scaleBox.style.width = '100%';
       scaleBox.style.transform = 'translate(0px, 0px) scale(1)';
+
       const stageWidth = el.tableStage.clientWidth;
       const stageHeight = el.tableStage.clientHeight;
       const tableHeight = table.offsetHeight;
@@ -761,12 +763,14 @@
         scale = stageHeight / tableHeight;
       }
 
-      const scaledWidth = stageWidth * scale;
+      if (scale < 1) {
+        scaleBox.style.width = `${100 / scale}%`;
+      }
+
       const scaledHeight = tableHeight * scale;
-      const offsetX = Math.max(0, (stageWidth - scaledWidth) / 2);
       const offsetY = Math.max(0, (stageHeight - scaledHeight) / 2);
 
-      scaleBox.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+      scaleBox.style.transform = `translate(0px, ${offsetY}px) scale(${scale})`;
     }
 
     function renderTable(day){
@@ -866,7 +870,7 @@
         `Slot: <strong>${slotLabel}</strong>`,
         `Jadwal: <strong>${state.data.schedules.filter(x => normalizeText(x.HARI).toLowerCase() === normalizeText(state.selectedDay).toLowerCase()).length}</strong>`,
         liveSummary ? `<strong>${escapeHtml(liveSummary)}</strong>` : 'Belum ada perkuliahan yang sedang berlangsung',
-        'Sumber: spreadsheet 1 sheet'
+        'Sumber: spreadsheet 1 sheet · mode warna aman TV'
       ].join(' &nbsp;&middot;&nbsp; ');
     }
 
