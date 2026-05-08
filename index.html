@@ -286,6 +286,35 @@
       height:var(--special-row-height);
     }
 
+    .schedule tr.current-row td{
+      border-top:2px solid #D6A300;
+      border-bottom:2px solid #D6A300;
+    }
+
+    td.time-cell.current-time{
+      background:#FFF3CD;
+      color:#5C4500;
+      font-weight:800;
+    }
+
+    td.course-cell.current-course{
+      box-shadow: inset 0 0 0 2px #D6A300;
+      position:relative;
+    }
+
+    .live-badge{
+      display:inline-block;
+      margin-bottom:2px;
+      padding:1px 6px;
+      border-radius:999px;
+      background:#FFF3CD;
+      color:#5C4500;
+      font-size:calc(var(--meta-font) + .6px);
+      font-weight:800;
+      letter-spacing:.2px;
+      white-space:nowrap;
+    }
+
     .error-box{
       margin:10px;
       padding:16px;
@@ -352,7 +381,8 @@
       selectedDay: 'Senin',
       csvHash: '',
       autoRefreshBusy: false,
-      autoRefreshTimer: null
+      autoRefreshTimer: null,
+      liveSlotKey: ''
     };
 
     const el = {
@@ -563,6 +593,66 @@
       }) || null;
     }
 
+    function getCurrentDayName(){
+      const map = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      return map[new Date().getDay()];
+    }
+
+    function parseTimeLabelToMinutes(label){
+      const clean = normalizeText(label).replace(/–/g, '-');
+      const parts = clean.split('-').map(x => normalizeText(x));
+      if (parts.length < 2) return null;
+
+      const parsePart = (part) => {
+        const m = part.match(/(\d{1,2})[.:](\d{2})/);
+        if (!m) return null;
+        return Number(m[1]) * 60 + Number(m[2]);
+      };
+
+      const start = parsePart(parts[0]);
+      const end = parsePart(parts[1]);
+      if (start === null || end === null) return null;
+      return { start, end };
+    }
+
+    function getCurrentMinutes(){
+      const now = new Date();
+      return now.getHours() * 60 + now.getMinutes();
+    }
+
+    function getCurrentActiveSlotId(day){
+      if (!state.data) return null;
+      if (normalizeText(day) !== normalizeText(getCurrentDayName())) return null;
+
+      const currentMinutes = getCurrentMinutes();
+      const slots = getSlotsForDay(day);
+
+      for (const slot of slots) {
+        if (normalizeText(slot.TIPE_BARIS).toUpperCase() !== 'KULIAH') continue;
+        const parsed = parseTimeLabelToMinutes(slot.LABEL_WAKTU);
+        if (!parsed) continue;
+        if (currentMinutes >= parsed.start && currentMinutes < parsed.end) {
+          return Number(slot.ID_SLOT);
+        }
+      }
+      return null;
+    }
+
+    function getCurrentLiveCourseSummary(day){
+      const activeSlotId = getCurrentActiveSlotId(day);
+      if (!activeSlotId) return '';
+      const item = state.data?.schedules?.find(row =>
+        normalizeText(row.HARI).toLowerCase() === normalizeText(day).toLowerCase() &&
+        activeSlotId >= Number(row.ID_SLOT_MULAI) &&
+        activeSlotId <= Number(row.ID_SLOT_SELESAI || row.ID_SLOT_MULAI)
+      );
+      if (!item) return 'Sedang berlangsung';
+      const kode = normalizeText(item.KODE_MK);
+      const nama = normalizeText(item.NAMA_MK);
+      const ruang = normalizeText(item.KODE_RUANG);
+      return ['Sedang berlangsung', kode, nama, ruang].filter(Boolean).join(' · ');
+    }
+
     function buildTickerText(infoRows){
       const items = infoRows.map(row => {
         const tanggal = normalizeText(row.TANGGAL_INFO);
@@ -599,12 +689,13 @@
       return pastelMap[groupKey] || pastelMap.DEFAULT;
     }
 
-    function renderCourseCell(item){
+    function renderCourseCell(item, isCurrent = false){
       const autoColor = getPastelColorByKodeMk(item.KODE_MK || '');
       const bg = autoColor.bg;
       const color = autoColor.text;
       return `
-        <td class="course-cell" style="background:${escapeHtml(bg)};color:${escapeHtml(color)};">
+        <td class="course-cell ${isCurrent ? 'current-course' : ''}" style="background:${escapeHtml(bg)};color:${escapeHtml(color)};">
+          ${isCurrent ? '<div class="live-badge">Sedang Berlangsung</div>' : ''}
           <div class="course-code">${escapeHtml(item.KODE_MK || '')}${item.KELAS ? ` (${escapeHtml(item.KELAS)})` : ''}</div>
           <div class="course-name">${escapeHtml(item.NAMA_MK || '')}</div>
           ${item.DOSEN ? `<div class="course-meta">Dosen : ${escapeHtml(item.DOSEN)}</div>` : ''}
@@ -685,6 +776,7 @@
       const rooms = state.data.rooms;
       const sessionGroups = groupSessionRows(slots);
       const renderedSessionStart = new Set();
+      const activeSlotId = getCurrentActiveSlotId(day);
 
       if (!rooms.length) {
         el.tableStage.innerHTML = '<div class="error-box">Data RUANG belum ditemukan pada spreadsheet.</div>';
@@ -717,7 +809,8 @@
       for (const slot of slots) {
         const slotType = normalizeText(slot.TIPE_BARIS).toUpperCase();
         const slotId = Number(slot.ID_SLOT);
-        html += '<tr>';
+        const isCurrentSlot = slotType === 'KULIAH' && activeSlotId === slotId;
+        html += `<tr class="${isCurrentSlot ? 'current-row' : ''}">`;
 
         if (slotType === 'KULIAH') {
           const sesi = normalizeText(slot.SESI) || '-';
@@ -726,11 +819,11 @@
             renderedSessionStart.add(sesi);
           }
 
-          html += `<td class="time-cell">${escapeHtml(slot.LABEL_WAKTU)}</td>`;
+          html += `<td class="time-cell ${isCurrentSlot ? 'current-time' : ''}">${escapeHtml(slot.LABEL_WAKTU)}</td>`;
 
           for (const room of rooms) {
             const item = getScheduleItemForSlot(day, room.KODE_RUANG, slotId);
-            html += item ? renderCourseCell(item) : '<td class="empty-cell"></td>';
+            html += item ? renderCourseCell(item, isCurrentSlot) : `<td class="empty-cell ${isCurrentSlot ? 'current-course' : ''}"></td>`;
           }
         } else {
           html += '<td class="session-empty"></td>';
@@ -765,11 +858,14 @@
         ? `${slots.length} (slot global)`
         : `${slots.length}`;
 
+      const liveSummary = getCurrentLiveCourseSummary(state.selectedDay);
+
       el.miniStatus.innerHTML = [
         `Hari tampil: <strong>${escapeHtml(state.selectedDay)}</strong>`,
         `Ruang: <strong>${state.data.rooms.length}</strong>`,
         `Slot: <strong>${slotLabel}</strong>`,
         `Jadwal: <strong>${state.data.schedules.filter(x => normalizeText(x.HARI).toLowerCase() === normalizeText(state.selectedDay).toLowerCase()).length}</strong>`,
+        liveSummary ? `<strong>${escapeHtml(liveSummary)}</strong>` : 'Belum ada perkuliahan yang sedang berlangsung',
         'Sumber: spreadsheet 1 sheet'
       ].join(' &nbsp;&middot;&nbsp; ');
     }
@@ -800,6 +896,7 @@
         : CONFIG.fallbackDays.filter(day => state.data.schedules.some(row => normalizeText(row.HARI).toLowerCase() === day.toLowerCase()));
 
       state.selectedDay = getCurrentAcademicDay(candidateDays);
+      state.liveSlotKey = `${state.selectedDay}__${getCurrentActiveSlotId(state.selectedDay) || ''}`;
       renderTicker();
       updateMiniStatus();
       renderTable(state.selectedDay);
@@ -832,6 +929,25 @@
         const now = new Date();
         el.clockTime.textContent = timeFormatter.format(now);
         el.clockDate.textContent = dateFormatter.format(now);
+
+        if (state.data) {
+          const availableDays = state.data.days?.length ? state.data.days : CONFIG.fallbackDays;
+          const autoDay = getCurrentAcademicDay(availableDays);
+          if (autoDay && autoDay !== state.selectedDay && availableDays.includes(autoDay)) {
+            state.selectedDay = autoDay;
+            updateMiniStatus();
+            renderTable(state.selectedDay);
+            return;
+          }
+
+          const activeSlotId = getCurrentActiveSlotId(state.selectedDay);
+          const nextLiveKey = `${state.selectedDay}__${activeSlotId || ''}`;
+          if (nextLiveKey !== state.liveSlotKey) {
+            state.liveSlotKey = nextLiveKey;
+            updateMiniStatus();
+            renderTable(state.selectedDay);
+          }
+        }
       };
       tick();
       setInterval(tick, 1000);
