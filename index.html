@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jadwal Perkuliahan Mahasiswa</title>
+  <title>Jadwal Perkuliahan Semester Genap 2025/2026</title>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     :root{
@@ -96,7 +96,11 @@
     .clock{
       flex:0 0 auto;
       text-align:right;
-      min-width:260px;
+      min-width:320px;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      justify-content:center;
     }
 
     .clock-time{
@@ -109,8 +113,11 @@
 
     .clock-date{
       margin-top:4px;
-      color:var(--muted);
-      font-size:clamp(14px, 1.05vw, 21px);
+      color:var(--navy-dark);
+      font-size:clamp(24px, 2.05vw, 42px);
+      font-weight:800;
+      line-height:1.02;
+      letter-spacing:.2px;
     }
 
     .ticker-panel{
@@ -342,8 +349,7 @@
     <section class="header-panel">
       <div class="header-main">
         <div class="title-wrap">
-          <h1>Jadwal Perkuliahan Mahasiswa</h1>
-          <p>Data dibaca langsung dari Google Spreadsheet 1 sheet. Semua warna mata kuliah dibuat otomatis dalam palet pastel lembut berdasarkan kelompok kode MK seperti TI4xx agar lebih nyaman dibaca di layar.</p>
+          <h1>Jadwal Perkuliahan Semester Genap 2025/2026</h1>
           <div class="mini-status" id="miniStatus">Memuat data spreadsheet...</div>
         </div>
         <div class="clock">
