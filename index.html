@@ -1014,7 +1014,6 @@
         `Slot: <strong>${slotLabel}</strong>`,
         `Jadwal: <strong>${state.data.schedules.filter(x => normalizeText(x.HARI).toLowerCase() === normalizeText(state.selectedDay).toLowerCase()).length}</strong>`,
         liveSummary ? `<strong>${escapeHtml(liveSummary)}</strong>` : 'Belum ada perkuliahan yang sedang berlangsung',
-        'Sumber: spreadsheet 1 sheet · Soft Premium'
       ];
 
       el.miniStatus.innerHTML = items
