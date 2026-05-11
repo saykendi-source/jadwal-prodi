@@ -4,1120 +4,1013 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Jadwal Perkuliahan Mahasiswa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
-    :root{
-      --panel:rgba(255,255,255,.70);
-      --panel-strong:rgba(255,255,255,.82);
-      --navy:#5C61B9;
-      --navy-dark:#2E317B;
-      --text:#283247;
-      --muted:#66728A;
-      --grid:#C9D0DF;
-      --special:#EEF5E7;
-      --special-dark:#4A5D36;
-      --empty:#F4F5F8;
-      --room-f6:#F7F0D8;
-      --room-f4:#DFF0F4;
-      --room-default:#ECEEFA;
-      --radius:24px;
-      --shadow:0 20px 50px rgba(88, 83, 155, .14);
-      --shadow-soft:0 10px 24px rgba(103, 97, 176, .10);
-      --gold:#D6BE7B;
-      --gold-soft:#F7EFD1;
+    :root {
+      --navy: #3B3F8C;
+      --navy-dark: #1E2260;
+      --navy-mid: #5558A8;
+      --accent: #6C6FD4;
+      --gold: #D4A829;
+      --gold-soft: #FBF3D9;
+      --green: #2E7D52;
+      --green-soft: #E8F5EE;
+      --text: #1A1D3A;
+      --muted: #5C6180;
+      --grid: #D8DBF0;
+      --empty: #F5F6FC;
+      --panel: rgba(255,255,255,0.88);
+      --radius: 18px;
+      --shadow: 0 8px 32px rgba(60,64,180,0.13);
+      --prayer-color: #1B6CA8;
+      --prayer-soft: #E3F2FD;
+      /* room groups */
+      --rf6: #E8F0FB;
+      --rf6-text: #1A3566;
+      --rf4: #E5F5F0;
+      --rf4-text: #0E4030;
+      --rdef: #EEF0FA;
+      --rdef-text: #23266B;
     }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    *{box-sizing:border-box}
-
-    html,body{
-      width:100%;
-      height:100%;
-      margin:0;
-      overflow:hidden;
-      font-family:Arial, Helvetica, sans-serif;
-      color:var(--text);
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
       background:
-        radial-gradient(circle at 8% 12%, rgba(195,188,241,.32) 0, rgba(195,188,241,0) 24%),
-        radial-gradient(circle at 92% 82%, rgba(255,206,214,.28) 0, rgba(255,206,214,0) 22%),
-        radial-gradient(circle at 88% 18%, rgba(197,235,241,.32) 0, rgba(197,235,241,0) 18%),
-        linear-gradient(135deg, #EEF0FA 0%, #F8F5F3 52%, #F2F6EE 100%);
+        radial-gradient(ellipse at 10% 20%, rgba(108,111,212,0.12) 0%, transparent 40%),
+        radial-gradient(ellipse at 90% 80%, rgba(212,168,41,0.10) 0%, transparent 35%),
+        linear-gradient(150deg, #ECEFFE 0%, #F7F5FF 50%, #EEF6F2 100%);
     }
 
-    body::before,
-    body::after{
-      content:'';
-      position:fixed;
-      border-radius:50%;
-      filter:blur(18px);
-      opacity:.55;
-      pointer-events:none;
-      z-index:0;
+    /* ===== LAYOUT ===== */
+    .app {
+      position: relative;
+      width: 100%; height: 100vh;
+      display: flex; flex-direction: column;
+      padding: 6px; gap: 5px;
     }
 
-    body::before{
-      width:360px;
-      height:360px;
-      left:-90px;
-      top:110px;
-      background:radial-gradient(circle, rgba(180,170,235,.42) 0%, rgba(180,170,235,0) 70%);
+    /* ===== HEADER ===== */
+    .header {
+      flex: 0 0 auto;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.85);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
 
-    body::after{
-      width:300px;
-      height:300px;
-      right:-70px;
-      bottom:40px;
-      background:radial-gradient(circle, rgba(246,201,213,.42) 0%, rgba(246,201,213,0) 70%);
+    .header-left { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+
+    .semester-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(108,111,212,0.15), rgba(212,168,41,0.14));
+      color: var(--navy-dark);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      width: fit-content;
+      margin-bottom: 2px;
     }
 
-    .app{
-      position:relative;
-      z-index:1;
-      width:100%;
-      height:100vh;
-      padding:8px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
+    .header h1 {
+      font-size: clamp(18px, 2vw, 36px);
+      font-weight: 800;
+      color: var(--navy-dark);
+      line-height: 1;
+      letter-spacing: -0.3px;
     }
 
-    .header-panel,.ticker-panel,.table-panel{
-      background:var(--panel);
-      border:1px solid rgba(255,255,255,.78);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(12px);
+    .status-bar {
+      display: flex; flex-wrap: wrap; gap: 6px 16px;
+      margin-top: 3px;
+    }
+    .status-item {
+      font-size: 11px; font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .status-item strong { color: var(--navy-dark); }
+
+    /* ===== CLOCK + MODE INDICATOR ===== */
+    .header-right {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+      flex-shrink: 0;
     }
 
-    .header-panel{
-      flex:0 0 auto;
-      padding:8px 16px 6px;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,.86) 0%, rgba(250,247,255,.72) 48%, rgba(247,251,255,.74) 100%);
-      position:relative;
-      overflow:hidden;
+    .clock-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(28px, 3vw, 56px);
+      font-weight: 700;
+      color: var(--navy-dark);
+      line-height: 1;
+      letter-spacing: 1px;
     }
 
-    .header-panel::after{
-      content:'';
-      position:absolute;
-      right:-40px;
-      top:-30px;
-      width:220px;
-      height:220px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(202,211,255,.28) 0%, rgba(202,211,255,0) 72%);
-      pointer-events:none;
+    .clock-date {
+      font-size: clamp(11px, 1vw, 16px);
+      font-weight: 700;
+      color: var(--navy-mid);
     }
 
-    .header-main{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:16px;
+    .mode-badge {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      transition: background 0.4s, color 0.4s;
+    }
+    .mode-badge.mode-full {
+      background: linear-gradient(135deg, var(--navy), var(--accent));
+      color: #fff;
+    }
+    .mode-badge.mode-live {
+      background: linear-gradient(135deg, #E53935, #EF6C00);
+      color: #fff;
+      animation: pulse-badge 2s infinite;
+    }
+    @keyframes pulse-badge {
+      0%,100% { box-shadow: 0 0 0 0 rgba(229,57,53,0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(229,57,53,0); }
     }
 
-    .title-wrap{
-      min-width:0;
-      position:relative;
-      padding-top:16px;
+    /* mode countdown strip */
+    .mode-progress-bar {
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(60,64,180,0.12);
+      overflow: hidden;
+      margin-top: 2px;
+      min-width: 120px;
+    }
+    .mode-progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--navy), var(--accent));
+      transition: width 1s linear;
     }
 
-    .title-wrap::before{
-      content:'Semester Genap 2025/2026';
-      position:absolute;
-      left:0;
-      top:0;
-      padding:4px 10px;
-      border-radius:999px;
-      background:linear-gradient(135deg, rgba(122,126,209,.14), rgba(241,205,219,.18));
-      color:var(--navy-dark);
-      font-size:11px;
-      font-weight:800;
-      letter-spacing:.35px;
-      box-shadow:var(--shadow-soft);
+    /* ===== TICKER ===== */
+    .ticker {
+      flex: 0 0 auto;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      display: flex; align-items: center;
+      padding: 0 12px;
+      min-height: 38px;
+      overflow: hidden;
+    }
+    .ticker-label {
+      flex-shrink: 0;
+      margin-right: 14px;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.35px;
+      background: linear-gradient(135deg, var(--navy), var(--accent));
+      color: #fff;
+      padding: 5px 10px; border-radius: 999px;
+    }
+    .ticker-viewport { flex: 1; overflow: hidden; position: relative; height: 22px; display: flex; align-items: center; }
+    .ticker-track {
+      display: inline-block; white-space: nowrap;
+      padding-left: 100%;
+      animation: tickerMove 55s linear infinite;
+      font-size: 14px; font-weight: 700; color: #3A4070;
+    }
+    @keyframes tickerMove { from{transform:translateX(0)} to{transform:translateX(-100%)} }
+
+    /* ===== PRAYER TIMES ===== */
+    .prayer-bar {
+      flex: 0 0 auto;
+      background: linear-gradient(135deg, rgba(27,108,168,0.10), rgba(27,108,168,0.06));
+      border: 1px solid rgba(27,108,168,0.18);
+      border-radius: var(--radius);
+      display: flex; align-items: center;
+      padding: 4px 14px; gap: 8px;
+      min-height: 36px;
+    }
+    .prayer-label {
+      flex-shrink: 0;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.3px;
+      color: var(--prayer-color);
+      background: var(--prayer-soft);
+      border: 1px solid rgba(27,108,168,0.2);
+      padding: 4px 10px; border-radius: 999px;
+    }
+    .prayer-items { display: flex; gap: 6px; flex-wrap: nowrap; align-items: center; }
+    .prayer-item {
+      display: flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 999px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(27,108,168,0.15);
+      font-size: 12px; font-weight: 700;
+      color: var(--prayer-color);
+      transition: background 0.3s;
+    }
+    .prayer-item.active {
+      background: var(--prayer-color);
+      color: #fff;
+      border-color: var(--prayer-color);
+      box-shadow: 0 4px 12px rgba(27,108,168,0.3);
+    }
+    .prayer-item.next {
+      background: linear-gradient(135deg, rgba(27,108,168,0.14), rgba(27,108,168,0.08));
+      border-color: rgba(27,108,168,0.35);
+    }
+    .prayer-name { font-size: 10px; font-weight: 800; letter-spacing: 0.3px; }
+    .prayer-time { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; }
+    .prayer-countdown {
+      margin-left: 8px;
+      font-size: 11px; font-weight: 700; color: var(--prayer-color);
+      background: var(--prayer-soft);
+      padding: 3px 10px; border-radius: 999px;
+      border: 1px solid rgba(27,108,168,0.18);
+    }
+    .prayer-loading { font-size: 12px; font-weight: 600; color: var(--muted); }
+
+    /* ===== TABLE PANEL ===== */
+    .table-panel {
+      flex: 1 1 auto;
+      min-height: 0;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.82);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      padding: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .view-container {
+      width: 100%; height: 100%;
+      position: relative;
+      overflow: hidden;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.5);
     }
 
-    .title-wrap h1{
-      margin:0 0 2px;
-      color:var(--navy-dark);
-      font-size:clamp(22px, 2.35vw, 44px);
-      line-height:1.01;
-      letter-spacing:.15px;
-      text-shadow:0 2px 0 rgba(255,255,255,.55);
+    /* ===== VIEW TRANSITION ===== */
+    .view-pane {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0;
+      transition: opacity 0.7s ease;
+      overflow: hidden;
+    }
+    .view-pane.active { opacity: 1; z-index: 1; }
+    .view-pane.inactive { opacity: 0; z-index: 0; }
+
+    /* ===== FULL SCHEDULE TABLE ===== */
+    .table-scroller {
+      width: 100%; height: 100%;
+      overflow: auto;
+    }
+    .table-scroller::-webkit-scrollbar { width: 6px; height: 6px; }
+    .table-scroller::-webkit-scrollbar-track { background: rgba(0,0,0,0.04); border-radius: 3px; }
+    .table-scroller::-webkit-scrollbar-thumb { background: rgba(60,64,180,0.2); border-radius: 3px; }
+
+    table.schedule {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+      font-size: 11px;
     }
 
-    .title-wrap p{
-      margin:0;
-      color:var(--muted);
-      font-size:clamp(11px, .78vw, 15px);
-      line-height:1.18;
-      max-width:760px;
+    table.schedule th, table.schedule td {
+      border-right: 1px solid var(--grid);
+      border-bottom: 1px solid var(--grid);
+      text-align: center;
+      vertical-align: middle;
+      padding: 3px 4px;
+    }
+    table.schedule tr > *:first-child { border-left: 1px solid var(--grid); }
+    table.schedule thead tr:first-child > * { border-top: 1px solid var(--grid); }
+
+    table.schedule thead th {
+      height: 42px;
+      font-size: 12px; font-weight: 800;
+      color: #fff;
+      background: linear-gradient(180deg, #7679CC 0%, #5558A8 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+      position: sticky; top: 0; z-index: 10;
+    }
+    table.schedule thead th.rh-f6 { background: #D6E8F8; color: #1A3566; }
+    table.schedule thead th.rh-f4 { background: #C8ECDF; color: #0E4030; }
+    table.schedule thead th.rh-def { background: #DDDFF5; color: #23266B; }
+
+    td.session-cell, td.session-empty {
+      background: #F6F7FD;
+      font-size: 11px; font-weight: 800; color: #3A4070;
+    }
+    td.time-cell {
+      background: #F3F4FB;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700; color: #4A5280;
+      white-space: nowrap; height: 38px;
+    }
+    td.empty-cell { background: var(--empty); height: 38px; }
+    td.special-time { background: #EEF6E8; font-size: 10px; font-weight: 700; color: #3A6020; height: 22px; }
+    td.special-cell { background: #EEF6E8; color: #3A6020; font-size: 10px; font-weight: 800; height: 22px; }
+
+    td.course-cell {
+      height: 38px;
+      font-size: 10px; font-weight: 700;
+      word-break: break-word; overflow-wrap: anywhere;
+      line-height: 1.2;
+    }
+    .c-code { font-size: 9px; color: inherit; opacity: 0.75; margin-bottom: 1px; }
+    .c-name { font-size: 10.5px; font-weight: 800; line-height: 1.1; }
+    .c-meta { font-size: 8.5px; opacity: 0.80; margin-top: 1px; }
+
+    /* current row highlight */
+    tr.current-row td {
+      border-top: 2px solid var(--gold) !important;
+      border-bottom: 2px solid var(--gold) !important;
+    }
+    td.time-cell.current-time { background: var(--gold-soft); color: #6B5010; font-weight: 800; }
+    td.course-cell.current-course {
+      box-shadow: inset 0 0 0 2px var(--gold);
+      position: relative; z-index: 1;
+    }
+    .live-badge {
+      display: block; margin-bottom: 2px;
+      padding: 1px 6px; border-radius: 999px;
+      background: linear-gradient(135deg, #FBF3D9, #F4E3A8);
+      color: #6B5010; font-size: 8px; font-weight: 800;
+      letter-spacing: 0.2px; width: fit-content; margin-inline: auto;
     }
 
-    .mini-status{
-      margin-top:4px;
-      color:var(--navy-dark);
-      font-size:12px;
-      font-weight:800;
-      line-height:1.35;
-      background:rgba(255,255,255,.55);
-      border:1px solid rgba(122,126,209,.12);
-      border-radius:16px;
-      padding:8px 12px;
-      display:inline-flex;
-      flex-wrap:wrap;
-      gap:10px 18px;
-      align-items:center;
-      box-shadow:var(--shadow-soft);
+    /* ===== LIVE VIEW ===== */
+    .live-view {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      gap: 8px; padding: 12px 16px;
+      overflow: auto;
+    }
+    .live-header {
+      display: flex; align-items: center; gap: 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--grid);
+    }
+    .live-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #E53935;
+      animation: pulse-dot 1.5s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { box-shadow: 0 0 0 0 rgba(229,57,53,0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(229,57,53,0); }
+    }
+    .live-header-title { font-size: 16px; font-weight: 800; color: var(--navy-dark); }
+    .live-header-sub { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+    .live-cards { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; align-content: flex-start; }
+    .live-card {
+      flex: 1 1 260px; max-width: 320px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--grid);
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(60,64,180,0.10);
+      padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 5px;
+      position: relative; overflow: hidden;
+    }
+    .live-card::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--navy), var(--accent));
+      border-radius: 14px 0 0 14px;
+    }
+    .live-card-room {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.4px;
+      color: var(--accent); text-transform: uppercase;
+    }
+    .live-card-code { font-size: 11px; font-weight: 700; color: var(--muted); }
+    .live-card-name { font-size: 14px; font-weight: 800; color: var(--navy-dark); line-height: 1.2; }
+    .live-card-meta { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .live-card-time {
+      margin-top: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 700;
+      color: var(--gold); background: var(--gold-soft);
+      padding: 3px 8px; border-radius: 999px;
+      width: fit-content;
     }
 
-    .mini-status .status-item{
-      white-space:nowrap;
-      display:inline-flex;
-      align-items:center;
+    .live-empty {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+      color: var(--muted);
+    }
+    .live-empty-icon { font-size: 40px; opacity: 0.4; }
+    .live-empty-text { font-size: 16px; font-weight: 700; }
+    .live-empty-sub { font-size: 12px; }
+
+    .error-box {
+      margin: 10px; padding: 14px; border-radius: 10px;
+      background: #FFF0F0; border: 1px solid #EFAAAA;
+      color: #7B1D1D; font-size: 13px; line-height: 1.5;
     }
 
-    .clock{
-      flex:0 0 auto;
-      text-align:right;
-      min-width:260px;
-      display:flex;
-      flex-direction:column;
-      align-items:flex-end;
-      justify-content:center;
-      padding:8px 12px;
-      border-radius:18px;
-      background:linear-gradient(135deg, rgba(255,255,255,.72), rgba(241,238,255,.72));
-      box-shadow:var(--shadow-soft);
-      border:1px solid rgba(255,255,255,.8);
-    }
-
-    .clock-time{
-      color:var(--navy-dark);
-      font-size:clamp(34px, 3.2vw, 64px);
-      font-weight:800;
-      line-height:1;
-      letter-spacing:1px;
-      text-shadow:0 2px 0 rgba(255,255,255,.6);
-    }
-
-    .clock-date{
-      margin-top:3px;
-      color:#4C568C;
-      font-size:clamp(18px, 1.45vw, 28px);
-      font-weight:800;
-      line-height:1.03;
-      letter-spacing:.18px;
-    }
-
-    .ticker-panel{
-      flex:0 0 auto;
-      min-height:44px;
-      display:flex;
-      align-items:center;
-      overflow:hidden;
-      padding:0 14px;
-      color:var(--navy-dark);
-      background:linear-gradient(90deg, rgba(117,124,208,.18) 0%, rgba(255,255,255,.72) 48%, rgba(241,204,216,.24) 100%);
-    }
-
-    .ticker-label{
-      flex:0 0 auto;
-      margin-right:16px;
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.3px;
-      color:var(--navy-dark);
-      background:rgba(255,255,255,.72);
-      padding:6px 10px;
-      border-radius:999px;
-      box-shadow:var(--shadow-soft);
-    }
-
-    .ticker-viewport{
-      flex:1 1 auto;
-      min-width:0;
-      white-space:nowrap;
-      overflow:hidden;
-      position:relative;
-      height:24px;
-      display:flex;
-      align-items:center;
-    }
-
-    .ticker-track{
-      display:inline-block;
-      white-space:nowrap;
-      padding-left:100%;
-      will-change:transform;
-      animation:tickerMove 48s linear infinite;
-      font-size:16px;
-      font-weight:800;
-      line-height:1.2;
-      letter-spacing:.15px;
-      color:#48527D;
-    }
-
-    @keyframes tickerMove{
-      from{transform:translateX(0)}
-      to{transform:translateX(-100%)}
-    }
-
-    .table-panel{
-      flex:1 1 auto;
-      min-height:0;
-      padding:4px;
-      overflow:hidden;
-      background:linear-gradient(180deg, rgba(255,255,255,.66), rgba(251,249,255,.58));
-    }
-
-    .table-stage{
-      width:100%;
-      height:100%;
-      position:relative;
-      overflow:hidden;
-      border-radius:22px;
-      background:linear-gradient(180deg, rgba(255,255,255,.45), rgba(245,242,250,.38));
-      border:1px solid rgba(255,255,255,.72);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
-    }
-
-    .table-scale{
-      position:absolute;
-      top:0;
-      left:0;
-      width:100%;
-      transform-origin:top left;
-      will-change:transform;
-    }
-
-    table.schedule{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      table-layout:fixed;
-      background:rgba(255,255,255,.84);
-      box-shadow:0 12px 32px rgba(104, 98, 181, .10);
-      border-radius:20px;
-      overflow:hidden;
-      --thead-height:46px;
-      --row-height:42px;
-      --special-row-height:26px;
-      --header-font:14px;
-      --cell-font:12px;
-      --code-font:10px;
-      --meta-font:8.8px;
-      --special-font:11px;
-      --session-font:12px;
-    }
-
-    .schedule th,.schedule td{
-      border-right:1px solid var(--grid);
-      border-bottom:1px solid var(--grid);
-      text-align:center;
-      vertical-align:middle;
-      padding:2px 4px;
-    }
-
-    .schedule tr > *:first-child{
-      border-left:1px solid var(--grid);
-    }
-
-    .schedule thead tr:first-child > *{
-      border-top:1px solid var(--grid);
-    }
-
-    .schedule thead th{
-      height:var(--thead-height);
-      font-size:var(--header-font);
-      font-weight:800;
-      color:#ffffff;
-      background:linear-gradient(180deg, #888DD9 0%, #6E74C8 100%);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
-    }
-
-    .schedule thead th.room-head{ color:#33405D; }
-    .schedule thead th.room-head.group-f6{ background:var(--room-f6); }
-    .schedule thead th.room-head.group-f4{ background:var(--room-f4); }
-    .schedule thead th.room-head.group-default{ background:var(--room-default); }
-
-    td.session-cell,td.session-empty{
-      background:#FAFBFE;
-      font-size:var(--session-font);
-      font-weight:700;
-      color:#4D567A;
-    }
-
-    td.time-cell{
-      background:#F8F8FB;
-      font-size:var(--session-font);
-      font-weight:800;
-      color:#5B6488;
-      white-space:nowrap;
-      height:var(--row-height);
-    }
-
-    td.empty-cell{
-      background:var(--empty);
-      height:var(--row-height);
-    }
-
-    td.course-cell{
-      height:var(--row-height);
-      font-size:var(--cell-font);
-      line-height:1.18;
-      font-weight:700;
-      word-break:break-word;
-      overflow-wrap:anywhere;
-    }
-
-    .course-code{
-      font-size:var(--code-font);
-      margin-bottom:1px;
-      line-height:1.08;
-    }
-
-    .course-name{
-      font-size:var(--cell-font);
-      font-weight:800;
-      margin-bottom:1px;
-      line-height:1.03;
-    }
-
-    .course-meta{
-      font-size:var(--meta-font);
-      font-weight:600;
-      margin-top:1px;
-      opacity:.96;
-      line-height:1.08;
-    }
-
-    td.special-time{
-      background:#eef5e8;
-      font-size:var(--special-font);
-      font-weight:700;
-      height:var(--special-row-height);
-    }
-
-    td.special-cell{
-      background:var(--special);
-      color:var(--special-dark);
-      font-size:var(--special-font);
-      font-weight:800;
-      letter-spacing:.08px;
-      padding:1px 4px;
-      height:var(--special-row-height);
-    }
-
-    .schedule tr.current-row td{
-      border-top:2px solid var(--gold);
-      border-bottom:2px solid var(--gold);
-      background-clip:padding-box;
-    }
-
-    td.time-cell.current-time{
-      background:var(--gold-soft);
-      color:#655A3D;
-      font-weight:800;
-    }
-
-    td.course-cell.current-course{
-      box-shadow: inset 0 0 0 2px var(--gold), 0 10px 20px rgba(214,190,123,.12);
-      position:relative;
-      z-index:1;
-    }
-
-    .live-badge{
-      display:inline-block;
-      margin-bottom:3px;
-      padding:2px 7px;
-      border-radius:999px;
-      background:linear-gradient(180deg, #FAF1D5 0%, #F4E6B8 100%);
-      color:#5D5136;
-      font-size:calc(var(--meta-font) + .7px);
-      font-weight:800;
-      letter-spacing:.2px;
-      white-space:nowrap;
-      box-shadow:0 3px 8px rgba(214,190,123,.18);
-    }
-
-
-    .schedule thead tr:first-child th:first-child{
-      border-top-left-radius:18px;
-    }
-
-    .schedule thead tr:first-child th:last-child{
-      border-top-right-radius:18px;
-    }
-
-    .schedule tbody tr:last-child td:first-child{
-      border-bottom-left-radius:18px;
-    }
-
-    .schedule tbody tr:last-child td:last-child{
-      border-bottom-right-radius:18px;
-    }
-
-    .error-box{
-      margin:10px;
-      padding:16px;
-      border-radius:12px;
-      background:#fff0f0;
-      border:1px solid #efb0b0;
-      color:#7b1d1d;
-      font-size:14px;
-      line-height:1.5;
-    }
-
-    @media (max-width:880px){
-      .header-main{
-        flex-direction:column;
-      }
-      .clock{
-        text-align:left;
-        min-width:0;
-      }
-    }
+    /* ===== COL WIDTHS ===== */
+    col.col-sesi { width: 52px; }
+    col.col-jam { width: 82px; }
   </style>
 </head>
 <body>
-  <div class="app">
-    <section class="header-panel">
-      <div class="header-main">
-        <div class="title-wrap">
-          <h1>Jadwal Perkuliahan Mahasiswa</h1>
-          
-          <div class="mini-status" id="miniStatus">Memuat data spreadsheet...</div>
+<div class="app">
+
+  <!-- HEADER -->
+  <section class="header">
+    <div class="header-left">
+      <span class="semester-badge">Semester Genap 2025/2026</span>
+      <h1>Jadwal Perkuliahan Mahasiswa</h1>
+      <div class="status-bar" id="statusBar">Memuat data...</div>
+    </div>
+    <div class="header-right">
+      <div class="clock-time" id="clockTime">--:--:--</div>
+      <div class="clock-date" id="clockDate">--</div>
+      <div class="mode-badge mode-full" id="modeBadge">📅 SEMUA SESI</div>
+      <div class="mode-progress-bar"><div class="mode-progress-fill" id="modeProgress" style="width:100%"></div></div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <section class="ticker">
+    <div class="ticker-label">INFO PERKULIAHAN</div>
+    <div class="ticker-viewport">
+      <div class="ticker-track" id="tickerTrack">Memuat informasi...</div>
+    </div>
+  </section>
+
+  <!-- PRAYER TIMES -->
+  <section class="prayer-bar" id="prayerBar">
+    <div class="prayer-label">🕌 WAKTU SHOLAT</div>
+    <div class="prayer-loading" id="prayerContent">Memuat waktu sholat...</div>
+  </section>
+
+  <!-- TABLE PANEL -->
+  <section class="table-panel">
+    <div class="view-container" id="viewContainer">
+      <!-- Full schedule view -->
+      <div class="view-pane active" id="viewFull">
+        <div class="table-scroller" id="tableScroller">
+          <div class="error-box">Memuat jadwal...</div>
         </div>
-        <div class="clock">
-          <div class="clock-time" id="clockTime">--:--:--</div>
-          <div class="clock-date" id="clockDate">Memuat tanggal...</div>
+      </div>
+      <!-- Live view -->
+      <div class="view-pane inactive" id="viewLive">
+        <div class="live-view" id="liveView">
+          <div class="live-empty">
+            <div class="live-empty-icon">📋</div>
+            <div class="live-empty-text">Memuat data...</div>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="ticker-panel">
-      <div class="ticker-label">INFO PERKULIAHAN</div>
-      <div class="ticker-viewport">
-        <div class="ticker-track" id="tickerTrack">Memuat informasi perkuliahan tambahan...</div>
-      </div>
-    </section>
+</div>
 
-    <section class="table-panel">
-      <div class="table-stage" id="tableStage">
-        <div class="error-box">Sedang memuat data spreadsheet...</div>
-      </div>
-    </section>
-  </div>
+<script>
+const CONFIG = {
+  csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
+  autoRefreshMs: 60000,
+  fallbackDays: ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+  roomHeaderClasses: { F6:'rh-f6', F4:'rh-f4' },
+  modeSwitchMs: 5 * 60 * 1000, // 5 minutes
+  tickerFallback: 'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
+  // Yogyakarta coordinates
+  lat: -7.8014,
+  lng: 110.3649,
+};
 
-  <script>
-    const CONFIG = {
-      csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
-      autoRefreshMs: 60000,
-      fallbackDays: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
-      roomHeaderClasses: { F6: 'group-f6', F4: 'group-f4' },
-      tickerFallback: 'Selamat datang. Pastikan hadir tepat waktu dan perhatikan informasi akademik terbaru.'
-    };
+const state = {
+  data: null,
+  selectedDay: 'Senin',
+  csvHash: '',
+  liveSlotKey: '',
+  currentMode: 'full', // 'full' | 'live'
+  modeTimer: null,
+  modeRemainMs: CONFIG.modeSwitchMs,
+  prayer: null,
+};
 
-    const state = {
-      data: null,
-      selectedDay: 'Senin',
-      csvHash: '',
-      autoRefreshBusy: false,
-      autoRefreshTimer: null,
-      liveSlotKey: ''
-    };
+const el = {
+  statusBar: document.getElementById('statusBar'),
+  clockTime: document.getElementById('clockTime'),
+  clockDate: document.getElementById('clockDate'),
+  tickerTrack: document.getElementById('tickerTrack'),
+  viewFull: document.getElementById('viewFull'),
+  viewLive: document.getElementById('viewLive'),
+  tableScroller: document.getElementById('tableScroller'),
+  liveView: document.getElementById('liveView'),
+  modeBadge: document.getElementById('modeBadge'),
+  modeProgress: document.getElementById('modeProgress'),
+  prayerContent: document.getElementById('prayerContent'),
+};
 
-    const el = {
-      tableStage: document.getElementById('tableStage'),
-      tickerTrack: document.getElementById('tickerTrack'),
-      miniStatus: document.getElementById('miniStatus'),
-      clockTime: document.getElementById('clockTime'),
-      clockDate: document.getElementById('clockDate')
-    };
+// ==============================
+// UTILS
+// ==============================
+function n(v){ return String(v ?? '').trim(); }
+function nk(v){ return n(v).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g,'').toUpperCase(); }
+function esc(v){ return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+function isYes(v){ const x=n(v).toLowerCase(); return x===''||['ya','y','true','1','aktif'].includes(x); }
 
-    function normalizeText(value){ return String(value ?? '').trim(); }
-    function normalizeKey(value){
-      return normalizeText(value).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g, '').toUpperCase();
-    }
-    function isYes(value){
-      const v = normalizeText(value).toLowerCase();
-      return v === '' || ['ya','y','true','1','aktif'].includes(v);
-    }
-    function escapeHtml(value){
-      return String(value ?? '')
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-    }
-    function normalizeHexColor(value){
-      const raw = normalizeText(value).replace(/[^#a-fA-F0-9]/g,'');
-      if (!raw) return '';
-      if (raw.startsWith('#')) {
-        if (raw.length === 4) return ('#' + raw.slice(1).split('').map(ch => ch + ch).join('')).toUpperCase();
-        if (raw.length === 7) return raw.toUpperCase();
-        if (raw.length === 9) return ('#' + raw.slice(3)).toUpperCase();
+function getCanonicalKey(k){
+  const m={
+    JENISDATA:'JENIS_DATA',AKTIF:'AKTIF',HARI:'HARI',SESI:'SESI',
+    IDSLOT:'ID_SLOT',IDSLOTMULAI:'ID_SLOT_MULAI',IDSLOTSELESAI:'ID_SLOT_SELESAI',
+    LABELWAKTU:'LABEL_WAKTU',TIPEBARIS:'TIPE_BARIS',URUTANSLOT:'URUTAN_SLOT',
+    KODERUANG:'KODE_RUANG',NAMATAMPILRUANG:'NAMA_TAMPIL_RUANG',
+    URUTANKOLOMRUANG:'URUTAN_KOLOM_RUANG',GRUPWARNARUANG:'GRUP_WARNA_RUANG',
+    KODEMK:'KODE_MK',NAMAMK:'NAMA_MK',KELAS:'KELAS',DOSEN:'DOSEN',
+    PROGRAMANGKATAN:'PROGRAM_ANGKATAN',CATATAN:'CATATAN',KETERANGAN:'CATATAN',
+    WARNABG:'WARNA_BG',WARNATEXT:'WARNA_TEXT',
+    TANGGALINFO:'TANGGAL_INFO',JENISINFO:'JENIS_INFO',KETERANGANINFO:'KETERANGAN_INFO'
+  };
+  return m[nk(k)] || k;
+}
+
+function parseTimeLabelToMinutes(label){
+  const clean = n(label).replace(/–/g,'-');
+  const parts = clean.split('-').map(x=>n(x));
+  if(parts.length < 2) return null;
+  const p = str => { const m=str.match(/(\d{1,2})[.:](\d{2})/); return m ? +m[1]*60+ +m[2] : null; };
+  const s=p(parts[0]), e=p(parts[1]);
+  return (s!==null && e!==null) ? {start:s, end:e} : null;
+}
+
+function nowMinutes(){ const d=new Date(); return d.getHours()*60+d.getMinutes(); }
+
+function getCurrentDayName(){
+  return ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date().getDay()];
+}
+
+// ==============================
+// CSV PARSING
+// ==============================
+function buildObjectsFromCsv(csvText){
+  const rows = Papa.parse(csvText,{delimiter:',',quoteChar:'"',escapeChar:'"',skipEmptyLines:false}).data||[];
+  const hi = rows.findIndex(r => nk(r?.[0])==='JENISDATA');
+  if(hi===-1) throw new Error('Header baris JENIS_DATA tidak ditemukan.');
+  const headers = rows[hi].map(getCanonicalKey);
+  return rows.slice(hi+1).filter(r=>r.some(c=>n(c)!=='')).map(r=>{
+    const o={};
+    headers.forEach((h,i)=>{ if(h) o[h]=r[i]??''; });
+    return o;
+  });
+}
+
+function buildDataModel(csvText){
+  const rows = buildObjectsFromCsv(csvText);
+  const rooms = rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='RUANG'&&isYes(r.AKTIF))
+    .sort((a,b)=>+a.URUTAN_KOLOM_RUANG - +b.URUTAN_KOLOM_RUANG);
+  const slots = rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='SLOT'&&isYes(r.AKTIF))
+    .sort((a,b)=>(+a.URUTAN_SLOT||+a.ID_SLOT||0)-(+b.URUTAN_SLOT||+b.ID_SLOT||0));
+  const schedules = rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='JADWAL'&&isYes(r.AKTIF));
+  const infos = rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='INFO'&&isYes(r.AKTIF));
+  const daysSet = new Set();
+  slots.forEach(r=>{ if(n(r.HARI)) daysSet.add(n(r.HARI)); });
+  schedules.forEach(r=>{ if(n(r.HARI)) daysSet.add(n(r.HARI)); });
+  const ordered = CONFIG.fallbackDays.filter(d=>daysSet.has(d));
+  const extra = [...daysSet].filter(d=>!ordered.includes(d));
+  return { rooms, slots, schedules, infos, days:[...ordered,...extra], hasGlobalSlots: slots.some(r=>!n(r.HARI)) };
+}
+
+function getSlotsForDay(day){
+  const dl = n(day).toLowerCase();
+  const specific = state.data.slots.filter(r=>n(r.HARI).toLowerCase()===dl);
+  if(specific.length) return specific;
+  const global = state.data.slots.filter(r=>!n(r.HARI));
+  return global.length ? global : state.data.slots;
+}
+
+function getScheduleItem(day, roomCode, slotId){
+  const dl=n(day).toLowerCase(), rc=n(roomCode), sid=+slotId;
+  return state.data.schedules.find(item=>
+    n(item.HARI).toLowerCase()===dl &&
+    n(item.KODE_RUANG)===rc &&
+    sid >= +item.ID_SLOT_MULAI &&
+    sid <= +(item.ID_SLOT_SELESAI||item.ID_SLOT_MULAI)
+  )||null;
+}
+
+function getCurrentActiveSlotId(day){
+  if(!state.data) return null;
+  if(n(day)!==getCurrentDayName()) return null;
+  const cur = nowMinutes();
+  for(const slot of getSlotsForDay(day)){
+    if(n(slot.TIPE_BARIS).toUpperCase()!=='KULIAH') continue;
+    const p = parseTimeLabelToMinutes(slot.LABEL_WAKTU);
+    if(p && cur>=p.start && cur<p.end) return +slot.ID_SLOT;
+  }
+  return null;
+}
+
+function getCurrentAcademicDay(days){ const c=getCurrentDayName(); return days.includes(c)?c:days[0]||'Senin'; }
+
+// ==============================
+// ROOM HEADER CLASS
+// ==============================
+function roomHClass(room){
+  const g=n(room.GRUP_WARNA_RUANG).toUpperCase();
+  return CONFIG.roomHeaderClasses[g]||'rh-def';
+}
+
+// ==============================
+// PASTEL COLOR BY MK
+// ==============================
+function mkColor(kodeMk){
+  const code=n(kodeMk).toUpperCase().replace(/\s+/g,'');
+  const m=code.match(/^([A-Z]+)(\d)/);
+  const key=m?`${m[1]}${m[2]}xx`:'DEFAULT';
+  const map={
+    'TI1xx':{bg:'#EEF4FA',t:'#1A3050'},
+    'TI2xx':{bg:'#EDF7F1',t:'#1A3830'},
+    'TI3xx':{bg:'#FFF9EC',t:'#3A2A00'},
+    'TI4xx':{bg:'#FAF0E8',t:'#3A1808'},
+    'TI5xx':{bg:'#F2EEF9',t:'#1E103A'},
+    'TI6xx':{bg:'#EEF6F1',t:'#0C3220'},
+    'TI7xx':{bg:'#EEF5F6',t:'#0C2A30'},
+    'TI8xx':{bg:'#FAEFF0',t:'#3A0C10'},
+    'TIDA0xx':{bg:'#F0F4E8',t:'#203010'},
+    'DEFAULT':{bg:'#F3F4FA',t:'#1A1D3A'}
+  };
+  return map[key]||map.DEFAULT;
+}
+
+// ==============================
+// RENDER FULL TABLE
+// ==============================
+function renderFullTable(day){
+  if(!state.data){ el.tableScroller.innerHTML='<div class="error-box">Data belum tersedia.</div>'; return; }
+  const slots=getSlotsForDay(day);
+  const rooms=state.data.rooms;
+  const activeSlotId=getCurrentActiveSlotId(day);
+  if(!rooms.length){ el.tableScroller.innerHTML='<div class="error-box">Data RUANG tidak ditemukan.</div>'; return; }
+  if(!slots.length){ el.tableScroller.innerHTML='<div class="error-box">Data SLOT tidak ditemukan.</div>'; return; }
+
+  // group sessions for rowspan
+  const sessionCount=new Map();
+  const renderedSession=new Set();
+  slots.forEach(s=>{ if(n(s.TIPE_BARIS).toUpperCase()==='KULIAH'){ const k=n(s.SESI)||'-'; sessionCount.set(k,(sessionCount.get(k)||0)+1); } });
+
+  let html=`<table class="schedule"><colgroup><col class="col-sesi"><col class="col-jam">${rooms.map(()=>'<col>').join('')}</colgroup>`;
+  html+=`<thead><tr><th>SESI</th><th>JAM</th>${rooms.map(r=>`<th class="${roomHClass(r)}">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}</tr></thead><tbody>`;
+
+  for(const slot of slots){
+    const type=n(slot.TIPE_BARIS).toUpperCase();
+    const sid=+slot.ID_SLOT;
+    const isCur=type==='KULIAH'&&activeSlotId===sid;
+    html+=`<tr class="${isCur?'current-row':''}">`;
+    if(type==='KULIAH'){
+      const sesi=n(slot.SESI)||'-';
+      if(!renderedSession.has(sesi)){
+        html+=`<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}">${esc(sesi)}</td>`;
+        renderedSession.add(sesi);
       }
-      if (/^[A-Fa-f0-9]{6}$/.test(raw)) return ('#' + raw).toUpperCase();
-      if (/^[A-Fa-f0-9]{8}$/.test(raw)) return ('#' + raw.slice(2)).toUpperCase();
-      return '';
-    }
-
-    function getCanonicalKey(rawKey){
-      const key = normalizeKey(rawKey);
-      const aliasMap = {
-        JENISDATA:'JENIS_DATA',
-        AKTIF:'AKTIF',
-        HARI:'HARI',
-        SESI:'SESI',
-        IDSLOT:'ID_SLOT',
-        IDSLOTMULAI:'ID_SLOT_MULAI',
-        IDSLOTSELESAI:'ID_SLOT_SELESAI',
-        LABELWAKTU:'LABEL_WAKTU',
-        TIPEBARIS:'TIPE_BARIS',
-        URUTANSLOT:'URUTAN_SLOT',
-        KODERUANG:'KODE_RUANG',
-        NAMATAMPILRUANG:'NAMA_TAMPIL_RUANG',
-        URUTANKOLOMRUANG:'URUTAN_KOLOM_RUANG',
-        GRUPWARNARUANG:'GRUP_WARNA_RUANG',
-        KODEMK:'KODE_MK',
-        NAMAMK:'NAMA_MK',
-        KELAS:'KELAS',
-        DOSEN:'DOSEN',
-        PROGRAMANGKATAN:'PROGRAM_ANGKATAN',
-        CATATAN:'CATATAN',
-        KETERANGAN:'CATATAN',
-        WARNABG:'WARNA_BG',
-        WARNATEXT:'WARNA_TEXT',
-        TANGGALINFO:'TANGGAL_INFO',
-        JENISINFO:'JENIS_INFO',
-        KETERANGANINFO:'KETERANGAN_INFO'
-      };
-      return aliasMap[key] || rawKey;
-    }
-
-    function parseCsvRows(csvText){
-      const parsed = Papa.parse(csvText, {
-        delimiter: ',',
-        newline: '',
-        quoteChar: '"',
-        escapeChar: '"',
-        skipEmptyLines: false
-      });
-
-      if (parsed.errors && parsed.errors.length) {
-        console.warn(parsed.errors);
-      }
-
-      return parsed.data || [];
-    }
-
-    function buildObjectsFromCsv(csvText){
-      const rows = parseCsvRows(csvText);
-      const headerIndex = rows.findIndex(row => normalizeKey(row?.[0]) === 'JENISDATA');
-      if (headerIndex === -1) {
-        throw new Error('Baris header tidak ditemukan. Pastikan kolom pertama bernama JENIS_DATA.');
-      }
-
-      const headerRow = rows[headerIndex];
-      const headers = headerRow.map(h => getCanonicalKey(h));
-
-      const objects = [];
-      for (let r = headerIndex + 1; r < rows.length; r += 1) {
-        const row = rows[r] || [];
-        const hasContent = row.some(cell => normalizeText(cell) !== '');
-        if (!hasContent) continue;
-
-        const obj = {};
-        headers.forEach((header, index) => {
-          if (!header) return;
-          obj[header] = row[index] ?? '';
-        });
-        objects.push(obj);
-      }
-      return objects;
-    }
-
-    function buildDataModel(csvText){
-      const rows = buildObjectsFromCsv(csvText);
-
-      const rooms = rows
-        .filter(row => normalizeText(row.JENIS_DATA).toUpperCase() === 'RUANG' && isYes(row.AKTIF))
-        .sort((a,b) => Number(a.URUTAN_KOLOM_RUANG || 0) - Number(b.URUTAN_KOLOM_RUANG || 0));
-
-      const slotRows = rows
-        .filter(row => normalizeText(row.JENIS_DATA).toUpperCase() === 'SLOT' && isYes(row.AKTIF))
-        .sort((a,b) => Number(a.URUTAN_SLOT || a.ID_SLOT || 0) - Number(b.URUTAN_SLOT || b.ID_SLOT || 0));
-
-      const scheduleRows = rows
-        .filter(row => normalizeText(row.JENIS_DATA).toUpperCase() === 'JADWAL' && isYes(row.AKTIF))
-        .map(row => ({
-          ...row,
-          WARNA_BG: normalizeHexColor(row.WARNA_BG) || '#D9D9D9',
-          WARNA_TEXT: normalizeHexColor(row.WARNA_TEXT) || '#111111'
-        }));
-
-      const infoRows = rows
-        .filter(row => normalizeText(row.JENIS_DATA).toUpperCase() === 'INFO' && isYes(row.AKTIF));
-
-      const daysSet = new Set();
-      slotRows.forEach(row => { if (normalizeText(row.HARI)) daysSet.add(normalizeText(row.HARI)); });
-      scheduleRows.forEach(row => { if (normalizeText(row.HARI)) daysSet.add(normalizeText(row.HARI)); });
-
-      const orderedDays = CONFIG.fallbackDays.filter(day => daysSet.has(day));
-      const extraDays = [...daysSet].filter(day => !orderedDays.includes(day));
-      const hasGlobalSlots = slotRows.some(row => !normalizeText(row.HARI));
-
-      return {
-        rooms,
-        slots: slotRows,
-        schedules: scheduleRows,
-        infos: infoRows,
-        hasGlobalSlots,
-        days: [...orderedDays, ...extraDays]
-      };
-    }
-
-    function getCurrentAcademicDay(days){
-      const jsDay = new Date().getDay();
-      const map = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-      const current = map[jsDay];
-      if (days.includes(current)) return current;
-      return days[0] || 'Senin';
-    }
-
-    function getSlotsForDay(day){
-      const targetDay = normalizeText(day).toLowerCase();
-      const specificSlots = state.data.slots
-        .filter(row => normalizeText(row.HARI).toLowerCase() === targetDay)
-        .sort((a,b) => Number(a.URUTAN_SLOT || a.ID_SLOT || 0) - Number(b.URUTAN_SLOT || b.ID_SLOT || 0));
-
-      if (specificSlots.length) return specificSlots;
-
-      const globalSlots = state.data.slots
-        .filter(row => !normalizeText(row.HARI))
-        .sort((a,b) => Number(a.URUTAN_SLOT || a.ID_SLOT || 0) - Number(b.URUTAN_SLOT || b.ID_SLOT || 0));
-
-      if (globalSlots.length) return globalSlots;
-
-      return state.data.slots
-        .sort((a,b) => Number(a.URUTAN_SLOT || a.ID_SLOT || 0) - Number(b.URUTAN_SLOT || b.ID_SLOT || 0));
-    }
-
-    function groupSessionRows(slots){
-      const groups = new Map();
-      slots.forEach(slot => {
-        if (normalizeText(slot.TIPE_BARIS).toUpperCase() === 'KULIAH') {
-          const key = normalizeText(slot.SESI) || '-';
-          groups.set(key, (groups.get(key) || 0) + 1);
-        }
-      });
-      return groups;
-    }
-
-    function getRoomHeaderClass(room){
-      const group = normalizeText(room.GRUP_WARNA_RUANG).toUpperCase();
-      return CONFIG.roomHeaderClasses[group] || 'group-default';
-    }
-
-    function formatSpecialText(slot){
-      return normalizeText(slot.CATATAN) || 'Informasi akademik';
-    }
-
-    function getScheduleItemForSlot(day, roomCode, slotId){
-      const targetDay = normalizeText(day).toLowerCase();
-      const targetRoom = normalizeText(roomCode);
-      const numericSlot = Number(slotId);
-      return state.data.schedules.find(item => {
-        const itemDay = normalizeText(item.HARI).toLowerCase();
-        const itemRoom = normalizeText(item.KODE_RUANG);
-        const start = Number(item.ID_SLOT_MULAI);
-        const end = Number(item.ID_SLOT_SELESAI || item.ID_SLOT_MULAI);
-        return itemDay === targetDay && itemRoom === targetRoom && numericSlot >= start && numericSlot <= end;
-      }) || null;
-    }
-
-    function getCurrentDayName(){
-      const map = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-      return map[new Date().getDay()];
-    }
-
-    function parseTimeLabelToMinutes(label){
-      const clean = normalizeText(label).replace(/–/g, '-');
-      const parts = clean.split('-').map(x => normalizeText(x));
-      if (parts.length < 2) return null;
-
-      const parsePart = (part) => {
-        const m = part.match(/(\d{1,2})[.:](\d{2})/);
-        if (!m) return null;
-        return Number(m[1]) * 60 + Number(m[2]);
-      };
-
-      const start = parsePart(parts[0]);
-      const end = parsePart(parts[1]);
-      if (start === null || end === null) return null;
-      return { start, end };
-    }
-
-    function getCurrentMinutes(){
-      const now = new Date();
-      return now.getHours() * 60 + now.getMinutes();
-    }
-
-    function getCurrentActiveSlotId(day){
-      if (!state.data) return null;
-      if (normalizeText(day) !== normalizeText(getCurrentDayName())) return null;
-
-      const currentMinutes = getCurrentMinutes();
-      const slots = getSlotsForDay(day);
-
-      for (const slot of slots) {
-        if (normalizeText(slot.TIPE_BARIS).toUpperCase() !== 'KULIAH') continue;
-        const parsed = parseTimeLabelToMinutes(slot.LABEL_WAKTU);
-        if (!parsed) continue;
-        if (currentMinutes >= parsed.start && currentMinutes < parsed.end) {
-          return Number(slot.ID_SLOT);
-        }
-      }
-      return null;
-    }
-
-    function getCurrentLiveCourseSummary(day){
-      const activeSlotId = getCurrentActiveSlotId(day);
-      if (!activeSlotId) return '';
-      const item = state.data?.schedules?.find(row =>
-        normalizeText(row.HARI).toLowerCase() === normalizeText(day).toLowerCase() &&
-        activeSlotId >= Number(row.ID_SLOT_MULAI) &&
-        activeSlotId <= Number(row.ID_SLOT_SELESAI || row.ID_SLOT_MULAI)
-      );
-      if (!item) return 'Sedang berlangsung';
-      const kode = normalizeText(item.KODE_MK);
-      const nama = normalizeText(item.NAMA_MK);
-      const ruang = normalizeText(item.KODE_RUANG);
-      return ['Sedang berlangsung', kode, nama, ruang].filter(Boolean).join(' · ');
-    }
-
-    function buildTickerText(infoRows){
-      const items = infoRows.map(row => {
-        const tanggal = normalizeText(row.TANGGAL_INFO);
-        const jenis = normalizeText(row.JENIS_INFO);
-        const ket = normalizeText(row.KETERANGAN_INFO);
-        return [tanggal, jenis, ket].filter(Boolean).join(' - ');
-      }).filter(Boolean);
-
-      return items.length ? items.join('     ✦     ') : CONFIG.tickerFallback;
-    }
-
-    function renderTicker(){
-      el.tickerTrack.textContent = state.data ? buildTickerText(state.data.infos) : CONFIG.tickerFallback;
-    }
-
-
-    function getPastelColorByKodeMk(kodeMk){
-      const code = normalizeText(kodeMk).toUpperCase().replace(/\s+/g, '');
-      const m = code.match(/^([A-Z]+)(\d)/);
-      const groupKey = m ? `${m[1]}${m[2]}xx` : code.slice(0, 2) || 'DEFAULT';
-
-      const pastelMap = {
-        'TI1xx': { bg: '#EEF4FA', text: '#2B3645' },
-        'TI2xx': { bg: '#F0F7F0', text: '#2B3645' },
-        'TI3xx': { bg: '#FFF9ED', text: '#2B3645' },
-        'TI4xx': { bg: '#FAF0E9', text: '#2B3645' },
-        'TI5xx': { bg: '#F3EEF8', text: '#2B3645' },
-        'TI6xx': { bg: '#EEF6F1', text: '#2B3645' },
-        'TI7xx': { bg: '#EEF5F6', text: '#2B3645' },
-        'TI8xx': { bg: '#FAEFF0', text: '#2B3645' },
-        'DEFAULT': { bg: '#F4F4F4', text: '#2B3645' }
-      };
-
-      return pastelMap[groupKey] || pastelMap.DEFAULT;
-    }
-
-    function renderCourseCell(item, isCurrent = false){
-      const autoColor = getPastelColorByKodeMk(item.KODE_MK || '');
-      const bg = autoColor.bg;
-      const color = autoColor.text;
-      return `
-        <td class="course-cell ${isCurrent ? 'current-course' : ''}" style="background:${escapeHtml(bg)};color:${escapeHtml(color)};">
-          ${isCurrent ? '<div class="live-badge">Sedang Berlangsung</div>' : ''}
-          <div class="course-code">${escapeHtml(item.KODE_MK || '')}${item.KELAS ? ` (${escapeHtml(item.KELAS)})` : ''}</div>
-          <div class="course-name">${escapeHtml(item.NAMA_MK || '')}</div>
-          ${item.DOSEN ? `<div class="course-meta">Dosen : ${escapeHtml(item.DOSEN)}</div>` : ''}
-          ${item.PROGRAM_ANGKATAN ? `<div class="course-meta">${escapeHtml(item.PROGRAM_ANGKATAN)}</div>` : ''}
-          ${item.CATATAN ? `<div class="course-meta">${escapeHtml(item.CATATAN)}</div>` : ''}
-        </td>
-      `;
-    }
-
-    function applyResponsiveTableSize(){
-      const table = document.getElementById('scheduleTable');
-      if (!table || !state.data) return;
-
-      const slots = getSlotsForDay(state.selectedDay);
-      const kuliahCount = Math.max(1, slots.filter(slot => normalizeText(slot.TIPE_BARIS).toUpperCase() === 'KULIAH').length);
-      const specialCount = Math.max(0, slots.length - kuliahCount);
-
-      const stageHeight = Math.max(320, el.tableStage.clientHeight);
-      const stageWidth = Math.max(640, el.tableStage.clientWidth);
-
-      const headerHeight = Math.max(40, Math.min(54, stageHeight * 0.052));
-      const specialWeight = 0.62;
-      const borderReserve = (slots.length + 6) * 2;
-      const bodyHeight = Math.max(180, stageHeight - headerHeight - borderReserve);
-      const baseUnit = bodyHeight / (kuliahCount + specialCount * specialWeight);
-
-      const rowHeight = Math.max(30, Math.min(46, baseUnit));
-      const specialRowHeight = Math.max(18, Math.min(28, baseUnit * specialWeight));
-
-      const roomCount = Math.max(1, state.data.rooms.length);
-      const headerFont = Math.max(12, Math.min(16, stageWidth / (roomCount * 9.6)));
-      const sessionFont = Math.max(10.5, Math.min(14, rowHeight * 0.34));
-      const cellFont = Math.max(10, Math.min(13, rowHeight * 0.30));
-      const codeFont = Math.max(8.4, Math.min(10.5, rowHeight * 0.23));
-      const metaFont = Math.max(7.4, Math.min(9.2, rowHeight * 0.19));
-      const specialFont = Math.max(9, Math.min(11.5, specialRowHeight * 0.42));
-
-      table.style.setProperty('--thead-height', `${headerHeight}px`);
-      table.style.setProperty('--row-height', `${rowHeight}px`);
-      table.style.setProperty('--special-row-height', `${specialRowHeight}px`);
-      table.style.setProperty('--header-font', `${headerFont}px`);
-      table.style.setProperty('--session-font', `${sessionFont}px`);
-      table.style.setProperty('--cell-font', `${cellFont}px`);
-      table.style.setProperty('--code-font', `${codeFont}px`);
-      table.style.setProperty('--meta-font', `${metaFont}px`);
-      table.style.setProperty('--special-font', `${specialFont}px`);
-
-      requestAnimationFrame(fitTableIfNeeded);
-    }
-
-    function fitTableIfNeeded(){
-      const scaleBox = document.getElementById('tableScale');
-      const table = document.getElementById('scheduleTable');
-      if (!scaleBox || !table) return;
-
-      scaleBox.style.width = '100%';
-      scaleBox.style.transform = 'translate(0px, 0px) scale(1)';
-
-      const stageHeight = el.tableStage.clientHeight;
-      const tableHeight = table.offsetHeight;
-
-      let scale = 1;
-      if (tableHeight > stageHeight) {
-        scale = Math.max(0.9, stageHeight / tableHeight);
-      }
-
-      if (scale < 1) {
-        scaleBox.style.width = `${100 / scale}%`;
-      }
-
-      const scaledHeight = tableHeight * scale;
-      const offsetY = Math.max(0, (stageHeight - scaledHeight) / 2);
-
-      scaleBox.style.transform = `translate(0px, ${offsetY}px) scale(${scale})`;
-    }
-
-    function renderTable(day){
-      if (!state.data) return;
-
-      const slots = getSlotsForDay(day);
-      const rooms = state.data.rooms;
-      const sessionGroups = groupSessionRows(slots);
-      const renderedSessionStart = new Set();
-      const activeSlotId = getCurrentActiveSlotId(day);
-
-      if (!rooms.length) {
-        el.tableStage.innerHTML = '<div class="error-box">Data RUANG belum ditemukan pada spreadsheet.</div>';
-        return;
-      }
-
-      if (!slots.length) {
-        el.tableStage.innerHTML = '<div class="error-box">Data SLOT belum ditemukan pada spreadsheet. Pastikan baris dengan JENIS_DATA = SLOT sudah terisi.</div>';
-        return;
-      }
-
-      let html = `
-        <div class="table-scale" id="tableScale">
-          <table class="schedule" id="scheduleTable">
-            <colgroup>
-              <col style="width:64px">
-              <col style="width:86px">
-              ${rooms.map(() => '<col>').join('')}
-            </colgroup>
-            <thead>
-              <tr>
-                <th>SESI</th>
-                <th>JAM</th>
-                ${rooms.map(room => `<th class="room-head ${getRoomHeaderClass(room)}">${escapeHtml(room.NAMA_TAMPIL_RUANG || room.KODE_RUANG)}</th>`).join('')}
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
-      for (const slot of slots) {
-        const slotType = normalizeText(slot.TIPE_BARIS).toUpperCase();
-        const slotId = Number(slot.ID_SLOT);
-        const isCurrentSlot = slotType === 'KULIAH' && activeSlotId === slotId;
-        html += `<tr class="${isCurrentSlot ? 'current-row' : ''}">`;
-
-        if (slotType === 'KULIAH') {
-          const sesi = normalizeText(slot.SESI) || '-';
-          if (!renderedSessionStart.has(sesi)) {
-            html += `<td class="session-cell" rowspan="${sessionGroups.get(sesi) || 1}">${escapeHtml(sesi)}</td>`;
-            renderedSessionStart.add(sesi);
-          }
-
-          html += `<td class="time-cell ${isCurrentSlot ? 'current-time' : ''}">${escapeHtml(slot.LABEL_WAKTU)}</td>`;
-
-          for (const room of rooms) {
-            const item = getScheduleItemForSlot(day, room.KODE_RUANG, slotId);
-            html += item ? renderCourseCell(item, isCurrentSlot) : `<td class="empty-cell ${isCurrentSlot ? 'current-course' : ''}"></td>`;
-          }
+      html+=`<td class="time-cell${isCur?' current-time':''}">${esc(slot.LABEL_WAKTU)}</td>`;
+      for(const room of rooms){
+        const item=getScheduleItem(day,room.KODE_RUANG,sid);
+        if(item){
+          const c=mkColor(item.KODE_MK||'');
+          html+=`<td class="course-cell${isCur?' current-course':''}" style="background:${c.bg};color:${c.t};">
+            ${isCur?'<span class="live-badge">▶ Berlangsung</span>':''}
+            <div class="c-code">${esc(item.KODE_MK||'')}${item.KELAS?` (${esc(item.KELAS)})`:''}</div>
+            <div class="c-name">${esc(item.NAMA_MK||'')}</div>
+            ${item.DOSEN?`<div class="c-meta">👤 ${esc(item.DOSEN)}</div>`:''}
+            ${item.PROGRAM_ANGKATAN?`<div class="c-meta">${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
+          </td>`;
         } else {
-          html += '<td class="session-empty"></td>';
-          html += `<td class="special-time">${escapeHtml(slot.LABEL_WAKTU)}</td>`;
-          html += `<td class="special-cell" colspan="${rooms.length}">${escapeHtml(formatSpecialText(slot))}</td>`;
+          html+=`<td class="empty-cell${isCur?' current-course':''}"></td>`;
         }
-
-        html += '</tr>';
       }
-
-      html += `
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      el.tableStage.innerHTML = html;
-      requestAnimationFrame(() => {
-        applyResponsiveTableSize();
-        requestAnimationFrame(fitTableIfNeeded);
-      });
+    } else {
+      // special row
+      html+=`<td class="session-empty"></td>`;
+      html+=`<td class="special-time">${esc(slot.LABEL_WAKTU)}</td>`;
+      html+=`<td class="special-cell" colspan="${rooms.length}">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
     }
+    html+='</tr>';
+  }
+  html+=`</tbody></table>`;
+  el.tableScroller.innerHTML=html;
 
-    function updateMiniStatus(){
-      if (!state.data) {
-        el.miniStatus.textContent = 'Memuat data spreadsheet...';
+  // Scroll current row into view
+  if(activeSlotId){
+    setTimeout(()=>{
+      const cur=el.tableScroller.querySelector('.current-row');
+      if(cur) cur.scrollIntoView({block:'center',behavior:'smooth'});
+    }, 200);
+  }
+}
+
+// ==============================
+// RENDER LIVE VIEW
+// ==============================
+function renderLiveView(day){
+  const activeSlotId=getCurrentActiveSlotId(day);
+  const slots=state.data?getSlotsForDay(day):[];
+  const activeSlot=slots.find(s=>+s.ID_SLOT===activeSlotId);
+  const timeLabel=activeSlot?n(activeSlot.LABEL_WAKTU):'';
+
+  if(!activeSlotId||!state.data){
+    el.liveView.innerHTML=`<div class="live-header">
+      <div class="live-dot" style="background:#94A3B8;"></div>
+      <div><div class="live-header-title">Tidak Ada Perkuliahan Berlangsung</div>
+      <div class="live-header-sub">${esc(day)} — Silakan lihat jadwal lengkap</div></div>
+    </div>
+    <div class="live-empty">
+      <div class="live-empty-icon">🎓</div>
+      <div class="live-empty-text">Belum ada sesi aktif</div>
+      <div class="live-empty-sub">Perkuliahan berikutnya akan ditampilkan saat sesi dimulai</div>
+    </div>`;
+    return;
+  }
+
+  const rooms=state.data.rooms;
+  const liveItems=rooms.map(room=>{
+    const item=getScheduleItem(day,room.KODE_RUANG,activeSlotId);
+    return item ? {room, item} : null;
+  }).filter(Boolean);
+
+  let html=`<div class="live-header">
+    <div class="live-dot"></div>
+    <div>
+      <div class="live-header-title">🔴 Perkuliahan Sedang Berlangsung</div>
+      <div class="live-header-sub">${esc(day)} — Sesi ${esc(activeSlot?.SESI||'')} &nbsp;|&nbsp; ${esc(timeLabel)}</div>
+    </div>
+  </div>
+  <div class="live-cards">`;
+
+  if(liveItems.length===0){
+    html+=`<div class="live-empty"><div class="live-empty-icon">📭</div><div class="live-empty-text">Tidak ada mata kuliah dijadwalkan di sesi ini</div></div>`;
+  } else {
+    for(const {room, item} of liveItems){
+      const c=mkColor(item.KODE_MK||'');
+      html+=`<div class="live-card" style="background:${c.bg}; color:${c.t};">
+        <div class="live-card-room">${esc(room.NAMA_TAMPIL_RUANG||room.KODE_RUANG)}</div>
+        <div class="live-card-code">${esc(item.KODE_MK||'')}${item.KELAS?` · Kelas ${esc(item.KELAS)}`:''}</div>
+        <div class="live-card-name" style="color:${c.t}">${esc(item.NAMA_MK||'')}</div>
+        ${item.DOSEN?`<div class="live-card-meta">👤 ${esc(item.DOSEN)}</div>`:''}
+        ${item.PROGRAM_ANGKATAN?`<div class="live-card-meta">🎓 ${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
+        <div class="live-card-time">⏱ ${esc(timeLabel)}</div>
+      </div>`;
+    }
+  }
+
+  html+=`</div>`;
+  el.liveView.innerHTML=html;
+}
+
+// ==============================
+// STATUS BAR
+// ==============================
+function updateStatus(){
+  if(!state.data){ el.statusBar.textContent='Memuat data spreadsheet...'; return; }
+  const slots=getSlotsForDay(state.selectedDay);
+  const jadCount=state.data.schedules.filter(r=>n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase()).length;
+  const liveId=getCurrentActiveSlotId(state.selectedDay);
+  const liveItem=liveId?state.data.schedules.find(r=>n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase()&&liveId>=+r.ID_SLOT_MULAI&&liveId<=+(r.ID_SLOT_SELESAI||r.ID_SLOT_MULAI)):null;
+  const liveText=liveItem?`<strong>▶ ${esc(liveItem.NAMA_MK||'Berlangsung')}</strong>`:'Belum ada perkuliahan berlangsung';
+  el.statusBar.innerHTML=[
+    `Hari: <strong>${esc(state.selectedDay)}</strong>`,
+    `Ruang: <strong>${state.data.rooms.length}</strong>`,
+    `Slot: <strong>${slots.length}</strong>`,
+    `Jadwal: <strong>${jadCount}</strong>`,
+    liveText
+  ].map(x=>`<span class="status-item">${x}</span>`).join('');
+}
+
+// ==============================
+// TICKER
+// ==============================
+function updateTicker(){
+  if(!state.data){ el.tickerTrack.textContent=CONFIG.tickerFallback; return; }
+  const items=state.data.infos.map(r=>[n(r.TANGGAL_INFO),n(r.JENIS_INFO),n(r.KETERANGAN_INFO)].filter(Boolean).join(' - ')).filter(Boolean);
+  el.tickerTrack.textContent=items.length?items.join('     ✦     '):CONFIG.tickerFallback;
+}
+
+// ==============================
+// VIEW MODE SWITCHING
+// ==============================
+function switchToMode(mode){
+  state.currentMode=mode;
+  state.modeRemainMs=CONFIG.modeSwitchMs;
+
+  if(mode==='full'){
+    el.viewFull.classList.add('active'); el.viewFull.classList.remove('inactive');
+    el.viewLive.classList.remove('active'); el.viewLive.classList.add('inactive');
+    el.modeBadge.textContent='📅 SEMUA SESI';
+    el.modeBadge.className='mode-badge mode-full';
+    renderFullTable(state.selectedDay);
+  } else {
+    el.viewLive.classList.add('active'); el.viewLive.classList.remove('inactive');
+    el.viewFull.classList.remove('active'); el.viewFull.classList.add('inactive');
+    el.modeBadge.textContent='🔴 BERLANGSUNG';
+    el.modeBadge.className='mode-badge mode-live';
+    renderLiveView(state.selectedDay);
+  }
+}
+
+function startModeTimer(){
+  clearInterval(state.modeTimer);
+  state.modeRemainMs=CONFIG.modeSwitchMs;
+  state.modeTimer=setInterval(()=>{
+    state.modeRemainMs -= 1000;
+    if(state.modeRemainMs<=0){
+      const next=state.currentMode==='full'?'live':'full';
+      switchToMode(next);
+    }
+    const pct=Math.max(0,Math.min(100,(state.modeRemainMs/CONFIG.modeSwitchMs)*100));
+    el.modeProgress.style.width=pct+'%';
+  }, 1000);
+}
+
+// ==============================
+// PRAYER TIMES (aladhan.com API)
+// ==============================
+async function fetchPrayerTimes(){
+  try {
+    const d=new Date();
+    const url=`https://api.aladhan.com/v1/timings/${Math.floor(d.getTime()/1000)}?latitude=${CONFIG.lat}&longitude=${CONFIG.lng}&method=20`;
+    const res=await fetch(url);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const json=await res.json();
+    const t=json.data?.timings;
+    if(!t) throw new Error('No timings');
+    // We want Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha
+    state.prayer = {
+      Subuh: t.Fajr,
+      Syuruq: t.Sunrise,
+      Dzuhur: t.Dhuhr,
+      Ashar: t.Asr,
+      Maghrib: t.Maghrib,
+      Isya: t.Isha
+    };
+    renderPrayer();
+  } catch(e){
+    document.getElementById('prayerContent').textContent='Waktu sholat tidak tersedia';
+    console.warn('Prayer fetch failed:', e);
+  }
+}
+
+function timeStrToMinutes(str){
+  const m=String(str).match(/(\d+):(\d+)/);
+  return m ? +m[1]*60 + +m[2] : 0;
+}
+
+function renderPrayer(){
+  if(!state.prayer) return;
+  const cur=nowMinutes();
+  const entries=Object.entries(state.prayer);
+  const mins=entries.map(([n,t])=>({name:n,time:t,m:timeStrToMinutes(t)}));
+  // find current (active) and next
+  let activeIdx=-1, nextIdx=-1;
+  for(let i=0;i<mins.length;i++){
+    const isLast=i===mins.length-1;
+    const nextM=isLast?24*60:mins[i+1].m;
+    if(cur>=mins[i].m && cur<nextM){ activeIdx=i; nextIdx=isLast?-1:i+1; break; }
+  }
+  if(activeIdx===-1 && cur < mins[0].m){ nextIdx=0; }
+
+  // countdown to next prayer
+  let countdownHtml='';
+  const target = nextIdx>=0 ? mins[nextIdx] : null;
+  if(target){
+    const diff=target.m - cur;
+    const h=Math.floor(diff/60), m=diff%60;
+    countdownHtml=`<span class="prayer-countdown">⏳ ${h>0?h+'j ':''} ${m}m menuju ${esc(target.name)}</span>`;
+  }
+
+  let html='';
+  for(let i=0;i<mins.length;i++){
+    const p=mins[i];
+    const cls=i===activeIdx?'active':i===nextIdx?'next':'';
+    html+=`<div class="prayer-item ${cls}">
+      <span class="prayer-name">${esc(p.name)}</span>
+      <span class="prayer-time">${esc(p.time)}</span>
+    </div>`;
+  }
+
+  document.getElementById('prayerContent').outerHTML=`<div class="prayer-items" id="prayerContent">${html}</div>${countdownHtml}`;
+  // re-query after outerHTML replacement
+  const oldHtml = document.getElementById('prayerBar').innerHTML;
+  document.getElementById('prayerBar').innerHTML = oldHtml;
+}
+
+function updatePrayerHighlight(){
+  if(!state.prayer) return;
+  // re-render prayer bar entirely (lightweight)
+  renderPrayer();
+}
+
+// ==============================
+// CLOCK
+// ==============================
+function startClock(){
+  const tf=new Intl.DateTimeFormat('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const df=new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  let lastDay='';
+
+  const tick=()=>{
+    const now=new Date();
+    el.clockTime.textContent=tf.format(now);
+    el.clockDate.textContent=df.format(now);
+
+    if(state.data){
+      const autoDay=getCurrentAcademicDay(state.data.days.length?state.data.days:CONFIG.fallbackDays);
+      if(autoDay!==state.selectedDay){
+        state.selectedDay=autoDay;
+        updateStatus();
+        renderFullTable(state.selectedDay);
+        renderLiveView(state.selectedDay);
         return;
       }
-
-      const slots = getSlotsForDay(state.selectedDay);
-      const slotLabel = state.data.hasGlobalSlots && !state.data.slots.some(x => normalizeText(x.HARI).toLowerCase() === normalizeText(state.selectedDay).toLowerCase())
-        ? `${slots.length} (slot global)`
-        : `${slots.length}`;
-
-      const liveSummary = getCurrentLiveCourseSummary(state.selectedDay);
-
-      const items = [
-        `Hari tampil: <strong>${escapeHtml(state.selectedDay)}</strong>`,
-        `Ruang: <strong>${state.data.rooms.length}</strong>`,
-        `Slot: <strong>${slotLabel}</strong>`,
-        `Jadwal: <strong>${state.data.schedules.filter(x => normalizeText(x.HARI).toLowerCase() === normalizeText(state.selectedDay).toLowerCase()).length}</strong>`,
-        liveSummary ? `<strong>${escapeHtml(liveSummary)}</strong>` : 'Belum ada perkuliahan yang sedang berlangsung',
-      ];
-
-      el.miniStatus.innerHTML = items
-        .map(item => `<span class="status-item">${item}</span>`)
-        .join('');
+      const activeId=getCurrentActiveSlotId(state.selectedDay);
+      const lk=`${state.selectedDay}__${activeId||''}`;
+      if(lk!==state.liveSlotKey){
+        state.liveSlotKey=lk;
+        updateStatus();
+        renderFullTable(state.selectedDay);
+        renderLiveView(state.selectedDay);
+      }
+      if(lastDay!==autoDay){
+        lastDay=autoDay;
+        updatePrayerHighlight();
+      }
     }
+  };
+  tick();
+  setInterval(tick, 1000);
+  // Update prayer highlight every minute
+  setInterval(updatePrayerHighlight, 60000);
+}
 
-    function showError(message){
-      el.tableStage.innerHTML = `<div class="error-box">${message}</div>`;
-      el.miniStatus.textContent = 'Gagal memuat data spreadsheet.';
-    }
+// ==============================
+// CSV LOAD
+// ==============================
+async function hashText(t){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function fetchCsv(){
+  const r=await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`,{cache:'no-store'});
+  if(!r.ok) throw new Error('Gagal mengambil CSV');
+  return r.text();
+}
+async function applyCsv(csvText){
+  state.data=buildDataModel(csvText);
+  state.csvHash=await hashText(csvText);
+  const days=state.data.days.length?state.data.days:CONFIG.fallbackDays;
+  state.selectedDay=getCurrentAcademicDay(days);
+  state.liveSlotKey=`${state.selectedDay}__${getCurrentActiveSlotId(state.selectedDay)||''}`;
+  updateTicker();
+  updateStatus();
+  renderFullTable(state.selectedDay);
+  renderLiveView(state.selectedDay);
+}
 
-    async function hashText(text){
-      const enc = new TextEncoder().encode(text);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', enc);
-      return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2,'0')).join('');
-    }
+// Auto refresh
+setInterval(async()=>{
+  try{
+    const csv=await fetchCsv();
+    const h=await hashText(csv);
+    if(h!==state.csvHash) await applyCsv(csv);
+  }catch(e){ console.warn(e); }
+}, CONFIG.autoRefreshMs);
 
-    async function fetchCsvText(){
-      const response = await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`, { cache:'no-store' });
-      if (!response.ok) throw new Error('Gagal mengambil CSV dari spreadsheet yang dipublikasikan.');
-      return await response.text();
-    }
+// ==============================
+// INIT
+// ==============================
+startClock();
+fetchPrayerTimes();
+// Refresh prayer times every hour
+setInterval(fetchPrayerTimes, 3600000);
 
-    async function applyCsv(csvText){
-      state.data = buildDataModel(csvText);
-      state.csvHash = await hashText(csvText);
-
-      const candidateDays = state.data.days.length
-        ? state.data.days
-        : CONFIG.fallbackDays.filter(day => state.data.schedules.some(row => normalizeText(row.HARI).toLowerCase() === day.toLowerCase()));
-
-      state.selectedDay = getCurrentAcademicDay(candidateDays);
-      state.liveSlotKey = `${state.selectedDay}__${getCurrentActiveSlotId(state.selectedDay) || ''}`;
-      renderTicker();
-      updateMiniStatus();
-      renderTable(state.selectedDay);
-    }
-
-    function configureAutoRefresh(){
-      if (state.autoRefreshTimer) clearInterval(state.autoRefreshTimer);
-
-      state.autoRefreshTimer = setInterval(async () => {
-        if (state.autoRefreshBusy) return;
-        state.autoRefreshBusy = true;
-        try {
-          const csvText = await fetchCsvText();
-          const nextHash = await hashText(csvText);
-          if (nextHash !== state.csvHash) {
-            await applyCsv(csvText);
-          }
-        } catch (error) {
-          console.error(error);
-        } finally {
-          state.autoRefreshBusy = false;
-        }
-      }, CONFIG.autoRefreshMs);
-    }
-
-    function startClock(){
-      const timeFormatter = new Intl.DateTimeFormat('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-      const dateFormatter = new Intl.DateTimeFormat('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
-      const tick = () => {
-        const now = new Date();
-        el.clockTime.textContent = timeFormatter.format(now);
-        el.clockDate.textContent = dateFormatter.format(now);
-
-        if (state.data) {
-          const availableDays = state.data.days?.length ? state.data.days : CONFIG.fallbackDays;
-          const autoDay = getCurrentAcademicDay(availableDays);
-          if (autoDay && autoDay !== state.selectedDay && availableDays.includes(autoDay)) {
-            state.selectedDay = autoDay;
-            updateMiniStatus();
-            renderTable(state.selectedDay);
-            return;
-          }
-
-          const activeSlotId = getCurrentActiveSlotId(state.selectedDay);
-          const nextLiveKey = `${state.selectedDay}__${activeSlotId || ''}`;
-          if (nextLiveKey !== state.liveSlotKey) {
-            state.liveSlotKey = nextLiveKey;
-            updateMiniStatus();
-            renderTable(state.selectedDay);
-          }
-        }
-      };
-      tick();
-      setInterval(tick, 1000);
-    }
-
-    window.addEventListener('resize', () => {
-      requestAnimationFrame(() => {
-        applyResponsiveTableSize();
-        requestAnimationFrame(fitTableIfNeeded);
-      });
-    });
-
-    startClock();
-
-    fetchCsvText()
-      .then(applyCsv)
-      .then(configureAutoRefresh)
-      .catch(error => {
-        showError(`${error.message}<br><br>Pastikan link Google Sheets sudah di-publish sebagai CSV publik dan formatnya mengikuti template 1 sheet.`);
-      });
-  </script>
+fetchCsv().then(applyCsv).then(()=>{
+  switchToMode('full');
+  startModeTimer();
+}).catch(e=>{
+  el.tableScroller.innerHTML=`<div class="error-box">${esc(e.message)}<br><br>Pastikan Google Sheets sudah di-publish sebagai CSV publik.</div>`;
+});
+</script>
 </body>
 </html>
