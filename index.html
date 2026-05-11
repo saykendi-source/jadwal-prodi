@@ -8,434 +8,173 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     :root {
-      --navy: #3B3F8C;
-      --navy-dark: #1E2260;
-      --navy-mid: #5558A8;
-      --accent: #6C6FD4;
-      --gold: #D4A829;
-      --gold-soft: #FBF3D9;
-      --green: #2E7D52;
-      --green-soft: #E8F5EE;
-      --text: #1A1D3A;
-      --muted: #5C6180;
-      --grid: #D8DBF0;
-      --empty: #F5F6FC;
-      --panel: rgba(255,255,255,0.88);
-      --radius: 18px;
-      --shadow: 0 8px 32px rgba(60,64,180,0.13);
-      --prayer-color: #1B6CA8;
-      --prayer-soft: #E3F2FD;
-      /* room groups */
-      --rf6: #E8F0FB;
-      --rf6-text: #1A3566;
-      --rf4: #E5F5F0;
-      --rf4-text: #0E4030;
-      --rdef: #EEF0FA;
-      --rdef-text: #23266B;
+      --navy:#3B3F8C; --navy-dark:#1E2260; --navy-mid:#5558A8; --accent:#6C6FD4;
+      --gold:#D4A829; --gold-soft:#FBF3D9;
+      --text:#1A1D3A; --muted:#5C6180;
+      --grid:#D0D3EE; --empty:#F5F6FC; --panel:rgba(255,255,255,0.90);
+      --radius:16px; --shadow:0 8px 32px rgba(60,64,180,0.13);
+      --rh-f6-bg:#D4E8F6; --rh-f6-t:#1A3566;
+      --rh-f4-bg:#C6ECDF; --rh-f4-t:#0C3820;
+      --rh-def-bg:#DDDFF5; --rh-def-t:#23266B;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      color: var(--text);
+      width:100%; height:100%; overflow:hidden;
+      font-family:'Plus Jakarta Sans',sans-serif; color:var(--text);
       background:
-        radial-gradient(ellipse at 10% 20%, rgba(108,111,212,0.12) 0%, transparent 40%),
-        radial-gradient(ellipse at 90% 80%, rgba(212,168,41,0.10) 0%, transparent 35%),
-        linear-gradient(150deg, #ECEFFE 0%, #F7F5FF 50%, #EEF6F2 100%);
+        radial-gradient(ellipse at 10% 20%,rgba(108,111,212,0.12) 0%,transparent 40%),
+        radial-gradient(ellipse at 90% 80%,rgba(212,168,41,0.10) 0%,transparent 35%),
+        linear-gradient(150deg,#ECEFFE 0%,#F7F5FF 50%,#EEF6F2 100%);
     }
 
-    /* ===== LAYOUT ===== */
-    .app {
-      position: relative;
-      width: 100%; height: 100vh;
-      display: flex; flex-direction: column;
-      padding: 6px; gap: 5px;
-    }
+    /* ── APP ── */
+    .app { position:relative; width:100%; height:100vh; display:flex; flex-direction:column; padding:6px; gap:5px; }
 
-    /* ===== HEADER ===== */
+    /* ── HEADER ── */
     .header {
-      flex: 0 0 auto;
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,0.85);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      padding: 6px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      flex:0 0 auto;
+      background:var(--panel); border:1px solid rgba(255,255,255,0.85);
+      border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(14px);
+      padding:5px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px;
     }
-
-    .header-left { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
-
+    .header-left { display:flex; flex-direction:column; gap:2px; }
     .semester-badge {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, rgba(108,111,212,0.15), rgba(212,168,41,0.14));
-      color: var(--navy-dark);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.4px;
-      width: fit-content;
-      margin-bottom: 2px;
+      display:inline-block; padding:2px 10px; border-radius:999px;
+      background:linear-gradient(135deg,rgba(108,111,212,0.16),rgba(212,168,41,0.14));
+      color:var(--navy-dark); font-size:10px; font-weight:800; letter-spacing:0.4px; width:fit-content;
     }
+    .header h1 { font-size:clamp(16px,2vw,34px); font-weight:800; color:var(--navy-dark); line-height:1; }
+    .status-bar { display:flex; flex-wrap:wrap; gap:4px 14px; margin-top:2px; }
+    .status-item { font-size:11px; font-weight:700; color:var(--muted); white-space:nowrap; }
+    .status-item strong { color:var(--navy-dark); }
 
-    .header h1 {
-      font-size: clamp(18px, 2vw, 36px);
-      font-weight: 800;
-      color: var(--navy-dark);
-      line-height: 1;
-      letter-spacing: -0.3px;
-    }
+    .header-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; }
+    .clock-time { font-family:'JetBrains Mono',monospace; font-size:clamp(26px,3vw,52px); font-weight:700; color:var(--navy-dark); line-height:1; letter-spacing:1px; }
+    .clock-date { font-size:clamp(10px,0.9vw,15px); font-weight:700; color:var(--navy-mid); }
+    .mode-badge { padding:3px 12px; border-radius:999px; font-size:11px; font-weight:800; letter-spacing:0.4px; }
+    .mode-badge.mode-full { background:linear-gradient(135deg,var(--navy),var(--accent)); color:#fff; }
+    .mode-badge.mode-live { background:linear-gradient(135deg,#E53935,#EF6C00); color:#fff; animation:pulse-badge 2s infinite; }
+    @keyframes pulse-badge { 0%,100%{box-shadow:0 0 0 0 rgba(229,57,53,0.4)} 50%{box-shadow:0 0 0 6px rgba(229,57,53,0)} }
+    .mode-progress-bar { height:3px; border-radius:2px; background:rgba(60,64,180,0.12); overflow:hidden; min-width:120px; }
+    .mode-progress-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--navy),var(--accent)); transition:width 1s linear; }
 
-    .status-bar {
-      display: flex; flex-wrap: wrap; gap: 6px 16px;
-      margin-top: 3px;
-    }
-    .status-item {
-      font-size: 11px; font-weight: 700;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-    .status-item strong { color: var(--navy-dark); }
-
-    /* ===== CLOCK + MODE INDICATOR ===== */
-    .header-right {
-      display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
-      flex-shrink: 0;
-    }
-
-    .clock-time {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: clamp(28px, 3vw, 56px);
-      font-weight: 700;
-      color: var(--navy-dark);
-      line-height: 1;
-      letter-spacing: 1px;
-    }
-
-    .clock-date {
-      font-size: clamp(11px, 1vw, 16px);
-      font-weight: 700;
-      color: var(--navy-mid);
-    }
-
-    .mode-badge {
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.4px;
-      transition: background 0.4s, color 0.4s;
-    }
-    .mode-badge.mode-full {
-      background: linear-gradient(135deg, var(--navy), var(--accent));
-      color: #fff;
-    }
-    .mode-badge.mode-live {
-      background: linear-gradient(135deg, #E53935, #EF6C00);
-      color: #fff;
-      animation: pulse-badge 2s infinite;
-    }
-    @keyframes pulse-badge {
-      0%,100% { box-shadow: 0 0 0 0 rgba(229,57,53,0.4); }
-      50% { box-shadow: 0 0 0 6px rgba(229,57,53,0); }
-    }
-
-    /* mode countdown strip */
-    .mode-progress-bar {
-      height: 3px;
-      border-radius: 2px;
-      background: rgba(60,64,180,0.12);
-      overflow: hidden;
-      margin-top: 2px;
-      min-width: 120px;
-    }
-    .mode-progress-fill {
-      height: 100%;
-      border-radius: 2px;
-      background: linear-gradient(90deg, var(--navy), var(--accent));
-      transition: width 1s linear;
-    }
-
-    /* ===== TICKER ===== */
+    /* ── TICKER ── */
     .ticker {
-      flex: 0 0 auto;
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,0.8);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      display: flex; align-items: center;
-      padding: 0 12px;
-      min-height: 38px;
-      overflow: hidden;
+      flex:0 0 auto;
+      background:var(--panel); border:1px solid rgba(255,255,255,0.8);
+      border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(12px);
+      display:flex; align-items:center; padding:0 12px; min-height:34px; overflow:hidden;
     }
-    .ticker-label {
-      flex-shrink: 0;
-      margin-right: 14px;
-      font-size: 11px; font-weight: 800; letter-spacing: 0.35px;
-      background: linear-gradient(135deg, var(--navy), var(--accent));
-      color: #fff;
-      padding: 5px 10px; border-radius: 999px;
-    }
-    .ticker-viewport { flex: 1; overflow: hidden; position: relative; height: 22px; display: flex; align-items: center; }
-    .ticker-track {
-      display: inline-block; white-space: nowrap;
-      padding-left: 100%;
-      animation: tickerMove 55s linear infinite;
-      font-size: 14px; font-weight: 700; color: #3A4070;
-    }
+    .ticker-label { flex-shrink:0; margin-right:14px; font-size:11px; font-weight:800; letter-spacing:0.35px; background:linear-gradient(135deg,var(--navy),var(--accent)); color:#fff; padding:4px 10px; border-radius:999px; }
+    .ticker-viewport { flex:1; overflow:hidden; height:20px; display:flex; align-items:center; }
+    .ticker-track { display:inline-block; white-space:nowrap; padding-left:100%; animation:tickerMove 55s linear infinite; font-size:13px; font-weight:700; color:#3A4070; }
     @keyframes tickerMove { from{transform:translateX(0)} to{transform:translateX(-100%)} }
 
-    /* ===== PRAYER TIMES ===== */
-    .prayer-bar {
-      flex: 0 0 auto;
-      background: linear-gradient(135deg, rgba(27,108,168,0.10), rgba(27,108,168,0.06));
-      border: 1px solid rgba(27,108,168,0.18);
-      border-radius: var(--radius);
-      display: flex; align-items: center;
-      padding: 4px 14px; gap: 8px;
-      min-height: 36px;
-    }
-    .prayer-label {
-      flex-shrink: 0;
-      font-size: 11px; font-weight: 800; letter-spacing: 0.3px;
-      color: var(--prayer-color);
-      background: var(--prayer-soft);
-      border: 1px solid rgba(27,108,168,0.2);
-      padding: 4px 10px; border-radius: 999px;
-    }
-    .prayer-items { display: flex; gap: 6px; flex-wrap: nowrap; align-items: center; }
-    .prayer-item {
-      display: flex; align-items: center; gap: 5px;
-      padding: 3px 10px; border-radius: 999px;
-      background: rgba(255,255,255,0.7);
-      border: 1px solid rgba(27,108,168,0.15);
-      font-size: 12px; font-weight: 700;
-      color: var(--prayer-color);
-      transition: background 0.3s;
-    }
-    .prayer-item.active {
-      background: var(--prayer-color);
-      color: #fff;
-      border-color: var(--prayer-color);
-      box-shadow: 0 4px 12px rgba(27,108,168,0.3);
-    }
-    .prayer-item.next {
-      background: linear-gradient(135deg, rgba(27,108,168,0.14), rgba(27,108,168,0.08));
-      border-color: rgba(27,108,168,0.35);
-    }
-    .prayer-name { font-size: 10px; font-weight: 800; letter-spacing: 0.3px; }
-    .prayer-time { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; }
-    .prayer-countdown {
-      margin-left: 8px;
-      font-size: 11px; font-weight: 700; color: var(--prayer-color);
-      background: var(--prayer-soft);
-      padding: 3px 10px; border-radius: 999px;
-      border: 1px solid rgba(27,108,168,0.18);
-    }
-    .prayer-loading { font-size: 12px; font-weight: 600; color: var(--muted); }
-
-    /* ===== TABLE PANEL ===== */
+    /* ── TABLE PANEL ── */
     .table-panel {
-      flex: 1 1 auto;
-      min-height: 0;
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,0.82);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      padding: 4px;
-      overflow: hidden;
-      position: relative;
+      flex:1 1 auto; min-height:0;
+      background:var(--panel); border:1px solid rgba(255,255,255,0.82);
+      border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(12px);
+      padding:4px; overflow:hidden; position:relative;
     }
-    .view-container {
-      width: 100%; height: 100%;
-      position: relative;
-      overflow: hidden;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.5);
-    }
+    .view-container { width:100%; height:100%; position:relative; overflow:hidden; border-radius:12px; }
 
-    /* ===== VIEW TRANSITION ===== */
-    .view-pane {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      opacity: 0;
-      transition: opacity 0.7s ease;
-      overflow: hidden;
-    }
-    .view-pane.active { opacity: 1; z-index: 1; }
-    .view-pane.inactive { opacity: 0; z-index: 0; }
+    .view-pane { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; transition:opacity 0.6s ease; overflow:hidden; }
+    .view-pane.active { opacity:1; z-index:1; }
+    .view-pane.inactive { opacity:0; z-index:0; pointer-events:none; }
 
-    /* ===== FULL SCHEDULE TABLE ===== */
-    .table-scroller {
-      width: 100%; height: 100%;
-      overflow: auto;
-    }
-    .table-scroller::-webkit-scrollbar { width: 6px; height: 6px; }
-    .table-scroller::-webkit-scrollbar-track { background: rgba(0,0,0,0.04); border-radius: 3px; }
-    .table-scroller::-webkit-scrollbar-thumb { background: rgba(60,64,180,0.2); border-radius: 3px; }
+    /* Scale host — JS writes transform here */
+    .scale-host { position:absolute; top:0; left:0; width:100%; transform-origin:top left; }
 
+    /* ── SCHEDULE TABLE ── */
     table.schedule {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      table-layout: fixed;
-      font-size: 11px;
+      width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed;
+      background:rgba(255,255,255,0.88); border-radius:12px; overflow:hidden;
     }
-
     table.schedule th, table.schedule td {
-      border-right: 1px solid var(--grid);
-      border-bottom: 1px solid var(--grid);
-      text-align: center;
-      vertical-align: middle;
-      padding: 3px 4px;
+      border-right:1px solid var(--grid); border-bottom:1px solid var(--grid);
+      text-align:center; vertical-align:middle;
+      overflow:hidden; /* CLIPS all content to cell box */
+      padding:0 3px;
     }
-    table.schedule tr > *:first-child { border-left: 1px solid var(--grid); }
-    table.schedule thead tr:first-child > * { border-top: 1px solid var(--grid); }
+    table.schedule tr > *:first-child { border-left:1px solid var(--grid); }
+    table.schedule thead tr:first-child > * { border-top:1px solid var(--grid); }
+    table.schedule thead tr:first-child th:first-child { border-top-left-radius:12px; }
+    table.schedule thead tr:first-child th:last-child  { border-top-right-radius:12px; }
+    table.schedule tbody tr:last-child td:first-child  { border-bottom-left-radius:12px; }
+    table.schedule tbody tr:last-child td:last-child   { border-bottom-right-radius:12px; }
 
     table.schedule thead th {
-      height: 42px;
-      font-size: 12px; font-weight: 800;
-      color: #fff;
-      background: linear-gradient(180deg, #7679CC 0%, #5558A8 100%);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
-      position: sticky; top: 0; z-index: 10;
+      font-weight:800; color:#fff;
+      background:linear-gradient(180deg,#7679CC 0%,#5558A8 100%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.3);
+      white-space:nowrap;
     }
-    table.schedule thead th.rh-f6 { background: #D6E8F8; color: #1A3566; }
-    table.schedule thead th.rh-f4 { background: #C8ECDF; color: #0E4030; }
-    table.schedule thead th.rh-def { background: #DDDFF5; color: #23266B; }
+    table.schedule thead th.rh-f6  { background:var(--rh-f6-bg);  color:var(--rh-f6-t); }
+    table.schedule thead th.rh-f4  { background:var(--rh-f4-bg);  color:var(--rh-f4-t); }
+    table.schedule thead th.rh-def { background:var(--rh-def-bg); color:var(--rh-def-t); }
 
-    td.session-cell, td.session-empty {
-      background: #F6F7FD;
-      font-size: 11px; font-weight: 800; color: #3A4070;
-    }
-    td.time-cell {
-      background: #F3F4FB;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 700; color: #4A5280;
-      white-space: nowrap; height: 38px;
-    }
-    td.empty-cell { background: var(--empty); height: 38px; }
-    td.special-time { background: #EEF6E8; font-size: 10px; font-weight: 700; color: #3A6020; height: 22px; }
-    td.special-cell { background: #EEF6E8; color: #3A6020; font-size: 10px; font-weight: 800; height: 22px; }
+    td.session-cell  { background:#F6F7FD; font-weight:800; color:#3A4070; }
+    td.session-empty { background:#F6F7FD; }
+    td.time-cell     { background:#F3F4FB; font-family:'JetBrains Mono',monospace; font-weight:700; color:#4A5280; white-space:nowrap; }
+    td.empty-cell    { background:var(--empty); }
+    td.special-time  { background:#EEF6E8; font-weight:700; color:#3A6020; }
+    td.special-cell  { background:#EEF6E8; color:#3A6020; font-weight:800; }
 
     td.course-cell {
-      height: 38px;
-      font-size: 10px; font-weight: 700;
-      word-break: break-word; overflow-wrap: anywhere;
-      line-height: 1.2;
+      font-weight:700; padding:1px 2px; line-height:1.2;
+      /* table-layout:fixed + overflow:hidden clips content; max-width:0 enforces it */
+      max-width:0;
     }
-    .c-code { font-size: 9px; color: inherit; opacity: 0.75; margin-bottom: 1px; }
-    .c-name { font-size: 10.5px; font-weight: 800; line-height: 1.1; }
-    .c-meta { font-size: 8.5px; opacity: 0.80; margin-top: 1px; }
 
-    /* current row highlight */
-    tr.current-row td {
-      border-top: 2px solid var(--gold) !important;
-      border-bottom: 2px solid var(--gold) !important;
-    }
-    td.time-cell.current-time { background: var(--gold-soft); color: #6B5010; font-weight: 800; }
-    td.course-cell.current-course {
-      box-shadow: inset 0 0 0 2px var(--gold);
-      position: relative; z-index: 1;
-    }
+    /* Inner content divs — all clipped, no overflow */
+    .c-code { font-weight:700; opacity:0.72; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .c-name { font-weight:800; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.2; }
+    .c-meta { opacity:0.80; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; margin-top:1px; }
+
+    /* Current-slot gold highlight */
+    tr.current-row td { border-top:2px solid var(--gold) !important; border-bottom:2px solid var(--gold) !important; }
+    td.time-cell.current-time { background:var(--gold-soft); color:#6B5010; font-weight:800; }
+    td.course-cell.current-course { box-shadow:inset 0 0 0 2px var(--gold); position:relative; z-index:1; }
     .live-badge {
-      display: block; margin-bottom: 2px;
-      padding: 1px 6px; border-radius: 999px;
-      background: linear-gradient(135deg, #FBF3D9, #F4E3A8);
-      color: #6B5010; font-size: 8px; font-weight: 800;
-      letter-spacing: 0.2px; width: fit-content; margin-inline: auto;
+      display:block; width:fit-content; margin:0 auto 1px;
+      padding:0 5px; border-radius:999px;
+      background:linear-gradient(135deg,#FBF3D9,#F4E3A8); color:#6B5010;
+      font-weight:800; letter-spacing:0.2px; white-space:nowrap; overflow:hidden;
     }
 
-    /* ===== LIVE VIEW ===== */
-    .live-view {
-      width: 100%; height: 100%;
-      display: flex; flex-direction: column;
-      gap: 8px; padding: 12px 16px;
-      overflow: auto;
-    }
-    .live-header {
-      display: flex; align-items: center; gap: 10px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--grid);
-    }
-    .live-dot {
-      width: 12px; height: 12px; border-radius: 50%;
-      background: #E53935;
-      animation: pulse-dot 1.5s infinite;
-    }
-    @keyframes pulse-dot {
-      0%,100% { box-shadow: 0 0 0 0 rgba(229,57,53,0.4); }
-      50% { box-shadow: 0 0 0 8px rgba(229,57,53,0); }
-    }
-    .live-header-title { font-size: 16px; font-weight: 800; color: var(--navy-dark); }
-    .live-header-sub { font-size: 12px; color: var(--muted); font-weight: 600; }
-
-    .live-cards { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; align-content: flex-start; }
+    /* ── LIVE VIEW ── */
+    .live-view { width:100%; height:100%; display:flex; flex-direction:column; gap:8px; padding:12px 16px; overflow:auto; }
+    .live-header { display:flex; align-items:center; gap:10px; padding-bottom:8px; border-bottom:2px solid var(--grid); flex-shrink:0; }
+    .live-dot { width:12px; height:12px; border-radius:50%; background:#E53935; animation:pulse-dot 1.5s infinite; flex-shrink:0; }
+    @keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(229,57,53,0.4)} 50%{box-shadow:0 0 0 8px rgba(229,57,53,0)} }
+    .live-header-title { font-size:16px; font-weight:800; color:var(--navy-dark); }
+    .live-header-sub { font-size:12px; color:var(--muted); font-weight:600; }
+    .live-cards { display:flex; flex-wrap:wrap; gap:10px; flex:1; align-content:flex-start; }
     .live-card {
-      flex: 1 1 260px; max-width: 320px;
-      background: rgba(255,255,255,0.92);
-      border: 1px solid var(--grid);
-      border-radius: 14px;
-      box-shadow: 0 4px 16px rgba(60,64,180,0.10);
-      padding: 12px 14px;
-      display: flex; flex-direction: column; gap: 5px;
-      position: relative; overflow: hidden;
+      flex:1 1 240px; max-width:300px;
+      background:rgba(255,255,255,0.92); border:1px solid var(--grid);
+      border-radius:14px; box-shadow:0 4px 16px rgba(60,64,180,0.10);
+      padding:11px 13px; display:flex; flex-direction:column; gap:4px;
+      position:relative; overflow:hidden;
     }
-    .live-card::before {
-      content: '';
-      position: absolute; left: 0; top: 0; bottom: 0;
-      width: 4px;
-      background: linear-gradient(180deg, var(--navy), var(--accent));
-      border-radius: 14px 0 0 14px;
-    }
-    .live-card-room {
-      font-size: 10px; font-weight: 800; letter-spacing: 0.4px;
-      color: var(--accent); text-transform: uppercase;
-    }
-    .live-card-code { font-size: 11px; font-weight: 700; color: var(--muted); }
-    .live-card-name { font-size: 14px; font-weight: 800; color: var(--navy-dark); line-height: 1.2; }
-    .live-card-meta { font-size: 11px; color: var(--muted); font-weight: 600; }
-    .live-card-time {
-      margin-top: 4px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; font-weight: 700;
-      color: var(--gold); background: var(--gold-soft);
-      padding: 3px 8px; border-radius: 999px;
-      width: fit-content;
-    }
+    .live-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:linear-gradient(180deg,var(--navy),var(--accent)); border-radius:14px 0 0 14px; }
+    .live-card-room { font-size:10px; font-weight:800; letter-spacing:0.4px; color:var(--accent); text-transform:uppercase; }
+    .live-card-code { font-size:11px; font-weight:700; color:var(--muted); }
+    .live-card-name { font-size:14px; font-weight:800; color:var(--navy-dark); line-height:1.2; }
+    .live-card-meta { font-size:11px; color:var(--muted); font-weight:600; }
+    .live-card-time { margin-top:4px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; color:var(--gold); background:var(--gold-soft); padding:3px 8px; border-radius:999px; width:fit-content; }
+    .live-empty { flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; color:var(--muted); }
+    .live-empty-icon { font-size:40px; opacity:0.4; }
+    .live-empty-text { font-size:16px; font-weight:700; }
+    .live-empty-sub { font-size:12px; }
 
-    .live-empty {
-      flex: 1;
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 8px;
-      color: var(--muted);
-    }
-    .live-empty-icon { font-size: 40px; opacity: 0.4; }
-    .live-empty-text { font-size: 16px; font-weight: 700; }
-    .live-empty-sub { font-size: 12px; }
-
-    .error-box {
-      margin: 10px; padding: 14px; border-radius: 10px;
-      background: #FFF0F0; border: 1px solid #EFAAAA;
-      color: #7B1D1D; font-size: 13px; line-height: 1.5;
-    }
-
-    /* ===== COL WIDTHS ===== */
-    col.col-sesi { width: 52px; }
-    col.col-jam { width: 82px; }
+    .error-box { margin:10px; padding:14px; border-radius:10px; background:#FFF0F0; border:1px solid #EFAAAA; color:#7B1D1D; font-size:13px; line-height:1.5; }
   </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- HEADER -->
   <section class="header">
     <div class="header-left">
       <span class="semester-badge">Semester Genap 2025/2026</span>
@@ -450,7 +189,6 @@
     </div>
   </section>
 
-  <!-- TICKER -->
   <section class="ticker">
     <div class="ticker-label">INFO PERKULIAHAN</div>
     <div class="ticker-viewport">
@@ -458,222 +196,207 @@
     </div>
   </section>
 
-  <!-- PRAYER TIMES -->
-  <section class="prayer-bar" id="prayerBar">
-    <div class="prayer-label">🕌 WAKTU SHOLAT</div>
-    <div class="prayer-loading" id="prayerContent">Memuat waktu sholat...</div>
-  </section>
-
-  <!-- TABLE PANEL -->
-  <section class="table-panel">
+  <section class="table-panel" id="tablePanel">
     <div class="view-container" id="viewContainer">
-      <!-- Full schedule view -->
       <div class="view-pane active" id="viewFull">
-        <div class="table-scroller" id="tableScroller">
-          <div class="error-box">Memuat jadwal...</div>
+        <div class="scale-host" id="scaleHost">
+          <div id="tableSlot"><div class="error-box">Memuat jadwal...</div></div>
         </div>
       </div>
-      <!-- Live view -->
       <div class="view-pane inactive" id="viewLive">
-        <div class="live-view" id="liveView">
-          <div class="live-empty">
-            <div class="live-empty-icon">📋</div>
-            <div class="live-empty-text">Memuat data...</div>
-          </div>
-        </div>
+        <div class="live-view" id="liveView"></div>
       </div>
     </div>
   </section>
 
 </div>
-
 <script>
 const CONFIG = {
-  csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
-  autoRefreshMs: 60000,
-  fallbackDays: ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
-  roomHeaderClasses: { F6:'rh-f6', F4:'rh-f4' },
-  modeSwitchMs: 5 * 60 * 1000, // 5 minutes
-  tickerFallback: 'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
-  // Yogyakarta coordinates
-  lat: -7.8014,
-  lng: 110.3649,
+  csvUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
+  autoRefreshMs:60000,
+  fallbackDays:['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+  roomHeaderClasses:{F6:'rh-f6',F4:'rh-f4'},
+  modeSwitchMs:5*60*1000,
+  tickerFallback:'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
+};
+const state={data:null,selectedDay:'Senin',csvHash:'',liveSlotKey:'',currentMode:'full',modeTimer:null,modeRemainMs:CONFIG.modeSwitchMs};
+const el={
+  statusBar:document.getElementById('statusBar'),
+  clockTime:document.getElementById('clockTime'),
+  clockDate:document.getElementById('clockDate'),
+  tickerTrack:document.getElementById('tickerTrack'),
+  viewFull:document.getElementById('viewFull'),
+  viewLive:document.getElementById('viewLive'),
+  tableSlot:document.getElementById('tableSlot'),
+  scaleHost:document.getElementById('scaleHost'),
+  liveView:document.getElementById('liveView'),
+  modeBadge:document.getElementById('modeBadge'),
+  modeProgress:document.getElementById('modeProgress'),
+  viewContainer:document.getElementById('viewContainer'),
 };
 
-const state = {
-  data: null,
-  selectedDay: 'Senin',
-  csvHash: '',
-  liveSlotKey: '',
-  currentMode: 'full', // 'full' | 'live'
-  modeTimer: null,
-  modeRemainMs: CONFIG.modeSwitchMs,
-  prayer: null,
-};
-
-const el = {
-  statusBar: document.getElementById('statusBar'),
-  clockTime: document.getElementById('clockTime'),
-  clockDate: document.getElementById('clockDate'),
-  tickerTrack: document.getElementById('tickerTrack'),
-  viewFull: document.getElementById('viewFull'),
-  viewLive: document.getElementById('viewLive'),
-  tableScroller: document.getElementById('tableScroller'),
-  liveView: document.getElementById('liveView'),
-  modeBadge: document.getElementById('modeBadge'),
-  modeProgress: document.getElementById('modeProgress'),
-  prayerContent: document.getElementById('prayerContent'),
-};
-
-// ==============================
-// UTILS
-// ==============================
-function n(v){ return String(v ?? '').trim(); }
-function nk(v){ return n(v).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g,'').toUpperCase(); }
-function esc(v){ return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
-function isYes(v){ const x=n(v).toLowerCase(); return x===''||['ya','y','true','1','aktif'].includes(x); }
+// ── UTILS ──
+const n=v=>String(v??'').trim();
+const nk=v=>n(v).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g,'').toUpperCase();
+const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+const isYes=v=>{const x=n(v).toLowerCase();return x===''||['ya','y','true','1','aktif'].includes(x);};
 
 function getCanonicalKey(k){
-  const m={
-    JENISDATA:'JENIS_DATA',AKTIF:'AKTIF',HARI:'HARI',SESI:'SESI',
-    IDSLOT:'ID_SLOT',IDSLOTMULAI:'ID_SLOT_MULAI',IDSLOTSELESAI:'ID_SLOT_SELESAI',
-    LABELWAKTU:'LABEL_WAKTU',TIPEBARIS:'TIPE_BARIS',URUTANSLOT:'URUTAN_SLOT',
-    KODERUANG:'KODE_RUANG',NAMATAMPILRUANG:'NAMA_TAMPIL_RUANG',
-    URUTANKOLOMRUANG:'URUTAN_KOLOM_RUANG',GRUPWARNARUANG:'GRUP_WARNA_RUANG',
-    KODEMK:'KODE_MK',NAMAMK:'NAMA_MK',KELAS:'KELAS',DOSEN:'DOSEN',
-    PROGRAMANGKATAN:'PROGRAM_ANGKATAN',CATATAN:'CATATAN',KETERANGAN:'CATATAN',
-    WARNABG:'WARNA_BG',WARNATEXT:'WARNA_TEXT',
-    TANGGALINFO:'TANGGAL_INFO',JENISINFO:'JENIS_INFO',KETERANGANINFO:'KETERANGAN_INFO'
-  };
-  return m[nk(k)] || k;
+  const m={JENISDATA:'JENIS_DATA',AKTIF:'AKTIF',HARI:'HARI',SESI:'SESI',IDSLOT:'ID_SLOT',IDSLOTMULAI:'ID_SLOT_MULAI',IDSLOTSELESAI:'ID_SLOT_SELESAI',LABELWAKTU:'LABEL_WAKTU',TIPEBARIS:'TIPE_BARIS',URUTANSLOT:'URUTAN_SLOT',KODERUANG:'KODE_RUANG',NAMATAMPILRUANG:'NAMA_TAMPIL_RUANG',URUTANKOLOMRUANG:'URUTAN_KOLOM_RUANG',GRUPWARNARUANG:'GRUP_WARNA_RUANG',KODEMK:'KODE_MK',NAMAMK:'NAMA_MK',KELAS:'KELAS',DOSEN:'DOSEN',PROGRAMANGKATAN:'PROGRAM_ANGKATAN',CATATAN:'CATATAN',KETERANGAN:'CATATAN',WARNABG:'WARNA_BG',WARNATEXT:'WARNA_TEXT',TANGGALINFO:'TANGGAL_INFO',JENISINFO:'JENIS_INFO',KETERANGANINFO:'KETERANGAN_INFO'};
+  return m[nk(k)]||k;
 }
 
 function parseTimeLabelToMinutes(label){
-  const clean = n(label).replace(/–/g,'-');
-  const parts = clean.split('-').map(x=>n(x));
-  if(parts.length < 2) return null;
-  const p = str => { const m=str.match(/(\d{1,2})[.:](\d{2})/); return m ? +m[1]*60+ +m[2] : null; };
-  const s=p(parts[0]), e=p(parts[1]);
-  return (s!==null && e!==null) ? {start:s, end:e} : null;
+  const c=n(label).replace(/–/g,'-');
+  const pts=c.split('-').map(x=>n(x));
+  if(pts.length<2)return null;
+  const p=s=>{const m=s.match(/(\d{1,2})[.:](\d{2})/);return m?+m[1]*60+ +m[2]:null;};
+  const s=p(pts[0]),e=p(pts[1]);
+  return(s!==null&&e!==null)?{start:s,end:e}:null;
 }
+const nowMinutes=()=>{const d=new Date();return d.getHours()*60+d.getMinutes();};
+const currentDayName=()=>['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date().getDay()];
 
-function nowMinutes(){ const d=new Date(); return d.getHours()*60+d.getMinutes(); }
-
-function getCurrentDayName(){
-  return ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date().getDay()];
-}
-
-// ==============================
-// CSV PARSING
-// ==============================
+// ── DATA MODEL ──
 function buildObjectsFromCsv(csvText){
-  const rows = Papa.parse(csvText,{delimiter:',',quoteChar:'"',escapeChar:'"',skipEmptyLines:false}).data||[];
-  const hi = rows.findIndex(r => nk(r?.[0])==='JENISDATA');
-  if(hi===-1) throw new Error('Header baris JENIS_DATA tidak ditemukan.');
-  const headers = rows[hi].map(getCanonicalKey);
-  return rows.slice(hi+1).filter(r=>r.some(c=>n(c)!=='')).map(r=>{
-    const o={};
-    headers.forEach((h,i)=>{ if(h) o[h]=r[i]??''; });
-    return o;
-  });
+  const rows=Papa.parse(csvText,{delimiter:',',quoteChar:'"',escapeChar:'"',skipEmptyLines:false}).data||[];
+  const hi=rows.findIndex(r=>nk(r?.[0])==='JENISDATA');
+  if(hi===-1)throw new Error('Header JENIS_DATA tidak ditemukan.');
+  const headers=rows[hi].map(getCanonicalKey);
+  return rows.slice(hi+1).filter(r=>r.some(c=>n(c)!=='')).map(r=>{const o={};headers.forEach((h,i)=>{if(h)o[h]=r[i]??''});return o;});
 }
-
 function buildDataModel(csvText){
-  const rows = buildObjectsFromCsv(csvText);
-  const rooms = rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='RUANG'&&isYes(r.AKTIF))
-    .sort((a,b)=>+a.URUTAN_KOLOM_RUANG - +b.URUTAN_KOLOM_RUANG);
-  const slots = rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='SLOT'&&isYes(r.AKTIF))
-    .sort((a,b)=>(+a.URUTAN_SLOT||+a.ID_SLOT||0)-(+b.URUTAN_SLOT||+b.ID_SLOT||0));
-  const schedules = rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='JADWAL'&&isYes(r.AKTIF));
-  const infos = rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='INFO'&&isYes(r.AKTIF));
-  const daysSet = new Set();
-  slots.forEach(r=>{ if(n(r.HARI)) daysSet.add(n(r.HARI)); });
-  schedules.forEach(r=>{ if(n(r.HARI)) daysSet.add(n(r.HARI)); });
-  const ordered = CONFIG.fallbackDays.filter(d=>daysSet.has(d));
-  const extra = [...daysSet].filter(d=>!ordered.includes(d));
-  return { rooms, slots, schedules, infos, days:[...ordered,...extra], hasGlobalSlots: slots.some(r=>!n(r.HARI)) };
+  const rows=buildObjectsFromCsv(csvText);
+  const rooms=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='RUANG'&&isYes(r.AKTIF)).sort((a,b)=>+a.URUTAN_KOLOM_RUANG - +b.URUTAN_KOLOM_RUANG);
+  const slots=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='SLOT'&&isYes(r.AKTIF)).sort((a,b)=>(+a.URUTAN_SLOT||+a.ID_SLOT||0)-(+b.URUTAN_SLOT||+b.ID_SLOT||0));
+  const schedules=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='JADWAL'&&isYes(r.AKTIF));
+  const infos=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='INFO'&&isYes(r.AKTIF));
+  const daysSet=new Set();
+  slots.forEach(r=>{if(n(r.HARI))daysSet.add(n(r.HARI))});
+  schedules.forEach(r=>{if(n(r.HARI))daysSet.add(n(r.HARI))});
+  const ordered=CONFIG.fallbackDays.filter(d=>daysSet.has(d));
+  const extra=[...daysSet].filter(d=>!ordered.includes(d));
+  return{rooms,slots,schedules,infos,days:[...ordered,...extra],hasGlobalSlots:slots.some(r=>!n(r.HARI))};
 }
-
 function getSlotsForDay(day){
-  const dl = n(day).toLowerCase();
-  const specific = state.data.slots.filter(r=>n(r.HARI).toLowerCase()===dl);
-  if(specific.length) return specific;
-  const global = state.data.slots.filter(r=>!n(r.HARI));
-  return global.length ? global : state.data.slots;
+  const dl=n(day).toLowerCase();
+  const sp=state.data.slots.filter(r=>n(r.HARI).toLowerCase()===dl);
+  if(sp.length)return sp;
+  const gl=state.data.slots.filter(r=>!n(r.HARI));
+  return gl.length?gl:state.data.slots;
 }
-
-function getScheduleItem(day, roomCode, slotId){
-  const dl=n(day).toLowerCase(), rc=n(roomCode), sid=+slotId;
-  return state.data.schedules.find(item=>
-    n(item.HARI).toLowerCase()===dl &&
-    n(item.KODE_RUANG)===rc &&
-    sid >= +item.ID_SLOT_MULAI &&
-    sid <= +(item.ID_SLOT_SELESAI||item.ID_SLOT_MULAI)
-  )||null;
+function getScheduleItem(day,roomCode,slotId){
+  const dl=n(day).toLowerCase(),rc=n(roomCode),sid=+slotId;
+  return state.data.schedules.find(item=>n(item.HARI).toLowerCase()===dl&&n(item.KODE_RUANG)===rc&&sid>=+item.ID_SLOT_MULAI&&sid<=(+(item.ID_SLOT_SELESAI||item.ID_SLOT_MULAI)))||null;
 }
-
 function getCurrentActiveSlotId(day){
-  if(!state.data) return null;
-  if(n(day)!==getCurrentDayName()) return null;
-  const cur = nowMinutes();
+  if(!state.data||n(day)!==currentDayName())return null;
+  const cur=nowMinutes();
   for(const slot of getSlotsForDay(day)){
-    if(n(slot.TIPE_BARIS).toUpperCase()!=='KULIAH') continue;
-    const p = parseTimeLabelToMinutes(slot.LABEL_WAKTU);
-    if(p && cur>=p.start && cur<p.end) return +slot.ID_SLOT;
+    if(n(slot.TIPE_BARIS).toUpperCase()!=='KULIAH')continue;
+    const p=parseTimeLabelToMinutes(slot.LABEL_WAKTU);
+    if(p&&cur>=p.start&&cur<p.end)return +slot.ID_SLOT;
   }
   return null;
 }
+function getCurrentAcademicDay(days){const c=currentDayName();return days.includes(c)?c:days[0]||'Senin';}
 
-function getCurrentAcademicDay(days){ const c=getCurrentDayName(); return days.includes(c)?c:days[0]||'Senin'; }
-
-// ==============================
-// ROOM HEADER CLASS
-// ==============================
-function roomHClass(room){
-  const g=n(room.GRUP_WARNA_RUANG).toUpperCase();
-  return CONFIG.roomHeaderClasses[g]||'rh-def';
-}
-
-// ==============================
-// PASTEL COLOR BY MK
-// ==============================
 function mkColor(kodeMk){
   const code=n(kodeMk).toUpperCase().replace(/\s+/g,'');
   const m=code.match(/^([A-Z]+)(\d)/);
   const key=m?`${m[1]}${m[2]}xx`:'DEFAULT';
-  const map={
-    'TI1xx':{bg:'#EEF4FA',t:'#1A3050'},
-    'TI2xx':{bg:'#EDF7F1',t:'#1A3830'},
-    'TI3xx':{bg:'#FFF9EC',t:'#3A2A00'},
-    'TI4xx':{bg:'#FAF0E8',t:'#3A1808'},
-    'TI5xx':{bg:'#F2EEF9',t:'#1E103A'},
-    'TI6xx':{bg:'#EEF6F1',t:'#0C3220'},
-    'TI7xx':{bg:'#EEF5F6',t:'#0C2A30'},
-    'TI8xx':{bg:'#FAEFF0',t:'#3A0C10'},
-    'TIDA0xx':{bg:'#F0F4E8',t:'#203010'},
-    'DEFAULT':{bg:'#F3F4FA',t:'#1A1D3A'}
-  };
+  const map={'TI1xx':{bg:'#EEF4FA',t:'#1A3050'},'TI2xx':{bg:'#EDF7F1',t:'#0E3020'},'TI3xx':{bg:'#FFF9EC',t:'#3A2800'},'TI4xx':{bg:'#FAF0E8',t:'#3A1808'},'TI5xx':{bg:'#F2EEF9',t:'#1E103A'},'TI6xx':{bg:'#EEF6F1',t:'#0C3220'},'TI7xx':{bg:'#EEF5F6',t:'#0C2A30'},'TI8xx':{bg:'#FAEFF0',t:'#3A0C10'},'TIDA0xx':{bg:'#F0F4E8',t:'#203010'},'DEFAULT':{bg:'#F3F4FA',t:'#1A1D3A'}};
   return map[key]||map.DEFAULT;
 }
+function roomHClass(room){const g=n(room.GRUP_WARNA_RUANG).toUpperCase();return CONFIG.roomHeaderClasses[g]||'rh-def';}
 
-// ==============================
-// RENDER FULL TABLE
-// ==============================
+// ── SCALE TO FIT (key: no scrollbar, everything visible) ──
+function applyScale(){
+  const host=el.scaleHost;
+  const table=document.getElementById('schedTable');
+  if(!host||!table)return;
+
+  // Reset
+  host.style.transform='scale(1)';
+  host.style.width='100%';
+  host.style.marginTop='0';
+
+  const cH=el.viewContainer.clientHeight;
+  const cW=el.viewContainer.clientWidth;
+
+  // Measure natural size
+  const tH=table.offsetHeight;
+  const tW=table.offsetWidth;
+  if(!tH||!tW)return;
+
+  const scaleH=cH/tH;
+  const scaleW=cW/tW;
+  const scale=Math.min(1,scaleH,scaleW); // never upscale past 1
+
+  if(scale<0.999){
+    host.style.transformOrigin='top left';
+    host.style.transform=`scale(${scale})`;
+    // Expand host width so the table doesn't reflow after scale
+    host.style.width=`${100/scale}%`;
+    // Centre vertically in remaining space
+    const scaledH=tH*scale;
+    const offsetY=Math.max(0,(cH-scaledH)/2);
+    host.style.marginTop=offsetY+'px';
+  } else {
+    // Centre vertically when table is smaller than container
+    const offsetY=Math.max(0,(cH-tH)/2);
+    host.style.marginTop=offsetY+'px';
+  }
+}
+
+// ── RENDER FULL TABLE ──
 function renderFullTable(day){
-  if(!state.data){ el.tableScroller.innerHTML='<div class="error-box">Data belum tersedia.</div>'; return; }
+  if(!state.data){el.tableSlot.innerHTML='<div class="error-box">Data belum tersedia.</div>';return;}
   const slots=getSlotsForDay(day);
   const rooms=state.data.rooms;
   const activeSlotId=getCurrentActiveSlotId(day);
-  if(!rooms.length){ el.tableScroller.innerHTML='<div class="error-box">Data RUANG tidak ditemukan.</div>'; return; }
-  if(!slots.length){ el.tableScroller.innerHTML='<div class="error-box">Data SLOT tidak ditemukan.</div>'; return; }
+  if(!rooms.length){el.tableSlot.innerHTML='<div class="error-box">Data RUANG tidak ditemukan.</div>';return;}
+  if(!slots.length){el.tableSlot.innerHTML='<div class="error-box">Data SLOT tidak ditemukan.</div>';return;}
 
-  // group sessions for rowspan
+  const kuliahRows=slots.filter(s=>n(s.TIPE_BARIS).toUpperCase()==='KULIAH').length;
+  const specialRows=slots.length-kuliahRows;
+  const roomCols=rooms.length;
+
+  // ── Font & row-height sizing ──
+  // These are the "natural" (pre-scale) sizes. JS scale will shrink them to fit.
+  // We keep them generous so they're readable before/after scale.
+  // The scaling pass will handle any overflow vertically.
+  const fHeader=Math.max(10,Math.min(14,Math.floor(180/Math.max(roomCols,5))));
+  const fBase  =Math.max(9,  Math.min(12,Math.floor(160/Math.max(kuliahRows,5))));
+  const fCode  =Math.max(8,  fBase*0.88);
+  const fMeta  =Math.max(7.5,fBase*0.82);
+  const fBadge =Math.max(7,  fBase*0.76);
+  const rowH   =Math.max(32, Math.min(52,Math.floor(700/Math.max(kuliahRows,6))));
+  const specH  =Math.max(18, Math.floor(rowH*0.5));
+  const thH    =Math.max(32, Math.min(44,fHeader*2.8));
+
+  // Session rowspan
   const sessionCount=new Map();
   const renderedSession=new Set();
-  slots.forEach(s=>{ if(n(s.TIPE_BARIS).toUpperCase()==='KULIAH'){ const k=n(s.SESI)||'-'; sessionCount.set(k,(sessionCount.get(k)||0)+1); } });
+  slots.forEach(s=>{if(n(s.TIPE_BARIS).toUpperCase()==='KULIAH'){const k=n(s.SESI)||'-';sessionCount.set(k,(sessionCount.get(k)||0)+1);}});
 
-  let html=`<table class="schedule"><colgroup><col class="col-sesi"><col class="col-jam">${rooms.map(()=>'<col>').join('')}</colgroup>`;
-  html+=`<thead><tr><th>SESI</th><th>JAM</th>${rooms.map(r=>`<th class="${roomHClass(r)}">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}</tr></thead><tbody>`;
+  const sesiW=Math.max(36,Math.min(48,48));
+  const jamW =Math.max(68,Math.min(88,88));
+
+  let html=`<table class="schedule" id="schedTable" style="font-size:${fBase}px;">
+  <colgroup>
+    <col style="width:${sesiW}px">
+    <col style="width:${jamW}px">
+    ${rooms.map(()=>'<col>').join('')}
+  </colgroup>
+  <thead>
+    <tr style="height:${thH}px;">
+      <th style="font-size:${fHeader}px;">SESI</th>
+      <th style="font-size:${fHeader}px;">JAM</th>
+      ${rooms.map(r=>`<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}
+    </tr>
+  </thead>
+  <tbody>`;
 
   for(const slot of slots){
     const type=n(slot.TIPE_BARIS).toUpperCase();
@@ -683,89 +406,58 @@ function renderFullTable(day){
     if(type==='KULIAH'){
       const sesi=n(slot.SESI)||'-';
       if(!renderedSession.has(sesi)){
-        html+=`<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}">${esc(sesi)}</td>`;
+        html+=`<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}" style="height:${rowH}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
         renderedSession.add(sesi);
       }
-      html+=`<td class="time-cell${isCur?' current-time':''}">${esc(slot.LABEL_WAKTU)}</td>`;
+      html+=`<td class="time-cell${isCur?' current-time':''}" style="height:${rowH}px;font-size:${fBase*0.9}px;">${esc(slot.LABEL_WAKTU)}</td>`;
       for(const room of rooms){
         const item=getScheduleItem(day,room.KODE_RUANG,sid);
         if(item){
           const c=mkColor(item.KODE_MK||'');
-          html+=`<td class="course-cell${isCur?' current-course':''}" style="background:${c.bg};color:${c.t};">
-            ${isCur?'<span class="live-badge">▶ Berlangsung</span>':''}
-            <div class="c-code">${esc(item.KODE_MK||'')}${item.KELAS?` (${esc(item.KELAS)})`:''}</div>
-            <div class="c-name">${esc(item.NAMA_MK||'')}</div>
-            ${item.DOSEN?`<div class="c-meta">👤 ${esc(item.DOSEN)}</div>`:''}
-            ${item.PROGRAM_ANGKATAN?`<div class="c-meta">${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
+          html+=`<td class="course-cell${isCur?' current-course':''}" style="height:${rowH}px;background:${c.bg};color:${c.t};">
+            ${isCur?`<div class="live-badge" style="font-size:${fBadge}px;">▶ Live</div>`:''}
+            <div class="c-code" style="font-size:${fCode}px;">${esc(item.KODE_MK||'')}${item.KELAS?` (${esc(item.KELAS)})`:''}</div>
+            <div class="c-name" style="font-size:${fBase}px;">${esc(item.NAMA_MK||'')}</div>
+            ${item.DOSEN?`<div class="c-meta" style="font-size:${fMeta}px;">👤 ${esc(item.DOSEN)}</div>`:''}
+            ${item.PROGRAM_ANGKATAN?`<div class="c-meta" style="font-size:${fMeta}px;">${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
           </td>`;
-        } else {
-          html+=`<td class="empty-cell${isCur?' current-course':''}"></td>`;
+        }else{
+          html+=`<td class="empty-cell${isCur?' current-course':''}" style="height:${rowH}px;"></td>`;
         }
       }
-    } else {
-      // special row
-      html+=`<td class="session-empty"></td>`;
-      html+=`<td class="special-time">${esc(slot.LABEL_WAKTU)}</td>`;
-      html+=`<td class="special-cell" colspan="${rooms.length}">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
+    }else{
+      html+=`<td class="session-empty" style="height:${specH}px;"></td>`;
+      html+=`<td class="special-time" style="height:${specH}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      html+=`<td class="special-cell" colspan="${rooms.length}" style="height:${specH}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
     }
     html+='</tr>';
   }
   html+=`</tbody></table>`;
-  el.tableScroller.innerHTML=html;
+  el.tableSlot.innerHTML=html;
 
-  // Scroll current row into view
-  if(activeSlotId){
-    setTimeout(()=>{
-      const cur=el.tableScroller.querySelector('.current-row');
-      if(cur) cur.scrollIntoView({block:'center',behavior:'smooth'});
-    }, 200);
-  }
+  // Two rAF passes: first lets the browser paint & measure, second applies scale
+  requestAnimationFrame(()=>requestAnimationFrame(applyScale));
 }
 
-// ==============================
-// RENDER LIVE VIEW
-// ==============================
+// ── RENDER LIVE VIEW ──
 function renderLiveView(day){
   const activeSlotId=getCurrentActiveSlotId(day);
   const slots=state.data?getSlotsForDay(day):[];
   const activeSlot=slots.find(s=>+s.ID_SLOT===activeSlotId);
   const timeLabel=activeSlot?n(activeSlot.LABEL_WAKTU):'';
-
   if(!activeSlotId||!state.data){
-    el.liveView.innerHTML=`<div class="live-header">
-      <div class="live-dot" style="background:#94A3B8;"></div>
-      <div><div class="live-header-title">Tidak Ada Perkuliahan Berlangsung</div>
-      <div class="live-header-sub">${esc(day)} — Silakan lihat jadwal lengkap</div></div>
-    </div>
-    <div class="live-empty">
-      <div class="live-empty-icon">🎓</div>
-      <div class="live-empty-text">Belum ada sesi aktif</div>
-      <div class="live-empty-sub">Perkuliahan berikutnya akan ditampilkan saat sesi dimulai</div>
-    </div>`;
+    el.liveView.innerHTML=`<div class="live-header"><div class="live-dot" style="background:#94A3B8;animation:none;"></div><div><div class="live-header-title">Tidak Ada Perkuliahan Berlangsung</div><div class="live-header-sub">${esc(day)} — Silakan lihat jadwal lengkap</div></div></div><div class="live-empty"><div class="live-empty-icon">🎓</div><div class="live-empty-text">Belum ada sesi aktif saat ini</div><div class="live-empty-sub">Perkuliahan berikutnya akan ditampilkan saat sesi dimulai</div></div>`;
     return;
   }
-
   const rooms=state.data.rooms;
-  const liveItems=rooms.map(room=>{
-    const item=getScheduleItem(day,room.KODE_RUANG,activeSlotId);
-    return item ? {room, item} : null;
-  }).filter(Boolean);
-
-  let html=`<div class="live-header">
-    <div class="live-dot"></div>
-    <div>
-      <div class="live-header-title">🔴 Perkuliahan Sedang Berlangsung</div>
-      <div class="live-header-sub">${esc(day)} — Sesi ${esc(activeSlot?.SESI||'')} &nbsp;|&nbsp; ${esc(timeLabel)}</div>
-    </div>
-  </div>
-  <div class="live-cards">`;
-
-  if(liveItems.length===0){
-    html+=`<div class="live-empty"><div class="live-empty-icon">📭</div><div class="live-empty-text">Tidak ada mata kuliah dijadwalkan di sesi ini</div></div>`;
-  } else {
-    for(const {room, item} of liveItems){
+  const liveItems=rooms.map(room=>{const item=getScheduleItem(day,room.KODE_RUANG,activeSlotId);return item?{room,item}:null;}).filter(Boolean);
+  let html=`<div class="live-header"><div class="live-dot"></div><div><div class="live-header-title">🔴 Perkuliahan Sedang Berlangsung</div><div class="live-header-sub">${esc(day)} — Sesi ${esc(activeSlot?.SESI||'')} &nbsp;|&nbsp; ${esc(timeLabel)}</div></div></div><div class="live-cards">`;
+  if(!liveItems.length){
+    html+=`<div class="live-empty"><div class="live-empty-icon">📭</div><div class="live-empty-text">Tidak ada mata kuliah di sesi ini</div></div>`;
+  }else{
+    for(const{room,item}of liveItems){
       const c=mkColor(item.KODE_MK||'');
-      html+=`<div class="live-card" style="background:${c.bg}; color:${c.t};">
+      html+=`<div class="live-card" style="background:${c.bg};color:${c.t};">
         <div class="live-card-room">${esc(room.NAMA_TAMPIL_RUANG||room.KODE_RUANG)}</div>
         <div class="live-card-code">${esc(item.KODE_MK||'')}${item.KELAS?` · Kelas ${esc(item.KELAS)}`:''}</div>
         <div class="live-card-name" style="color:${c.t}">${esc(item.NAMA_MK||'')}</div>
@@ -775,241 +467,93 @@ function renderLiveView(day){
       </div>`;
     }
   }
-
   html+=`</div>`;
   el.liveView.innerHTML=html;
 }
 
-// ==============================
-// STATUS BAR
-// ==============================
+// ── STATUS ──
 function updateStatus(){
-  if(!state.data){ el.statusBar.textContent='Memuat data spreadsheet...'; return; }
+  if(!state.data){el.statusBar.textContent='Memuat data spreadsheet...';return;}
   const slots=getSlotsForDay(state.selectedDay);
   const jadCount=state.data.schedules.filter(r=>n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase()).length;
   const liveId=getCurrentActiveSlotId(state.selectedDay);
-  const liveItem=liveId?state.data.schedules.find(r=>n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase()&&liveId>=+r.ID_SLOT_MULAI&&liveId<=+(r.ID_SLOT_SELESAI||r.ID_SLOT_MULAI)):null;
+  const liveItem=liveId?state.data.schedules.find(r=>n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase()&&liveId>=+r.ID_SLOT_MULAI&&liveId<=(+(r.ID_SLOT_SELESAI||r.ID_SLOT_MULAI))):null;
   const liveText=liveItem?`<strong>▶ ${esc(liveItem.NAMA_MK||'Berlangsung')}</strong>`:'Belum ada perkuliahan berlangsung';
-  el.statusBar.innerHTML=[
-    `Hari: <strong>${esc(state.selectedDay)}</strong>`,
-    `Ruang: <strong>${state.data.rooms.length}</strong>`,
-    `Slot: <strong>${slots.length}</strong>`,
-    `Jadwal: <strong>${jadCount}</strong>`,
-    liveText
-  ].map(x=>`<span class="status-item">${x}</span>`).join('');
+  el.statusBar.innerHTML=[`Hari: <strong>${esc(state.selectedDay)}</strong>`,`Ruang: <strong>${state.data.rooms.length}</strong>`,`Slot: <strong>${slots.length}</strong>`,`Jadwal: <strong>${jadCount}</strong>`,liveText].map(x=>`<span class="status-item">${x}</span>`).join('');
 }
 
-// ==============================
-// TICKER
-// ==============================
+// ── TICKER ──
 function updateTicker(){
-  if(!state.data){ el.tickerTrack.textContent=CONFIG.tickerFallback; return; }
+  if(!state.data){el.tickerTrack.textContent=CONFIG.tickerFallback;return;}
   const items=state.data.infos.map(r=>[n(r.TANGGAL_INFO),n(r.JENIS_INFO),n(r.KETERANGAN_INFO)].filter(Boolean).join(' - ')).filter(Boolean);
   el.tickerTrack.textContent=items.length?items.join('     ✦     '):CONFIG.tickerFallback;
 }
 
-// ==============================
-// VIEW MODE SWITCHING
-// ==============================
+// ── MODE SWITCHING ──
 function switchToMode(mode){
-  state.currentMode=mode;
-  state.modeRemainMs=CONFIG.modeSwitchMs;
-
+  state.currentMode=mode; state.modeRemainMs=CONFIG.modeSwitchMs;
   if(mode==='full'){
-    el.viewFull.classList.add('active'); el.viewFull.classList.remove('inactive');
-    el.viewLive.classList.remove('active'); el.viewLive.classList.add('inactive');
-    el.modeBadge.textContent='📅 SEMUA SESI';
-    el.modeBadge.className='mode-badge mode-full';
+    el.viewFull.classList.add('active');el.viewFull.classList.remove('inactive');
+    el.viewLive.classList.remove('active');el.viewLive.classList.add('inactive');
+    el.modeBadge.textContent='📅 SEMUA SESI';el.modeBadge.className='mode-badge mode-full';
     renderFullTable(state.selectedDay);
-  } else {
-    el.viewLive.classList.add('active'); el.viewLive.classList.remove('inactive');
-    el.viewFull.classList.remove('active'); el.viewFull.classList.add('inactive');
-    el.modeBadge.textContent='🔴 BERLANGSUNG';
-    el.modeBadge.className='mode-badge mode-live';
+  }else{
+    el.viewLive.classList.add('active');el.viewLive.classList.remove('inactive');
+    el.viewFull.classList.remove('active');el.viewFull.classList.add('inactive');
+    el.modeBadge.textContent='🔴 BERLANGSUNG';el.modeBadge.className='mode-badge mode-live';
     renderLiveView(state.selectedDay);
   }
 }
-
 function startModeTimer(){
-  clearInterval(state.modeTimer);
-  state.modeRemainMs=CONFIG.modeSwitchMs;
+  clearInterval(state.modeTimer);state.modeRemainMs=CONFIG.modeSwitchMs;
   state.modeTimer=setInterval(()=>{
-    state.modeRemainMs -= 1000;
-    if(state.modeRemainMs<=0){
-      const next=state.currentMode==='full'?'live':'full';
-      switchToMode(next);
-    }
-    const pct=Math.max(0,Math.min(100,(state.modeRemainMs/CONFIG.modeSwitchMs)*100));
-    el.modeProgress.style.width=pct+'%';
-  }, 1000);
+    state.modeRemainMs-=1000;
+    if(state.modeRemainMs<=0)switchToMode(state.currentMode==='full'?'live':'full');
+    el.modeProgress.style.width=Math.max(0,(state.modeRemainMs/CONFIG.modeSwitchMs)*100)+'%';
+  },1000);
 }
 
-// ==============================
-// PRAYER TIMES (aladhan.com API)
-// ==============================
-async function fetchPrayerTimes(){
-  try {
-    const d=new Date();
-    const url=`https://api.aladhan.com/v1/timings/${Math.floor(d.getTime()/1000)}?latitude=${CONFIG.lat}&longitude=${CONFIG.lng}&method=20`;
-    const res=await fetch(url);
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const json=await res.json();
-    const t=json.data?.timings;
-    if(!t) throw new Error('No timings');
-    // We want Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha
-    state.prayer = {
-      Subuh: t.Fajr,
-      Syuruq: t.Sunrise,
-      Dzuhur: t.Dhuhr,
-      Ashar: t.Asr,
-      Maghrib: t.Maghrib,
-      Isya: t.Isha
-    };
-    renderPrayer();
-  } catch(e){
-    document.getElementById('prayerContent').textContent='Waktu sholat tidak tersedia';
-    console.warn('Prayer fetch failed:', e);
-  }
-}
-
-function timeStrToMinutes(str){
-  const m=String(str).match(/(\d+):(\d+)/);
-  return m ? +m[1]*60 + +m[2] : 0;
-}
-
-function renderPrayer(){
-  if(!state.prayer) return;
-  const cur=nowMinutes();
-  const entries=Object.entries(state.prayer);
-  const mins=entries.map(([n,t])=>({name:n,time:t,m:timeStrToMinutes(t)}));
-  // find current (active) and next
-  let activeIdx=-1, nextIdx=-1;
-  for(let i=0;i<mins.length;i++){
-    const isLast=i===mins.length-1;
-    const nextM=isLast?24*60:mins[i+1].m;
-    if(cur>=mins[i].m && cur<nextM){ activeIdx=i; nextIdx=isLast?-1:i+1; break; }
-  }
-  if(activeIdx===-1 && cur < mins[0].m){ nextIdx=0; }
-
-  // countdown to next prayer
-  let countdownHtml='';
-  const target = nextIdx>=0 ? mins[nextIdx] : null;
-  if(target){
-    const diff=target.m - cur;
-    const h=Math.floor(diff/60), m=diff%60;
-    countdownHtml=`<span class="prayer-countdown">⏳ ${h>0?h+'j ':''} ${m}m menuju ${esc(target.name)}</span>`;
-  }
-
-  let html='';
-  for(let i=0;i<mins.length;i++){
-    const p=mins[i];
-    const cls=i===activeIdx?'active':i===nextIdx?'next':'';
-    html+=`<div class="prayer-item ${cls}">
-      <span class="prayer-name">${esc(p.name)}</span>
-      <span class="prayer-time">${esc(p.time)}</span>
-    </div>`;
-  }
-
-  document.getElementById('prayerContent').outerHTML=`<div class="prayer-items" id="prayerContent">${html}</div>${countdownHtml}`;
-  // re-query after outerHTML replacement
-  const oldHtml = document.getElementById('prayerBar').innerHTML;
-  document.getElementById('prayerBar').innerHTML = oldHtml;
-}
-
-function updatePrayerHighlight(){
-  if(!state.prayer) return;
-  // re-render prayer bar entirely (lightweight)
-  renderPrayer();
-}
-
-// ==============================
-// CLOCK
-// ==============================
+// ── CLOCK ──
 function startClock(){
   const tf=new Intl.DateTimeFormat('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   const df=new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-  let lastDay='';
-
   const tick=()=>{
     const now=new Date();
     el.clockTime.textContent=tf.format(now);
     el.clockDate.textContent=df.format(now);
-
     if(state.data){
       const autoDay=getCurrentAcademicDay(state.data.days.length?state.data.days:CONFIG.fallbackDays);
-      if(autoDay!==state.selectedDay){
-        state.selectedDay=autoDay;
-        updateStatus();
-        renderFullTable(state.selectedDay);
-        renderLiveView(state.selectedDay);
-        return;
-      }
+      if(autoDay!==state.selectedDay){state.selectedDay=autoDay;updateStatus();renderFullTable(state.selectedDay);renderLiveView(state.selectedDay);return;}
       const activeId=getCurrentActiveSlotId(state.selectedDay);
       const lk=`${state.selectedDay}__${activeId||''}`;
-      if(lk!==state.liveSlotKey){
-        state.liveSlotKey=lk;
-        updateStatus();
-        renderFullTable(state.selectedDay);
-        renderLiveView(state.selectedDay);
-      }
-      if(lastDay!==autoDay){
-        lastDay=autoDay;
-        updatePrayerHighlight();
-      }
+      if(lk!==state.liveSlotKey){state.liveSlotKey=lk;updateStatus();renderFullTable(state.selectedDay);renderLiveView(state.selectedDay);}
     }
   };
-  tick();
-  setInterval(tick, 1000);
-  // Update prayer highlight every minute
-  setInterval(updatePrayerHighlight, 60000);
+  tick();setInterval(tick,1000);
 }
 
-// ==============================
-// CSV LOAD
-// ==============================
-async function hashText(t){
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));
-  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-async function fetchCsv(){
-  const r=await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`,{cache:'no-store'});
-  if(!r.ok) throw new Error('Gagal mengambil CSV');
-  return r.text();
-}
+// ── CSV ──
+async function hashText(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+async function fetchCsv(){const r=await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw new Error('Gagal mengambil CSV');return r.text();}
 async function applyCsv(csvText){
   state.data=buildDataModel(csvText);
   state.csvHash=await hashText(csvText);
   const days=state.data.days.length?state.data.days:CONFIG.fallbackDays;
   state.selectedDay=getCurrentAcademicDay(days);
   state.liveSlotKey=`${state.selectedDay}__${getCurrentActiveSlotId(state.selectedDay)||''}`;
-  updateTicker();
-  updateStatus();
-  renderFullTable(state.selectedDay);
-  renderLiveView(state.selectedDay);
+  updateTicker();updateStatus();
+  renderFullTable(state.selectedDay);renderLiveView(state.selectedDay);
 }
+setInterval(async()=>{try{const c=await fetchCsv();const h=await hashText(c);if(h!==state.csvHash)await applyCsv(c);}catch(e){console.warn(e);}},CONFIG.autoRefreshMs);
 
-// Auto refresh
-setInterval(async()=>{
-  try{
-    const csv=await fetchCsv();
-    const h=await hashText(csv);
-    if(h!==state.csvHash) await applyCsv(csv);
-  }catch(e){ console.warn(e); }
-}, CONFIG.autoRefreshMs);
+window.addEventListener('resize',()=>requestAnimationFrame(applyScale));
 
-// ==============================
-// INIT
-// ==============================
+// ── INIT ──
 startClock();
-fetchPrayerTimes();
-// Refresh prayer times every hour
-setInterval(fetchPrayerTimes, 3600000);
-
 fetchCsv().then(applyCsv).then(()=>{
-  switchToMode('full');
-  startModeTimer();
+  switchToMode('full');startModeTimer();
 }).catch(e=>{
-  el.tableScroller.innerHTML=`<div class="error-box">${esc(e.message)}<br><br>Pastikan Google Sheets sudah di-publish sebagai CSV publik.</div>`;
+  el.tableSlot.innerHTML=`<div class="error-box">${esc(e.message)}<br><br>Pastikan Google Sheets sudah di-publish sebagai CSV publik.</div>`;
 });
 </script>
 </body>
