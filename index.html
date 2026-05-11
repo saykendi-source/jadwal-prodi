@@ -920,23 +920,16 @@ function applyScale(){
 }
 
 // ── LAYOUT WEIGHTS ──
-function buildRowHeights(slots, availableH, activeSlotId){
-  const kuliahIndexes = slots
-    .map((slot, idx)=> n(slot.TIPE_BARIS).toUpperCase()==='KULIAH' ? idx : -1)
-    .filter(idx=>idx!==-1);
-
-  const activeIndex = slots.findIndex(s =>
-    n(s.TIPE_BARIS).toUpperCase()==='KULIAH' && +s.ID_SLOT===activeSlotId
-  );
-
+function buildRowHeights(slots, usableBodyH, activeSlotId){
   const rows = slots.map((slot, idx)=>{
     const isKuliah = n(slot.TIPE_BARIS).toUpperCase()==='KULIAH';
     let weight = isKuliah ? 1 : 0.44;
 
-    if(isKuliah && activeIndex!==-1){
-      if(idx===activeIndex) weight = 1.42;
-      else if(Math.abs(idx-activeIndex)===1 && n(slots[idx].TIPE_BARIS).toUpperCase()==='KULIAH') weight = 1.12;
-      else if(Math.abs(idx-activeIndex)===2 && n(slots[idx].TIPE_BARIS).toUpperCase()==='KULIAH') weight = 1.04;
+    if(isKuliah && activeSlotId){
+      const sid = +slot.ID_SLOT;
+      if(sid === activeSlotId) weight = 1.52;
+      else if(Math.abs(sid - activeSlotId) === 1) weight = 1.14;
+      else if(Math.abs(sid - activeSlotId) === 2) weight = 1.05;
     }
 
     return {
@@ -944,36 +937,37 @@ function buildRowHeights(slots, availableH, activeSlotId){
       slot,
       isKuliah,
       weight,
-      fractional:0,
-      height:0
+      height:0,
+      fractional:0
     };
   });
 
   const totalWeight = rows.reduce((a,b)=>a+b.weight,0) || 1;
 
   rows.forEach(r=>{
-    const raw = (r.weight / totalWeight) * availableH;
+    const raw = (r.weight / totalWeight) * usableBodyH;
     r.height = Math.floor(raw);
     r.fractional = raw - r.height;
   });
 
-  let sum = rows.reduce((a,b)=>a+b.height,0);
-  let remain = availableH - sum;
+  let used = rows.reduce((a,b)=>a+b.height,0);
+  let remain = usableBodyH - used;
 
-  const plusPriority = rows
-    .slice()
-    .sort((a,b)=>{
-      const aScore = (+(+a.slot.ID_SLOT===activeSlotId) * 3) + (a.isKuliah ? 1 : 0);
-      const bScore = (+(+b.slot.ID_SLOT===activeSlotId) * 3) + (b.isKuliah ? 1 : 0);
-      if(b.fractional!==a.fractional) return b.fractional-a.fractional;
-      return bScore-aScore;
-    });
+  const priority = rows.slice().sort((a,b)=>{
+    const aActive = (+a.slot.ID_SLOT === activeSlotId) ? 10 : 0;
+    const bActive = (+b.slot.ID_SLOT === activeSlotId) ? 10 : 0;
+    const aNear = activeSlotId ? Math.max(0, 4 - Math.abs((+a.slot.ID_SLOT||0) - activeSlotId)) : 0;
+    const bNear = activeSlotId ? Math.max(0, 4 - Math.abs((+b.slot.ID_SLOT||0) - activeSlotId)) : 0;
+    const aScore = aActive + aNear + (a.isKuliah ? 2 : 0) + a.fractional;
+    const bScore = bActive + bNear + (b.isKuliah ? 2 : 0) + b.fractional;
+    return bScore - aScore;
+  });
 
-  let cursor = 0;
-  while(remain > 0 && plusPriority.length){
-    plusPriority[cursor % plusPriority.length].height += 1;
+  let i = 0;
+  while(remain > 0 && priority.length){
+    priority[i % priority.length].height += 1;
     remain--;
-    cursor++;
+    i++;
   }
 
   return rows;
@@ -984,26 +978,31 @@ function calcTopPad(rows, headerH, containerH, activeSlotId){
   const tableH = headerH + bodyH;
   const slack = Math.max(0, containerH - tableH);
 
-  if(slack<=0) return 0;
+  if(slack <= 0) return 0;
 
   if(!activeSlotId){
     return Math.floor(slack / 2);
   }
 
   let y = headerH;
-  let activeCenter = headerH + bodyH/2;
+  let activeCenter = headerH + bodyH / 2;
 
   for(const row of rows){
-    const h=row.height;
-    if(+row.slot.ID_SLOT===activeSlotId){
-      activeCenter = y + h/2;
+    const rowTop = y;
+    const rowBottom = y + row.height;
+
+    if(+row.slot.ID_SLOT === activeSlotId){
+      activeCenter = (rowTop + rowBottom) / 2;
       break;
     }
-    y += h;
+
+    y += row.height;
   }
 
-  const desired = Math.round((containerH/2) - activeCenter);
-  return Math.max(0, Math.min(slack, desired));
+  const targetCenter = containerH * 0.5;
+  const desiredPad = Math.round(targetCenter - activeCenter);
+
+  return Math.max(0, Math.min(slack, desiredPad));
 }
 
 // ── RENDER FULL TABLE ──
@@ -1031,9 +1030,28 @@ function renderFullTable(day){
   const containerW=Math.max(860, el.viewFull.clientWidth - 4);
 
   let thH=Math.max(28, Math.min(40, Math.floor(containerH*0.052)));
-  const availableBodyH=Math.max(140, containerH - thH - 6);
 
-  const rowsMeta = buildRowHeights(slots, availableBodyH, activeSlotId);
+  const kuliahCount = slots.filter(s=>n(s.TIPE_BARIS).toUpperCase()==='KULIAH').length;
+  const specialCount = slots.length - kuliahCount;
+
+  const minBodyNeeded =
+    (kuliahCount * 16) +
+    (specialCount * 10);
+
+  const maxBodyAvailable = Math.max(140, containerH - thH - 6);
+
+  let reserveGap = activeSlotId
+    ? Math.max(18, Math.min(72, Math.floor(containerH * 0.11)))
+    : Math.max(6, Math.min(20, Math.floor(containerH * 0.03)));
+
+  let usableBodyH = maxBodyAvailable - reserveGap;
+
+  if(usableBodyH < minBodyNeeded){
+    usableBodyH = maxBodyAvailable;
+    reserveGap = 0;
+  }
+
+  const rowsMeta = buildRowHeights(slots, usableBodyH, activeSlotId);
   const topPad = calcTopPad(rowsMeta, thH, containerH, activeSlotId);
 
   const kuliahHeights = rowsMeta.filter(r=>r.isKuliah).map(r=>r.height);
@@ -1090,6 +1108,7 @@ function renderFullTable(day){
 
     if(type==='KULIAH'){
       const sesi=n(slot.SESI)||'-';
+
       if(!renderedSession.has(sesi)){
         html+=`<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}" style="height:${rowH}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
         renderedSession.add(sesi);
