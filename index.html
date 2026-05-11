@@ -69,12 +69,39 @@
       flex:0 0 auto;
       background:var(--panel); border:1px solid rgba(255,255,255,0.8);
       border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(12px);
-      display:flex; align-items:center; padding:0 12px; min-height:34px; overflow:hidden;
+      display:flex; align-items:center; padding:0 12px; min-height:38px; overflow:hidden;
     }
-    .ticker-label { flex-shrink:0; margin-right:14px; font-size:11px; font-weight:800; letter-spacing:0.35px; background:linear-gradient(135deg,var(--navy),var(--accent)); color:#fff; padding:4px 10px; border-radius:999px; }
-    .ticker-viewport { flex:1; overflow:hidden; height:20px; display:flex; align-items:center; }
-    .ticker-track { display:inline-block; white-space:nowrap; padding-left:100%; animation:tickerMove 55s linear infinite; font-size:13px; font-weight:700; color:#3A4070; }
-    @keyframes tickerMove { from{transform:translateX(0)} to{transform:translateX(-100%)} }
+    .ticker-label {
+      flex-shrink:0; margin-right:14px; font-size:11px; font-weight:800; letter-spacing:0.35px;
+      background:linear-gradient(135deg,var(--navy),var(--accent)); color:#fff; padding:4px 10px; border-radius:999px;
+    }
+    .ticker-viewport {
+      flex:1; overflow:hidden; height:24px; display:flex; align-items:center; position:relative;
+    }
+    .ticker-flip-stack {
+      position:relative; width:100%; height:100%;
+    }
+    .ticker-item {
+      position:absolute; inset:0;
+      display:flex; align-items:center;
+      font-size:13px; font-weight:700; color:#3A4070;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      opacity:0; transform:translateY(100%);
+      transition:transform .55s ease, opacity .55s ease;
+      will-change:transform, opacity;
+    }
+    .ticker-item.active {
+      opacity:1; transform:translateY(0);
+    }
+    .ticker-item.out-up {
+      opacity:0; transform:translateY(-100%);
+    }
+    .ticker-item.next {
+      opacity:0; transform:translateY(100%);
+    }
+    .ticker-item.in-up {
+      opacity:1; transform:translateY(0);
+    }
 
     /* ── TABLE PANEL ── */
     .table-panel {
@@ -198,7 +225,10 @@
   <section class="ticker">
     <div class="ticker-label">INFO PERKULIAHAN</div>
     <div class="ticker-viewport">
-      <div class="ticker-track" id="tickerTrack">Memuat informasi...</div>
+      <div class="ticker-flip-stack">
+        <div class="ticker-item active" id="tickerCurrent">Memuat informasi...</div>
+        <div class="ticker-item next" id="tickerNext"></div>
+      </div>
     </div>
   </section>
 
@@ -224,13 +254,15 @@ const CONFIG = {
   roomHeaderClasses:{F6:'rh-f6',F4:'rh-f4'},
   modeSwitchMs:25*1000,
   tickerFallback:'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
+  tickerFlipMs:4000,
 };
-const state={data:null,selectedDay:'Senin',csvHash:'',liveSlotKey:'',currentMode:'full',modeTimer:null,modeRemainMs:CONFIG.modeSwitchMs};
+const state={data:null,selectedDay:'Senin',csvHash:'',liveSlotKey:'',currentMode:'full',modeTimer:null,modeRemainMs:CONFIG.modeSwitchMs,tickerItems:[],tickerIndex:0,tickerTimer:null,tickerAnimating:false};
 const el={
   statusBar:document.getElementById('statusBar'),
   clockTime:document.getElementById('clockTime'),
   clockDate:document.getElementById('clockDate'),
-  tickerTrack:document.getElementById('tickerTrack'),
+  tickerCurrent:document.getElementById('tickerCurrent'),
+  tickerNext:document.getElementById('tickerNext'),
   viewFull:document.getElementById('viewFull'),
   viewLive:document.getElementById('viewLive'),
   tableSlot:document.getElementById('tableSlot'),
@@ -462,10 +494,66 @@ function updateStatus(){
 }
 
 // ── TICKER ──
+function stopTickerFlip(){
+  if(state.tickerTimer){
+    clearInterval(state.tickerTimer);
+    state.tickerTimer=null;
+  }
+}
+
+function renderTickerNow(textValue){
+  el.tickerCurrent.textContent=textValue || CONFIG.tickerFallback;
+  el.tickerCurrent.className='ticker-item active';
+  el.tickerNext.textContent='';
+  el.tickerNext.className='ticker-item next';
+}
+
+function flipTicker(){
+  if(state.tickerAnimating || state.tickerItems.length <= 1) return;
+  state.tickerAnimating=true;
+
+  const nextIndex=(state.tickerIndex+1)%state.tickerItems.length;
+  const nextText=state.tickerItems[nextIndex] || CONFIG.tickerFallback;
+
+  el.tickerNext.textContent=nextText;
+  el.tickerNext.className='ticker-item next';
+  void el.tickerNext.offsetWidth;
+
+  el.tickerCurrent.className='ticker-item active out-up';
+  el.tickerNext.className='ticker-item next in-up';
+
+  setTimeout(()=>{
+    el.tickerCurrent.textContent=nextText;
+    el.tickerCurrent.className='ticker-item active';
+    el.tickerNext.textContent='';
+    el.tickerNext.className='ticker-item next';
+    state.tickerIndex=nextIndex;
+    state.tickerAnimating=false;
+  }, 580);
+}
+
+function startTickerFlip(){
+  stopTickerFlip();
+  if(state.tickerItems.length <= 1) return;
+  state.tickerTimer=setInterval(flipTicker, CONFIG.tickerFlipMs);
+}
+
 function updateTicker(){
-  if(!state.data){el.tickerTrack.textContent=CONFIG.tickerFallback;return;}
-  const items=state.data.infos.map(r=>[n(r.TANGGAL_INFO),n(r.JENIS_INFO),n(r.KETERANGAN_INFO)].filter(Boolean).join(' - ')).filter(Boolean);
-  el.tickerTrack.textContent=items.length?items.join('     ✦     '):CONFIG.tickerFallback;
+  if(!state.data){
+    state.tickerItems=[CONFIG.tickerFallback];
+    state.tickerIndex=0;
+    renderTickerNow(CONFIG.tickerFallback);
+    stopTickerFlip();
+    return;
+  }
+  const items=state.data.infos
+    .map(r=>[n(r.TANGGAL_INFO),n(r.JENIS_INFO),n(r.KETERANGAN_INFO)].filter(Boolean).join(' - '))
+    .filter(Boolean);
+
+  state.tickerItems=items.length ? items : [CONFIG.tickerFallback];
+  state.tickerIndex=0;
+  renderTickerNow(state.tickerItems[0]);
+  startTickerFlip();
 }
 
 // ── MODE SWITCHING ──
