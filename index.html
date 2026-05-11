@@ -51,7 +51,6 @@
       overflow:hidden;
     }
 
-    /* ── HEADER ── */
     .header {
       flex:0 0 auto;
       background:var(--panel);
@@ -330,6 +329,7 @@
 
     .table-inner {
       width:100%;
+      height:100%;
       overflow:hidden;
     }
 
@@ -421,10 +421,6 @@
     tr.current-row td {
       border-top:2px solid rgba(212,168,41,.92) !important;
       border-bottom:2px solid rgba(212,168,41,.92) !important;
-    }
-
-    tr.current-row td:not(.session-cell):not(.session-empty) {
-      transform:translateZ(0);
     }
 
     td.time-cell.current-time {
@@ -919,21 +915,19 @@ function applyScale(){
   host.style.marginTop='0';
 }
 
-// ── LAYOUT WEIGHTS ──
+// ── ROW HEIGHTS (FULL DISPLAY PRIORITY) ──
 function buildRowHeights(slots, usableBodyH, activeSlotId){
-  const rows = slots.map((slot, idx)=>{
+  const rows = slots.map((slot)=>{
     const isKuliah = n(slot.TIPE_BARIS).toUpperCase()==='KULIAH';
-    let weight = isKuliah ? 1 : 0.44;
+    let weight = isKuliah ? 1 : 0.52;
 
     if(isKuliah && activeSlotId){
       const sid = +slot.ID_SLOT;
-      if(sid === activeSlotId) weight = 1.52;
-      else if(Math.abs(sid - activeSlotId) === 1) weight = 1.14;
-      else if(Math.abs(sid - activeSlotId) === 2) weight = 1.05;
+      if(sid === activeSlotId) weight = 1.14;
+      else if(Math.abs(sid - activeSlotId) === 1) weight = 1.05;
     }
 
     return {
-      idx,
       slot,
       isKuliah,
       weight,
@@ -954,55 +948,21 @@ function buildRowHeights(slots, usableBodyH, activeSlotId){
   let remain = usableBodyH - used;
 
   const priority = rows.slice().sort((a,b)=>{
-    const aActive = (+a.slot.ID_SLOT === activeSlotId) ? 10 : 0;
-    const bActive = (+b.slot.ID_SLOT === activeSlotId) ? 10 : 0;
-    const aNear = activeSlotId ? Math.max(0, 4 - Math.abs((+a.slot.ID_SLOT||0) - activeSlotId)) : 0;
-    const bNear = activeSlotId ? Math.max(0, 4 - Math.abs((+b.slot.ID_SLOT||0) - activeSlotId)) : 0;
-    const aScore = aActive + aNear + (a.isKuliah ? 2 : 0) + a.fractional;
-    const bScore = bActive + bNear + (b.isKuliah ? 2 : 0) + b.fractional;
+    const aCur = (+a.slot.ID_SLOT===activeSlotId) ? 3 : 0;
+    const bCur = (+b.slot.ID_SLOT===activeSlotId) ? 3 : 0;
+    const aScore = aCur + (a.isKuliah ? 1 : 0) + a.fractional;
+    const bScore = bCur + (b.isKuliah ? 1 : 0) + b.fractional;
     return bScore - aScore;
   });
 
-  let i = 0;
-  while(remain > 0 && priority.length){
+  let i=0;
+  while(remain>0 && priority.length){
     priority[i % priority.length].height += 1;
     remain--;
     i++;
   }
 
   return rows;
-}
-
-function calcTopPad(rows, headerH, containerH, activeSlotId){
-  const bodyH = rows.reduce((a,b)=>a+b.height,0);
-  const tableH = headerH + bodyH;
-  const slack = Math.max(0, containerH - tableH);
-
-  if(slack <= 0) return 0;
-
-  if(!activeSlotId){
-    return Math.floor(slack / 2);
-  }
-
-  let y = headerH;
-  let activeCenter = headerH + bodyH / 2;
-
-  for(const row of rows){
-    const rowTop = y;
-    const rowBottom = y + row.height;
-
-    if(+row.slot.ID_SLOT === activeSlotId){
-      activeCenter = (rowTop + rowBottom) / 2;
-      break;
-    }
-
-    y += row.height;
-  }
-
-  const targetCenter = containerH * 0.5;
-  const desiredPad = Math.round(targetCenter - activeCenter);
-
-  return Math.max(0, Math.min(slack, desiredPad));
 }
 
 // ── RENDER FULL TABLE ──
@@ -1029,30 +989,10 @@ function renderFullTable(day){
   const containerH=Math.max(280, el.viewFull.clientHeight - 4);
   const containerW=Math.max(860, el.viewFull.clientWidth - 4);
 
-  let thH=Math.max(28, Math.min(40, Math.floor(containerH*0.052)));
-
-  const kuliahCount = slots.filter(s=>n(s.TIPE_BARIS).toUpperCase()==='KULIAH').length;
-  const specialCount = slots.length - kuliahCount;
-
-  const minBodyNeeded =
-    (kuliahCount * 16) +
-    (specialCount * 10);
-
-  const maxBodyAvailable = Math.max(140, containerH - thH - 6);
-
-  let reserveGap = activeSlotId
-    ? Math.max(18, Math.min(72, Math.floor(containerH * 0.11)))
-    : Math.max(6, Math.min(20, Math.floor(containerH * 0.03)));
-
-  let usableBodyH = maxBodyAvailable - reserveGap;
-
-  if(usableBodyH < minBodyNeeded){
-    usableBodyH = maxBodyAvailable;
-    reserveGap = 0;
-  }
+  const thH=Math.max(30, Math.min(42, Math.floor(containerH*0.056)));
+  const usableBodyH=Math.max(150, containerH - thH - 4);
 
   const rowsMeta = buildRowHeights(slots, usableBodyH, activeSlotId);
-  const topPad = calcTopPad(rowsMeta, thH, containerH, activeSlotId);
 
   const kuliahHeights = rowsMeta.filter(r=>r.isKuliah).map(r=>r.height);
   const avgRowH = kuliahHeights.length
@@ -1062,11 +1002,11 @@ function renderFullTable(day){
   const roomCols=rooms.length;
   const roomWidth=containerW / Math.max(roomCols + 2, 3);
 
-  const fHeader=Math.max(9, Math.min(14, Math.floor(Math.min(roomWidth*0.17, avgRowH*0.58))));
-  const fBase  =Math.max(8, Math.min(12, Math.floor(Math.min(roomWidth*0.15, avgRowH*0.42))));
-  const fCode  =Math.max(7, Math.min(10, Math.floor(fBase*0.88)));
-  const fMeta  =Math.max(6.5, Math.min(8.5, Math.floor((fBase*0.80)*10)/10));
-  const fBadge =Math.max(6.5, Math.min(9, Math.floor((fBase*0.76)*10)/10));
+  const fHeader=Math.max(10, Math.min(15, Math.floor(Math.min(roomWidth*0.18, avgRowH*0.64))));
+  const fBase  =Math.max(8.5, Math.min(13, Math.floor((Math.min(roomWidth*0.165, avgRowH*0.48))*10)/10));
+  const fCode  =Math.max(7.5, Math.min(10.5, Math.floor((fBase*0.90)*10)/10));
+  const fMeta  =Math.max(7, Math.min(9, Math.floor((fBase*0.82)*10)/10));
+  const fBadge =Math.max(7, Math.min(9.5, Math.floor((fBase*0.80)*10)/10));
 
   const sessionCount=new Map();
   const renderedSession=new Set();
@@ -1078,10 +1018,10 @@ function renderFullTable(day){
     }
   });
 
-  const sesiW=Math.max(34,Math.min(52,Math.floor(containerW*0.038)));
-  const jamW =Math.max(68,Math.min(92,Math.floor(containerW*0.068)));
+  const sesiW=Math.max(36,Math.min(56,Math.floor(containerW*0.04)));
+  const jamW =Math.max(72,Math.min(96,Math.floor(containerW*0.07)));
 
-  let html=`<div class="table-inner" style="padding-top:${topPad}px;">
+  let html=`<div class="table-inner">
   <table class="schedule" id="schedTable" style="font-size:${fBase}px;">
     <colgroup>
       <col style="width:${sesiW}px">
@@ -1114,7 +1054,7 @@ function renderFullTable(day){
         renderedSession.add(sesi);
       }
 
-      html+=`<td class="time-cell${isCur?' current-time':''}" style="height:${rowH}px;font-size:${Math.max(7.5,fBase*0.92)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      html+=`<td class="time-cell${isCur?' current-time':''}" style="height:${rowH}px;font-size:${Math.max(8,fBase*0.94)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
 
       for(const room of rooms){
         const item=getScheduleItem(day,room.KODE_RUANG,sid);
