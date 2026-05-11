@@ -17,10 +17,15 @@
       --rh-f4-bg:#C6ECDF; --rh-f4-t:#0C3820;
       --rh-def-bg:#DDDFF5; --rh-def-t:#23266B;
     }
+
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
     html, body {
-      width:100%; height:100%; overflow:hidden;
-      font-family:'Plus Jakarta Sans',sans-serif; color:var(--text);
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      color:var(--text);
       background:
         radial-gradient(ellipse at 10% 20%,rgba(108,111,212,0.12) 0%,transparent 40%),
         radial-gradient(ellipse at 90% 80%,rgba(212,168,41,0.10) 0%,transparent 35%),
@@ -33,36 +38,130 @@
       text-rendering: optimizeLegibility;
     }
 
-    /* ── APP ── */
-    .app { position:relative; width:100%; height:100vh; display:flex; flex-direction:column; padding:6px; gap:5px; }
+    .app {
+      position:relative;
+      width:100%;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      padding:6px;
+      gap:5px;
+      overflow:hidden;
+    }
 
-    /* ── HEADER ── */
     .header {
       flex:0 0 auto;
-      background:var(--panel); border:1px solid rgba(255,255,255,0.85);
-      border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(14px);
-      padding:5px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,0.85);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(14px);
+      padding:5px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      min-height:76px;
     }
+
     .header-left { display:flex; flex-direction:column; gap:2px; }
+
     .semester-badge {
-      display:inline-block; padding:2px 10px; border-radius:999px;
+      display:inline-block;
+      padding:2px 10px;
+      border-radius:999px;
       background:linear-gradient(135deg,rgba(108,111,212,0.16),rgba(212,168,41,0.14));
-      color:var(--navy-dark); font-size:10px; font-weight:800; letter-spacing:0.4px; width:fit-content;
+      color:var(--navy-dark);
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:0.4px;
+      width:fit-content;
     }
-    .header h1 { font-size:clamp(16px,2vw,34px); font-weight:800; color:var(--navy-dark); line-height:1; }
-    .status-bar { display:flex; flex-wrap:wrap; gap:4px 14px; margin-top:2px; }
-    .status-item { font-size:11px; font-weight:700; color:var(--muted); white-space:nowrap; }
+
+    .header h1 {
+      font-size:clamp(16px,2vw,34px);
+      font-weight:800;
+      color:var(--navy-dark);
+      line-height:1;
+    }
+
+    .status-bar {
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px 14px;
+      margin-top:2px;
+    }
+
+    .status-item {
+      font-size:11px;
+      font-weight:700;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
     .status-item strong { color:var(--navy-dark); }
 
-    .header-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; }
-    .clock-time { font-family:'JetBrains Mono',monospace; font-size:clamp(26px,3vw,52px); font-weight:700; color:var(--navy-dark); line-height:1; letter-spacing:1px; }
-    .clock-date { font-size:clamp(10px,0.9vw,15px); font-weight:700; color:var(--navy-mid); }
-    .mode-badge { padding:3px 12px; border-radius:999px; font-size:11px; font-weight:800; letter-spacing:0.4px; }
-    .mode-badge.mode-full { background:linear-gradient(135deg,var(--navy),var(--accent)); color:#fff; }
-    .mode-badge.mode-live { background:linear-gradient(135deg,#E53935,#EF6C00); color:#fff; animation:pulse-badge 2s infinite; }
-    @keyframes pulse-badge { 0%,100%{box-shadow:0 0 0 0 rgba(229,57,53,0.4)} 50%{box-shadow:0 0 0 6px rgba(229,57,53,0)} }
-    .mode-progress-bar { height:3px; border-radius:2px; background:rgba(60,64,180,0.12); overflow:hidden; min-width:120px; }
-    .mode-progress-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--navy),var(--accent)); transition:width 1s linear; }
+    .header-right {
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:3px;
+      flex-shrink:0;
+    }
+
+    .clock-time {
+      font-family:'JetBrains Mono',monospace;
+      font-size:clamp(24px,2.8vw,48px);
+      font-weight:700;
+      color:var(--navy-dark);
+      line-height:1;
+      letter-spacing:1px;
+    }
+
+    .clock-date {
+      font-size:clamp(10px,0.9vw,15px);
+      font-weight:700;
+      color:var(--navy-mid);
+    }
+
+    .mode-badge {
+      padding:3px 12px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:0.4px;
+    }
+
+    .mode-badge.mode-full {
+      background:linear-gradient(135deg,var(--navy),var(--accent));
+      color:#fff;
+    }
+
+    .mode-badge.mode-live {
+      background:linear-gradient(135deg,#E53935,#EF6C00);
+      color:#fff;
+      animation:pulse-badge 2s infinite;
+    }
+
+    @keyframes pulse-badge {
+      0%,100% { box-shadow:0 0 0 0 rgba(229,57,53,0.4) }
+      50% { box-shadow:0 0 0 6px rgba(229,57,53,0) }
+    }
+
+    .mode-progress-bar {
+      height:3px;
+      border-radius:2px;
+      background:rgba(60,64,180,0.12);
+      overflow:hidden;
+      min-width:120px;
+    }
+
+    .mode-progress-fill {
+      height:100%;
+      border-radius:2px;
+      background:linear-gradient(90deg,var(--navy),var(--accent));
+      transition:width 1s linear;
+    }
 
     /* ── TICKER ── */
     .ticker {
@@ -118,12 +217,11 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-
       opacity:0;
-      transform:translate3d(0,-120%,0);
+      transform:translate3d(0,-118%,0);
       transition:
-        transform 1.05s cubic-bezier(.23,.88,.30,1),
-        opacity 1.05s ease;
+        transform 0.95s cubic-bezier(.22,.84,.26,1),
+        opacity 0.95s ease;
       will-change:transform, opacity;
       backface-visibility:hidden;
       -webkit-backface-visibility:hidden;
@@ -136,12 +234,12 @@
 
     .ticker-item.next {
       opacity:0;
-      transform:translate3d(0,-120%,0);
+      transform:translate3d(0,-118%,0);
     }
 
     .ticker-item.out-down {
       opacity:0;
-      transform:translate3d(0,120%,0);
+      transform:translate3d(0,118%,0);
     }
 
     .ticker-item.in-down {
@@ -149,32 +247,86 @@
       transform:translate3d(0,0,0);
     }
 
+    .ticker-item.no-anim {
+      transition:none !important;
+    }
+
     /* ── TABLE PANEL ── */
     .table-panel {
-      flex:1 1 auto; min-height:0;
-      background:var(--panel); border:1px solid rgba(255,255,255,0.82);
-      border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(12px);
-      padding:4px; overflow:hidden; position:relative;
+      flex:1 1 auto;
+      min-height:0;
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,0.82);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(12px);
+      padding:4px;
+      overflow:hidden;
+      position:relative;
     }
-    .view-container { width:100%; height:100%; position:relative; overflow:hidden; border-radius:12px; }
 
-    .view-pane { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; transition:opacity 0.6s ease; overflow:hidden; }
-    .view-pane.active { opacity:1; z-index:1; }
-    .view-pane.inactive { opacity:0; z-index:0; pointer-events:none; }
+    .view-container {
+      width:100%;
+      height:100%;
+      position:relative;
+      overflow:hidden;
+      border-radius:12px;
+    }
 
-    .scale-host { position:absolute; top:0; left:0; width:100%; height:100%; transform-origin:top left; }
+    .view-pane {
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      opacity:0;
+      transition:opacity 0.6s ease;
+      overflow:hidden;
+    }
+
+    .view-pane.active {
+      opacity:1;
+      z-index:1;
+    }
+
+    .view-pane.inactive {
+      opacity:0;
+      z-index:0;
+      pointer-events:none;
+    }
+
+    .scale-host {
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      transform-origin:top left;
+      overflow:hidden;
+    }
 
     /* ── SCHEDULE TABLE ── */
     table.schedule {
-      width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed;
-      background:rgba(255,255,255,0.88); border-radius:12px; overflow:hidden;
-    }
-    table.schedule th, table.schedule td {
-      border-right:1px solid var(--grid); border-bottom:1px solid var(--grid);
-      text-align:center; vertical-align:middle;
+      width:100%;
+      height:auto;
+      border-collapse:separate;
+      border-spacing:0;
+      table-layout:fixed;
+      background:rgba(255,255,255,0.88);
+      border-radius:12px;
       overflow:hidden;
-      padding:0 3px;
     }
+
+    table.schedule th,
+    table.schedule td {
+      border-right:1px solid var(--grid);
+      border-bottom:1px solid var(--grid);
+      text-align:center;
+      vertical-align:middle;
+      overflow:hidden;
+      padding:0 2px;
+    }
+
     table.schedule tr > *:first-child { border-left:1px solid var(--grid); }
     table.schedule thead tr:first-child > * { border-top:1px solid var(--grid); }
     table.schedule thead tr:first-child th:first-child { border-top-left-radius:12px; }
@@ -183,11 +335,13 @@
     table.schedule tbody tr:last-child td:last-child   { border-bottom-right-radius:12px; }
 
     table.schedule thead th {
-      font-weight:800; color:#fff;
+      font-weight:800;
+      color:#fff;
       background:linear-gradient(180deg,#7679CC 0%,#5558A8 100%);
       box-shadow:inset 0 1px 0 rgba(255,255,255,0.3);
       white-space:nowrap;
     }
+
     table.schedule thead th.rh-f6  { background:var(--rh-f6-bg);  color:var(--rh-f6-t); }
     table.schedule thead th.rh-f4  { background:var(--rh-f4-bg);  color:var(--rh-f4-t); }
     table.schedule thead th.rh-def { background:var(--rh-def-bg); color:var(--rh-def-t); }
@@ -200,51 +354,187 @@
     td.special-cell  { background:#EEF6E8; color:#3A6020; font-weight:800; }
 
     td.course-cell {
-      font-weight:700; padding:2px 3px; line-height:1.22;
+      font-weight:700;
+      padding:1px 2px;
+      line-height:1.15;
       max-width:0;
     }
 
-    .c-code { font-weight:700; opacity:0.72; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .c-name { font-weight:800; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.2; }
-    .c-meta { opacity:0.84; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; margin-top:2px; }
+    .c-code {
+      font-weight:700;
+      opacity:0.72;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
 
-    tr.current-row td { border-top:2px solid var(--gold) !important; border-bottom:2px solid var(--gold) !important; }
-    td.time-cell.current-time { background:var(--gold-soft); color:#6B5010; font-weight:800; }
-    td.course-cell.current-course { box-shadow:inset 0 0 0 2px var(--gold); position:relative; z-index:1; }
+    .c-name {
+      font-weight:800;
+      overflow:hidden;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      line-height:1.12;
+    }
+
+    .c-meta {
+      opacity:0.84;
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+      margin-top:1px;
+    }
+
+    tr.current-row td {
+      border-top:2px solid var(--gold) !important;
+      border-bottom:2px solid var(--gold) !important;
+    }
+
+    td.time-cell.current-time {
+      background:var(--gold-soft);
+      color:#6B5010;
+      font-weight:800;
+    }
+
+    td.course-cell.current-course {
+      box-shadow:inset 0 0 0 2px var(--gold);
+      position:relative;
+      z-index:1;
+    }
+
     .live-badge {
-      display:block; width:fit-content; margin:0 auto 1px;
-      padding:0 5px; border-radius:999px;
-      background:linear-gradient(135deg,#FBF3D9,#F4E3A8); color:#6B5010;
-      font-weight:800; letter-spacing:0.2px; white-space:nowrap; overflow:hidden;
+      display:block;
+      width:fit-content;
+      margin:0 auto 1px;
+      padding:0 5px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#FBF3D9,#F4E3A8);
+      color:#6B5010;
+      font-weight:800;
+      letter-spacing:0.2px;
+      white-space:nowrap;
+      overflow:hidden;
     }
 
     /* ── LIVE VIEW ── */
-    .live-view { width:100%; height:100%; display:flex; flex-direction:column; gap:8px; padding:12px 16px; overflow:auto; }
-    .live-header { display:flex; align-items:center; gap:10px; padding-bottom:8px; border-bottom:2px solid var(--grid); flex-shrink:0; }
-    .live-dot { width:12px; height:12px; border-radius:50%; background:#E53935; animation:pulse-dot 1.5s infinite; flex-shrink:0; }
-    @keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(229,57,53,0.4)} 50%{box-shadow:0 0 0 8px rgba(229,57,53,0)} }
+    .live-view {
+      width:100%;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding:12px 16px;
+      overflow:auto;
+    }
+
+    .live-header {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding-bottom:8px;
+      border-bottom:2px solid var(--grid);
+      flex-shrink:0;
+    }
+
+    .live-dot {
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      background:#E53935;
+      animation:pulse-dot 1.5s infinite;
+      flex-shrink:0;
+    }
+
+    @keyframes pulse-dot {
+      0%,100% { box-shadow:0 0 0 0 rgba(229,57,53,0.4) }
+      50% { box-shadow:0 0 0 8px rgba(229,57,53,0) }
+    }
+
     .live-header-title { font-size:16px; font-weight:800; color:var(--navy-dark); }
     .live-header-sub { font-size:12px; color:var(--muted); font-weight:600; }
-    .live-cards { display:flex; flex-wrap:wrap; gap:10px; flex:1; align-content:flex-start; }
-    .live-card {
-      flex:1 1 240px; max-width:300px;
-      background:rgba(255,255,255,0.92); border:1px solid var(--grid);
-      border-radius:14px; box-shadow:0 4px 16px rgba(60,64,180,0.10);
-      padding:11px 13px; display:flex; flex-direction:column; gap:4px;
-      position:relative; overflow:hidden;
+
+    .live-cards {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      flex:1;
+      align-content:flex-start;
     }
-    .live-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:linear-gradient(180deg,var(--navy),var(--accent)); border-radius:14px 0 0 14px; }
-    .live-card-room { font-size:10px; font-weight:800; letter-spacing:0.4px; color:var(--accent); text-transform:uppercase; }
+
+    .live-card {
+      flex:1 1 240px;
+      max-width:300px;
+      background:rgba(255,255,255,0.92);
+      border:1px solid var(--grid);
+      border-radius:14px;
+      box-shadow:0 4px 16px rgba(60,64,180,0.10);
+      padding:11px 13px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .live-card::before {
+      content:'';
+      position:absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      width:4px;
+      background:linear-gradient(180deg,var(--navy),var(--accent));
+      border-radius:14px 0 0 14px;
+    }
+
+    .live-card-room {
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:0.4px;
+      color:var(--accent);
+      text-transform:uppercase;
+    }
+
     .live-card-code { font-size:11px; font-weight:700; color:var(--muted); }
     .live-card-name { font-size:14px; font-weight:800; color:var(--navy-dark); line-height:1.2; }
     .live-card-meta { font-size:11px; color:var(--muted); font-weight:600; }
-    .live-card-time { margin-top:4px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; color:var(--gold); background:var(--gold-soft); padding:3px 8px; border-radius:999px; width:fit-content; }
-    .live-empty { flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; color:var(--muted); }
+
+    .live-card-time {
+      margin-top:4px;
+      font-family:'JetBrains Mono',monospace;
+      font-size:12px;
+      font-weight:700;
+      color:var(--gold);
+      background:var(--gold-soft);
+      padding:3px 8px;
+      border-radius:999px;
+      width:fit-content;
+    }
+
+    .live-empty {
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:8px;
+      color:var(--muted);
+    }
+
     .live-empty-icon { font-size:40px; opacity:0.4; }
     .live-empty-text { font-size:16px; font-weight:700; }
     .live-empty-sub { font-size:12px; }
 
-    .error-box { margin:10px; padding:14px; border-radius:10px; background:#FFF0F0; border:1px solid #EFAAAA; color:#7B1D3D; font-size:13px; line-height:1.5; }
+    .error-box {
+      margin:10px;
+      padding:14px;
+      border-radius:10px;
+      background:#FFF0F0;
+      border:1px solid #EFAAAA;
+      color:#7B1D1D;
+      font-size:13px;
+      line-height:1.5;
+    }
   </style>
 </head>
 <body>
@@ -288,6 +578,7 @@
   </section>
 
 </div>
+
 <script>
 const CONFIG = {
   csvUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
@@ -296,11 +587,11 @@ const CONFIG = {
   roomHeaderClasses:{F6:'rh-f6',F4:'rh-f4'},
   modeSwitchMs:25*1000,
   tickerFallback:'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
-  tickerFlipMs:6500,
-  tickerAnimMs:1100,
+  tickerFlipMs:6200,
+  tickerAnimMs:980
 };
 
-const state={
+const state = {
   data:null,
   selectedDay:'Senin',
   csvHash:'',
@@ -314,7 +605,7 @@ const state={
   tickerAnimating:false
 };
 
-const el={
+const el = {
   statusBar:document.getElementById('statusBar'),
   clockTime:document.getElementById('clockTime'),
   clockDate:document.getElementById('clockDate'),
@@ -327,88 +618,193 @@ const el={
   liveView:document.getElementById('liveView'),
   modeBadge:document.getElementById('modeBadge'),
   modeProgress:document.getElementById('modeProgress'),
-  viewContainer:document.getElementById('viewContainer'),
+  viewContainer:document.getElementById('viewContainer')
 };
 
 // ── UTILS ──
 const n=v=>String(v??'').trim();
 const nk=v=>n(v).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g,'').toUpperCase();
-const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-const isYes=v=>{const x=n(v).toLowerCase();return x===''||['ya','y','true','1','aktif'].includes(x);};
+const esc=v=>String(v??'')
+  .replace(/&/g,'&amp;')
+  .replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;')
+  .replace(/'/g,'&#039;');
+
+const isYes=v=>{
+  const x=n(v).toLowerCase();
+  return x==='' || ['ya','y','true','1','aktif'].includes(x);
+};
 
 function getCanonicalKey(k){
-  const m={JENISDATA:'JENIS_DATA',AKTIF:'AKTIF',HARI:'HARI',SESI:'SESI',IDSLOT:'ID_SLOT',IDSLOTMULAI:'ID_SLOT_MULAI',IDSLOTSELESAI:'ID_SLOT_SELESAI',LABELWAKTU:'LABEL_WAKTU',TIPEBARIS:'TIPE_BARIS',URUTANSLOT:'URUTAN_SLOT',KODERUANG:'KODE_RUANG',NAMATAMPILRUANG:'NAMA_TAMPIL_RUANG',URUTANKOLOMRUANG:'URUTAN_KOLOM_RUANG',GRUPWARNARUANG:'GRUP_WARNA_RUANG',KODEMK:'KODE_MK',NAMAMK:'NAMA_MK',KELAS:'KELAS',DOSEN:'DOSEN',PROGRAMANGKATAN:'PROGRAM_ANGKATAN',CATATAN:'CATATAN',KETERANGAN:'CATATAN',WARNABG:'WARNA_BG',WARNATEXT:'WARNA_TEXT',TANGGALINFO:'TANGGAL_INFO',JENISINFO:'JENIS_INFO',KETERANGANINFO:'KETERANGAN_INFO'};
-  return m[nk(k)]||k;
+  const m = {
+    JENISDATA:'JENIS_DATA',
+    AKTIF:'AKTIF',
+    HARI:'HARI',
+    SESI:'SESI',
+    IDSLOT:'ID_SLOT',
+    IDSLOTMULAI:'ID_SLOT_MULAI',
+    IDSLOTSELESAI:'ID_SLOT_SELESAI',
+    LABELWAKTU:'LABEL_WAKTU',
+    TIPEBARIS:'TIPE_BARIS',
+    URUTANSLOT:'URUTAN_SLOT',
+    KODERUANG:'KODE_RUANG',
+    NAMATAMPILRUANG:'NAMA_TAMPIL_RUANG',
+    URUTANKOLOMRUANG:'URUTAN_KOLOM_RUANG',
+    GRUPWARNARUANG:'GRUP_WARNA_RUANG',
+    KODEMK:'KODE_MK',
+    NAMAMK:'NAMA_MK',
+    KELAS:'KELAS',
+    DOSEN:'DOSEN',
+    PROGRAMANGKATAN:'PROGRAM_ANGKATAN',
+    CATATAN:'CATATAN',
+    KETERANGAN:'CATATAN',
+    WARNABG:'WARNA_BG',
+    WARNATEXT:'WARNA_TEXT',
+    TANGGALINFO:'TANGGAL_INFO',
+    JENISINFO:'JENIS_INFO',
+    KETERANGANINFO:'KETERANGAN_INFO'
+  };
+  return m[nk(k)] || k;
 }
 
 function parseTimeLabelToMinutes(label){
   const c=n(label).replace(/–/g,'-');
   const pts=c.split('-').map(x=>n(x));
-  if(pts.length<2)return null;
-  const p=s=>{const m=s.match(/(\d{1,2})[.:](\d{2})/);return m?+m[1]*60+ +m[2]:null;};
-  const s=p(pts[0]),e=p(pts[1]);
-  return(s!==null&&e!==null)?{start:s,end:e}:null;
+  if(pts.length<2) return null;
+  const p=s=>{
+    const m=s.match(/(\d{1,2})[.:](\d{2})/);
+    return m ? (+m[1]*60 + +m[2]) : null;
+  };
+  const s=p(pts[0]), e=p(pts[1]);
+  return (s!==null && e!==null) ? {start:s,end:e} : null;
 }
-const nowMinutes=()=>{const d=new Date();return d.getHours()*60+d.getMinutes();};
+
+const nowMinutes=()=>{
+  const d=new Date();
+  return d.getHours()*60+d.getMinutes();
+};
+
 const currentDayName=()=>['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date().getDay()];
 
 // ── DATA MODEL ──
 function buildObjectsFromCsv(csvText){
-  const rows=Papa.parse(csvText,{delimiter:',',quoteChar:'"',escapeChar:'"',skipEmptyLines:false}).data||[];
+  const rows=Papa.parse(csvText,{
+    delimiter:',',
+    quoteChar:'"',
+    escapeChar:'"',
+    skipEmptyLines:false
+  }).data || [];
+
   const hi=rows.findIndex(r=>nk(r?.[0])==='JENISDATA');
-  if(hi===-1)throw new Error('Header JENIS_DATA tidak ditemukan.');
+  if(hi===-1) throw new Error('Header JENIS_DATA tidak ditemukan.');
+
   const headers=rows[hi].map(getCanonicalKey);
-  return rows.slice(hi+1).filter(r=>r.some(c=>n(c)!=='')).map(r=>{const o={};headers.forEach((h,i)=>{if(h)o[h]=r[i]??''});return o;});
+
+  return rows.slice(hi+1)
+    .filter(r=>r.some(c=>n(c)!==''))
+    .map(r=>{
+      const o={};
+      headers.forEach((h,i)=>{ if(h) o[h]=r[i]??''; });
+      return o;
+    });
 }
+
 function buildDataModel(csvText){
   const rows=buildObjectsFromCsv(csvText);
-  const rooms=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='RUANG'&&isYes(r.AKTIF)).sort((a,b)=>+a.URUTAN_KOLOM_RUANG - +b.URUTAN_KOLOM_RUANG);
-  const slots=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='SLOT'&&isYes(r.AKTIF)).sort((a,b)=>(+a.URUTAN_SLOT||+a.ID_SLOT||0)-(+b.URUTAN_SLOT||+b.ID_SLOT||0));
-  const schedules=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='JADWAL'&&isYes(r.AKTIF));
-  const infos=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='INFO'&&isYes(r.AKTIF));
+
+  const rooms=rows
+    .filter(r=>n(r.JENIS_DATA).toUpperCase()==='RUANG' && isYes(r.AKTIF))
+    .sort((a,b)=>(+a.URUTAN_KOLOM_RUANG||0)-(+b.URUTAN_KOLOM_RUANG||0));
+
+  const slots=rows
+    .filter(r=>n(r.JENIS_DATA).toUpperCase()==='SLOT' && isYes(r.AKTIF))
+    .sort((a,b)=>(+a.URUTAN_SLOT||+a.ID_SLOT||0)-(+b.URUTAN_SLOT||+b.ID_SLOT||0));
+
+  const schedules=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='JADWAL' && isYes(r.AKTIF));
+  const infos=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='INFO' && isYes(r.AKTIF));
+
   const daysSet=new Set();
-  slots.forEach(r=>{if(n(r.HARI))daysSet.add(n(r.HARI))});
-  schedules.forEach(r=>{if(n(r.HARI))daysSet.add(n(r.HARI))});
+  slots.forEach(r=>{ if(n(r.HARI)) daysSet.add(n(r.HARI)); });
+  schedules.forEach(r=>{ if(n(r.HARI)) daysSet.add(n(r.HARI)); });
+
   const ordered=CONFIG.fallbackDays.filter(d=>daysSet.has(d));
   const extra=[...daysSet].filter(d=>!ordered.includes(d));
-  return{rooms,slots,schedules,infos,days:[...ordered,...extra],hasGlobalSlots:slots.some(r=>!n(r.HARI))};
+
+  return {
+    rooms,
+    slots,
+    schedules,
+    infos,
+    days:[...ordered,...extra],
+    hasGlobalSlots:slots.some(r=>!n(r.HARI))
+  };
 }
+
 function getSlotsForDay(day){
   const dl=n(day).toLowerCase();
   const sp=state.data.slots.filter(r=>n(r.HARI).toLowerCase()===dl);
-  if(sp.length)return sp;
+  if(sp.length) return sp;
   const gl=state.data.slots.filter(r=>!n(r.HARI));
-  return gl.length?gl:state.data.slots;
+  return gl.length ? gl : state.data.slots;
 }
+
 function getScheduleItem(day,roomCode,slotId){
-  const dl=n(day).toLowerCase(),rc=n(roomCode),sid=+slotId;
-  return state.data.schedules.find(item=>n(item.HARI).toLowerCase()===dl&&n(item.KODE_RUANG)===rc&&sid>=+item.ID_SLOT_MULAI&&sid<=(+(item.ID_SLOT_SELESAI||item.ID_SLOT_MULAI)))||null;
+  const dl=n(day).toLowerCase();
+  const rc=n(roomCode);
+  const sid=+slotId;
+  return state.data.schedules.find(item =>
+    n(item.HARI).toLowerCase()===dl &&
+    n(item.KODE_RUANG)===rc &&
+    sid>=+item.ID_SLOT_MULAI &&
+    sid<=(+(item.ID_SLOT_SELESAI||item.ID_SLOT_MULAI))
+  ) || null;
 }
+
 function getCurrentActiveSlotId(day){
-  if(!state.data||n(day)!==currentDayName())return null;
+  if(!state.data || n(day)!==currentDayName()) return null;
   const cur=nowMinutes();
   for(const slot of getSlotsForDay(day)){
-    if(n(slot.TIPE_BARIS).toUpperCase()!=='KULIAH')continue;
+    if(n(slot.TIPE_BARIS).toUpperCase()!=='KULIAH') continue;
     const p=parseTimeLabelToMinutes(slot.LABEL_WAKTU);
-    if(p&&cur>=p.start&&cur<p.end)return +slot.ID_SLOT;
+    if(p && cur>=p.start && cur<p.end) return +slot.ID_SLOT;
   }
   return null;
 }
-function getCurrentAcademicDay(days){const c=currentDayName();return days.includes(c)?c:days[0]||'Senin';}
+
+function getCurrentAcademicDay(days){
+  const c=currentDayName();
+  return days.includes(c) ? c : (days[0] || 'Senin');
+}
 
 function mkColor(kodeMk){
   const code=n(kodeMk).toUpperCase().replace(/\s+/g,'');
   const m=code.match(/^([A-Z]+)(\d)/);
-  const key=m?`${m[1]}${m[2]}xx`:'DEFAULT';
-  const map={'TI1xx':{bg:'#EEF4FA',t:'#1A3050'},'TI2xx':{bg:'#EDF7F1',t:'#0E3020'},'TI3xx':{bg:'#FFF9EC',t:'#3A2800'},'TI4xx':{bg:'#FAF0E8',t:'#3A1808'},'TI5xx':{bg:'#F2EEF9',t:'#1E103A'},'TI6xx':{bg:'#EEF6F1',t:'#0C3220'},'TI7xx':{bg:'#EEF5F6',t:'#0C2A30'},'TI8xx':{bg:'#FAEFF0',t:'#3A0C10'},'TIDA0xx':{bg:'#F0F4E8',t:'#203010'},'DEFAULT':{bg:'#F3F4FA',t:'#1A1D3A'}};
-  return map[key]||map.DEFAULT;
+  const key=m ? `${m[1]}${m[2]}xx` : 'DEFAULT';
+  const map = {
+    'TI1xx':{bg:'#EEF4FA',t:'#1A3050'},
+    'TI2xx':{bg:'#EDF7F1',t:'#0E3020'},
+    'TI3xx':{bg:'#FFF9EC',t:'#3A2800'},
+    'TI4xx':{bg:'#FAF0E8',t:'#3A1808'},
+    'TI5xx':{bg:'#F2EEF9',t:'#1E103A'},
+    'TI6xx':{bg:'#EEF6F1',t:'#0C3220'},
+    'TI7xx':{bg:'#EEF5F6',t:'#0C2A30'},
+    'TI8xx':{bg:'#FAEFF0',t:'#3A0C10'},
+    'TIDA0xx':{bg:'#F0F4E8',t:'#203010'},
+    'DEFAULT':{bg:'#F3F4FA',t:'#1A1D3A'}
+  };
+  return map[key] || map.DEFAULT;
 }
-function roomHClass(room){const g=n(room.GRUP_WARNA_RUANG).toUpperCase();return CONFIG.roomHeaderClasses[g]||'rh-def';}
+
+function roomHClass(room){
+  const g=n(room.GRUP_WARNA_RUANG).toUpperCase();
+  return CONFIG.roomHeaderClasses[g] || 'rh-def';
+}
 
 // ── SCALE TO FIT ──
 function applyScale(){
   const host=el.scaleHost;
-  if(!host)return;
+  if(!host) return;
   host.style.transform='none';
   host.style.width='100%';
   host.style.height='100%';
@@ -417,66 +813,105 @@ function applyScale(){
 
 // ── RENDER FULL TABLE ──
 function renderFullTable(day){
-  if(!state.data){el.tableSlot.innerHTML='<div class="error-box">Data belum tersedia.</div>';return;}
+  if(!state.data){
+    el.tableSlot.innerHTML='<div class="error-box">Data belum tersedia.</div>';
+    return;
+  }
+
   const slots=getSlotsForDay(day);
   const rooms=state.data.rooms;
   const activeSlotId=getCurrentActiveSlotId(day);
-  if(!rooms.length){el.tableSlot.innerHTML='<div class="error-box">Data RUANG tidak ditemukan.</div>';return;}
-  if(!slots.length){el.tableSlot.innerHTML='<div class="error-box">Data SLOT tidak ditemukan.</div>';return;}
+
+  if(!rooms.length){
+    el.tableSlot.innerHTML='<div class="error-box">Data RUANG tidak ditemukan.</div>';
+    return;
+  }
+
+  if(!slots.length){
+    el.tableSlot.innerHTML='<div class="error-box">Data SLOT tidak ditemukan.</div>';
+    return;
+  }
 
   const kuliahRows=slots.filter(s=>n(s.TIPE_BARIS).toUpperCase()==='KULIAH').length;
   const specialRows=slots.length-kuliahRows;
   const roomCols=rooms.length;
 
-  const containerH=Math.max(320, el.viewContainer.clientHeight - 8);
-  const containerW=Math.max(900, el.viewContainer.clientWidth - 8);
-  const totalUnits=kuliahRows + (specialRows * 0.52);
-  const thH=Math.max(34, Math.min(46, Math.floor(containerH * 0.062)));
-  const usableH=Math.max(160, containerH - thH - 8);
-  const rowH=Math.max(24, Math.min(42, Math.floor(usableH / Math.max(totalUnits,1))));
-  const specH=Math.max(16, Math.min(24, Math.floor(rowH * 0.52)));
+  const containerH=Math.max(280, el.viewFull.clientHeight - 4);
+  const containerW=Math.max(860, el.viewFull.clientWidth - 4);
+
+  let thH=Math.max(28, Math.min(40, Math.floor(containerH*0.052)));
+
+  const totalUnits=Math.max(1, kuliahRows + (specialRows*0.48));
+  let rowH=Math.floor((containerH - thH - 6) / totalUnits);
+  rowH=Math.max(18, Math.min(34, rowH));
+
+  let specH=Math.max(12, Math.floor(rowH*0.48));
+
+  let totalH=thH + (kuliahRows*rowH) + (specialRows*specH) + 6;
+  if(totalH > containerH){
+    const shrink=Math.ceil((totalH-containerH)/Math.max(kuliahRows + specialRows,1));
+    rowH=Math.max(16, rowH-shrink);
+    specH=Math.max(11, Math.floor(rowH*0.46));
+    thH=Math.max(26, Math.min(thH, 34));
+  }
+
+  totalH=thH + (kuliahRows*rowH) + (specialRows*specH) + 6;
+  if(totalH > containerH){
+    rowH=Math.max(15, rowH-1);
+    specH=Math.max(10, Math.floor(rowH*0.45));
+  }
 
   const roomWidth=containerW / Math.max(roomCols + 2, 3);
-  const fHeader=Math.max(10, Math.min(15, Math.floor(Math.min(roomWidth * 0.18, rowH * 0.46))));
-  const fBase  =Math.max(9, Math.min(13, Math.floor(Math.min(roomWidth * 0.16, rowH * 0.34))));
-  const fCode  =Math.max(8, Math.min(11, Math.floor(fBase * 0.90)));
-  const fMeta  =Math.max(7, Math.min(9.5, Math.floor((fBase * 0.82) * 10) / 10));
-  const fBadge =Math.max(7, Math.min(10, Math.floor((fBase * 0.76) * 10) / 10));
+
+  const fHeader=Math.max(9, Math.min(14, Math.floor(Math.min(roomWidth*0.17, rowH*0.46))));
+  const fBase  =Math.max(8, Math.min(12, Math.floor(Math.min(roomWidth*0.15, rowH*0.34))));
+  const fCode  =Math.max(7, Math.min(10, Math.floor(fBase*0.88)));
+  const fMeta  =Math.max(6.5, Math.min(8.5, Math.floor((fBase*0.78)*10)/10));
+  const fBadge =Math.max(6.5, Math.min(9, Math.floor((fBase*0.74)*10)/10));
 
   const sessionCount=new Map();
   const renderedSession=new Set();
-  slots.forEach(s=>{if(n(s.TIPE_BARIS).toUpperCase()==='KULIAH'){const k=n(s.SESI)||'-';sessionCount.set(k,(sessionCount.get(k)||0)+1);}});
+  slots.forEach(s=>{
+    if(n(s.TIPE_BARIS).toUpperCase()==='KULIAH'){
+      const k=n(s.SESI)||'-';
+      sessionCount.set(k,(sessionCount.get(k)||0)+1);
+    }
+  });
 
-  const sesiW=Math.max(40,Math.min(58,Math.floor(containerW*0.042)));
-  const jamW =Math.max(74,Math.min(98,Math.floor(containerW*0.072)));
+  const sesiW=Math.max(34,Math.min(52,Math.floor(containerW*0.038)));
+  const jamW=Math.max(68,Math.min(92,Math.floor(containerW*0.068)));
 
   let html=`<table class="schedule" id="schedTable" style="font-size:${fBase}px;">
-  <colgroup>
-    <col style="width:${sesiW}px">
-    <col style="width:${jamW}px">
-    ${rooms.map(()=>'<col>').join('')}
-  </colgroup>
-  <thead>
-    <tr style="height:${thH}px;">
-      <th style="font-size:${fHeader}px;">SESI</th>
-      <th style="font-size:${fHeader}px;">JAM</th>
-      ${rooms.map(r=>`<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}
-    </tr>
-  </thead>
-  <tbody>`;
+    <colgroup>
+      <col style="width:${sesiW}px">
+      <col style="width:${jamW}px">
+      ${rooms.map(()=>'<col>').join('')}
+    </colgroup>
+    <thead>
+      <tr style="height:${thH}px;">
+        <th style="font-size:${fHeader}px;">SESI</th>
+        <th style="font-size:${fHeader}px;">JAM</th>
+        ${rooms.map(r=>`<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>`;
 
   for(const slot of slots){
     const type=n(slot.TIPE_BARIS).toUpperCase();
     const sid=+slot.ID_SLOT;
-    const isCur=type==='KULIAH'&&activeSlotId===sid;
+    const isCur=type==='KULIAH' && activeSlotId===sid;
+
     html+=`<tr class="${isCur?'current-row':''}">`;
+
     if(type==='KULIAH'){
       const sesi=n(slot.SESI)||'-';
       if(!renderedSession.has(sesi)){
         html+=`<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}" style="height:${rowH}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
         renderedSession.add(sesi);
       }
-      html+=`<td class="time-cell${isCur?' current-time':''}" style="height:${rowH}px;font-size:${fBase*0.9}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+
+      html+=`<td class="time-cell${isCur?' current-time':''}" style="height:${rowH}px;font-size:${Math.max(7.5,fBase*0.9)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+
       for(const room of rooms){
         const item=getScheduleItem(day,room.KODE_RUANG,sid);
         if(item){
@@ -488,17 +923,19 @@ function renderFullTable(day){
             ${item.DOSEN?`<div class="c-meta" style="font-size:${fMeta}px;">👤 ${esc(item.DOSEN)}</div>`:''}
             ${item.PROGRAM_ANGKATAN?`<div class="c-meta" style="font-size:${fMeta}px;">${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
           </td>`;
-        }else{
+        } else {
           html+=`<td class="empty-cell${isCur?' current-course':''}" style="height:${rowH}px;"></td>`;
         }
       }
-    }else{
+    } else {
       html+=`<td class="session-empty" style="height:${specH}px;"></td>`;
       html+=`<td class="special-time" style="height:${specH}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
       html+=`<td class="special-cell" colspan="${rooms.length}" style="height:${specH}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
     }
+
     html+='</tr>';
   }
+
   html+=`</tbody></table>`;
   el.tableSlot.innerHTML=html;
 
@@ -508,20 +945,51 @@ function renderFullTable(day){
 // ── RENDER LIVE VIEW ──
 function renderLiveView(day){
   const activeSlotId=getCurrentActiveSlotId(day);
-  const slots=state.data?getSlotsForDay(day):[];
+  const slots=state.data ? getSlotsForDay(day) : [];
   const activeSlot=slots.find(s=>+s.ID_SLOT===activeSlotId);
-  const timeLabel=activeSlot?n(activeSlot.LABEL_WAKTU):'';
-  if(!activeSlotId||!state.data){
-    el.liveView.innerHTML=`<div class="live-header"><div class="live-dot" style="background:#94A3B8;animation:none;"></div><div><div class="live-header-title">Tidak Ada Perkuliahan Berlangsung</div><div class="live-header-sub">${esc(day)} — Silakan lihat jadwal lengkap</div></div></div><div class="live-empty"><div class="live-empty-icon">🎓</div><div class="live-empty-text">Belum ada sesi aktif saat ini</div><div class="live-empty-sub">Perkuliahan berikutnya akan ditampilkan saat sesi dimulai</div></div>`;
+  const timeLabel=activeSlot ? n(activeSlot.LABEL_WAKTU) : '';
+
+  if(!activeSlotId || !state.data){
+    el.liveView.innerHTML=`
+      <div class="live-header">
+        <div class="live-dot" style="background:#94A3B8;animation:none;"></div>
+        <div>
+          <div class="live-header-title">Tidak Ada Perkuliahan Berlangsung</div>
+          <div class="live-header-sub">${esc(day)} — Silakan lihat jadwal lengkap</div>
+        </div>
+      </div>
+      <div class="live-empty">
+        <div class="live-empty-icon">🎓</div>
+        <div class="live-empty-text">Belum ada sesi aktif saat ini</div>
+        <div class="live-empty-sub">Perkuliahan berikutnya akan ditampilkan saat sesi dimulai</div>
+      </div>`;
     return;
   }
+
   const rooms=state.data.rooms;
-  const liveItems=rooms.map(room=>{const item=getScheduleItem(day,room.KODE_RUANG,activeSlotId);return item?{room,item}:null;}).filter(Boolean);
-  let html=`<div class="live-header"><div class="live-dot"></div><div><div class="live-header-title">🔴 Perkuliahan Sedang Berlangsung</div><div class="live-header-sub">${esc(day)} — Sesi ${esc(activeSlot?.SESI||'')} &nbsp;|&nbsp; ${esc(timeLabel)}</div></div></div><div class="live-cards">`;
+  const liveItems=rooms
+    .map(room=>{
+      const item=getScheduleItem(day,room.KODE_RUANG,activeSlotId);
+      return item ? {room,item} : null;
+    })
+    .filter(Boolean);
+
+  let html=`<div class="live-header">
+      <div class="live-dot"></div>
+      <div>
+        <div class="live-header-title">🔴 Perkuliahan Sedang Berlangsung</div>
+        <div class="live-header-sub">${esc(day)} — Sesi ${esc(activeSlot?.SESI||'')} &nbsp;|&nbsp; ${esc(timeLabel)}</div>
+      </div>
+    </div>
+    <div class="live-cards">`;
+
   if(!liveItems.length){
-    html+=`<div class="live-empty"><div class="live-empty-icon">📭</div><div class="live-empty-text">Tidak ada mata kuliah di sesi ini</div></div>`;
-  }else{
-    for(const{room,item}of liveItems){
+    html+=`<div class="live-empty">
+      <div class="live-empty-icon">📭</div>
+      <div class="live-empty-text">Tidak ada mata kuliah di sesi ini</div>
+    </div>`;
+  } else {
+    for(const {room,item} of liveItems){
       const c=mkColor(item.KODE_MK||'');
       html+=`<div class="live-card" style="background:${c.bg};color:${c.t};">
         <div class="live-card-room">${esc(room.NAMA_TAMPIL_RUANG||room.KODE_RUANG)}</div>
@@ -533,19 +1001,41 @@ function renderLiveView(day){
       </div>`;
     }
   }
+
   html+=`</div>`;
   el.liveView.innerHTML=html;
 }
 
 // ── STATUS ──
 function updateStatus(){
-  if(!state.data){el.statusBar.textContent='Memuat data spreadsheet...';return;}
+  if(!state.data){
+    el.statusBar.textContent='Memuat data spreadsheet...';
+    return;
+  }
+
   const slots=getSlotsForDay(state.selectedDay);
   const jadCount=state.data.schedules.filter(r=>n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase()).length;
   const liveId=getCurrentActiveSlotId(state.selectedDay);
-  const liveItem=liveId?state.data.schedules.find(r=>n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase()&&liveId>=+r.ID_SLOT_MULAI&&liveId<=(+(r.ID_SLOT_SELESAI||r.ID_SLOT_MULAI))):null;
-  const liveText=liveItem?`<strong>▶ ${esc(liveItem.NAMA_MK||'Berlangsung')}</strong>`:'Belum ada perkuliahan berlangsung';
-  el.statusBar.innerHTML=[`Hari: <strong>${esc(state.selectedDay)}</strong>`,`Ruang: <strong>${state.data.rooms.length}</strong>`,`Slot: <strong>${slots.length}</strong>`,`Jadwal: <strong>${jadCount}</strong>`,liveText].map(x=>`<span class="status-item">${x}</span>`).join('');
+
+  const liveItem=liveId
+    ? state.data.schedules.find(r =>
+        n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase() &&
+        liveId>=+r.ID_SLOT_MULAI &&
+        liveId<=(+(r.ID_SLOT_SELESAI||r.ID_SLOT_MULAI))
+      )
+    : null;
+
+  const liveText=liveItem
+    ? `<strong>▶ ${esc(liveItem.NAMA_MK||'Berlangsung')}</strong>`
+    : 'Belum ada perkuliahan berlangsung';
+
+  el.statusBar.innerHTML=[
+    `Hari: <strong>${esc(state.selectedDay)}</strong>`,
+    `Ruang: <strong>${state.data.rooms.length}</strong>`,
+    `Slot: <strong>${slots.length}</strong>`,
+    `Jadwal: <strong>${jadCount}</strong>`,
+    liveText
+  ].map(x=>`<span class="status-item">${x}</span>`).join('');
 }
 
 // ── TICKER ──
@@ -556,85 +1046,120 @@ function stopTickerFlip(){
   }
 }
 
+function resetTickerWithoutAnimation(nextText){
+  el.tickerCurrent.className='ticker-item active no-anim';
+  el.tickerCurrent.textContent=nextText;
+
+  el.tickerNext.className='ticker-item next no-anim';
+  el.tickerNext.textContent='';
+
+  void el.tickerCurrent.offsetWidth;
+
+  requestAnimationFrame(()=>{
+    el.tickerCurrent.className='ticker-item active';
+    el.tickerNext.className='ticker-item next';
+  });
+}
+
 function renderTickerNow(textValue){
-  el.tickerCurrent.textContent = textValue || CONFIG.tickerFallback;
-  el.tickerCurrent.className = 'ticker-item active';
-  el.tickerNext.textContent = '';
-  el.tickerNext.className = 'ticker-item next';
+  const text=textValue || CONFIG.tickerFallback;
+  el.tickerCurrent.className='ticker-item active no-anim';
+  el.tickerCurrent.textContent=text;
+  el.tickerNext.className='ticker-item next no-anim';
+  el.tickerNext.textContent='';
+
+  void el.tickerCurrent.offsetWidth;
+
+  requestAnimationFrame(()=>{
+    el.tickerCurrent.className='ticker-item active';
+    el.tickerNext.className='ticker-item next';
+  });
 }
 
 function flipTicker(){
   if(state.tickerAnimating || state.tickerItems.length <= 1) return;
-  state.tickerAnimating = true;
+  state.tickerAnimating=true;
 
-  const nextIndex = (state.tickerIndex + 1) % state.tickerItems.length;
-  const nextText = state.tickerItems[nextIndex] || CONFIG.tickerFallback;
+  const nextIndex=(state.tickerIndex+1)%state.tickerItems.length;
+  const nextText=state.tickerItems[nextIndex] || CONFIG.tickerFallback;
 
-  el.tickerNext.textContent = nextText;
-  el.tickerNext.className = 'ticker-item next';
+  el.tickerNext.className='ticker-item next no-anim';
+  el.tickerNext.textContent=nextText;
+  void el.tickerNext.offsetWidth;
+  el.tickerNext.className='ticker-item next';
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      el.tickerCurrent.className = 'ticker-item active out-down';
-      el.tickerNext.className = 'ticker-item next in-down';
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      el.tickerCurrent.className='ticker-item active out-down';
+      el.tickerNext.className='ticker-item next in-down';
     });
   });
 
-  setTimeout(() => {
-    el.tickerCurrent.textContent = nextText;
-    el.tickerCurrent.className = 'ticker-item active';
-    el.tickerNext.textContent = '';
-    el.tickerNext.className = 'ticker-item next';
-    state.tickerIndex = nextIndex;
-    state.tickerAnimating = false;
+  setTimeout(()=>{
+    resetTickerWithoutAnimation(nextText);
+    state.tickerIndex=nextIndex;
+    state.tickerAnimating=false;
   }, CONFIG.tickerAnimMs);
 }
 
 function startTickerFlip(){
   stopTickerFlip();
-  if(state.tickerItems.length <= 1) return;
-  state.tickerTimer = setInterval(flipTicker, CONFIG.tickerFlipMs);
+  if(state.tickerItems.length<=1) return;
+  state.tickerTimer=setInterval(flipTicker, CONFIG.tickerFlipMs);
 }
 
 function updateTicker(){
   if(!state.data){
-    state.tickerItems = [CONFIG.tickerFallback];
-    state.tickerIndex = 0;
+    state.tickerItems=[CONFIG.tickerFallback];
+    state.tickerIndex=0;
     renderTickerNow(CONFIG.tickerFallback);
     stopTickerFlip();
     return;
   }
 
-  const items = state.data.infos
-    .map(r => [n(r.TANGGAL_INFO), n(r.JENIS_INFO), n(r.KETERANGAN_INFO)].filter(Boolean).join(' - '))
+  const items=state.data.infos
+    .map(r=>[n(r.TANGGAL_INFO), n(r.JENIS_INFO), n(r.KETERANGAN_INFO)].filter(Boolean).join(' - '))
     .filter(Boolean);
 
-  state.tickerItems = items.length ? items : [CONFIG.tickerFallback];
-  state.tickerIndex = 0;
+  state.tickerItems=items.length ? items : [CONFIG.tickerFallback];
+  state.tickerIndex=0;
   renderTickerNow(state.tickerItems[0]);
   startTickerFlip();
 }
 
 // ── MODE SWITCHING ──
 function switchToMode(mode){
-  state.currentMode=mode; state.modeRemainMs=CONFIG.modeSwitchMs;
+  state.currentMode=mode;
+  state.modeRemainMs=CONFIG.modeSwitchMs;
+
   if(mode==='full'){
-    el.viewFull.classList.add('active');el.viewFull.classList.remove('inactive');
-    el.viewLive.classList.remove('active');el.viewLive.classList.add('inactive');
-    el.modeBadge.textContent='📅 SEMUA SESI';el.modeBadge.className='mode-badge mode-full';
+    el.viewFull.classList.add('active');
+    el.viewFull.classList.remove('inactive');
+    el.viewLive.classList.remove('active');
+    el.viewLive.classList.add('inactive');
+    el.modeBadge.textContent='📅 SEMUA SESI';
+    el.modeBadge.className='mode-badge mode-full';
     renderFullTable(state.selectedDay);
-  }else{
-    el.viewLive.classList.add('active');el.viewLive.classList.remove('inactive');
-    el.viewFull.classList.remove('active');el.viewFull.classList.add('inactive');
-    el.modeBadge.textContent='🔴 BERLANGSUNG';el.modeBadge.className='mode-badge mode-live';
+  } else {
+    el.viewLive.classList.add('active');
+    el.viewLive.classList.remove('inactive');
+    el.viewFull.classList.remove('active');
+    el.viewFull.classList.add('inactive');
+    el.modeBadge.textContent='🔴 BERLANGSUNG';
+    el.modeBadge.className='mode-badge mode-live';
     renderLiveView(state.selectedDay);
   }
 }
+
 function startModeTimer(){
-  clearInterval(state.modeTimer);state.modeRemainMs=CONFIG.modeSwitchMs;
+  clearInterval(state.modeTimer);
+  state.modeRemainMs=CONFIG.modeSwitchMs;
+
   state.modeTimer=setInterval(()=>{
     state.modeRemainMs-=1000;
-    if(state.modeRemainMs<=0)switchToMode(state.currentMode==='full'?'live':'full');
+    if(state.modeRemainMs<=0){
+      switchToMode(state.currentMode==='full' ? 'live' : 'full');
+    }
     el.modeProgress.style.width=Math.max(0,(state.modeRemainMs/CONFIG.modeSwitchMs)*100)+'%';
   },1000);
 }
@@ -643,19 +1168,37 @@ function startModeTimer(){
 function startClock(){
   const tf=new Intl.DateTimeFormat('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   const df=new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
   const tick=()=>{
     const now=new Date();
     el.clockTime.textContent=tf.format(now);
     el.clockDate.textContent=df.format(now);
+
     if(state.data){
-      const autoDay=getCurrentAcademicDay(state.data.days.length?state.data.days:CONFIG.fallbackDays);
-      if(autoDay!==state.selectedDay){state.selectedDay=autoDay;updateStatus();renderFullTable(state.selectedDay);renderLiveView(state.selectedDay);return;}
+      const autoDay=getCurrentAcademicDay(state.data.days.length ? state.data.days : CONFIG.fallbackDays);
+
+      if(autoDay!==state.selectedDay){
+        state.selectedDay=autoDay;
+        updateStatus();
+        renderFullTable(state.selectedDay);
+        renderLiveView(state.selectedDay);
+        return;
+      }
+
       const activeId=getCurrentActiveSlotId(state.selectedDay);
       const lk=`${state.selectedDay}__${activeId||''}`;
-      if(lk!==state.liveSlotKey){state.liveSlotKey=lk;updateStatus();renderFullTable(state.selectedDay);renderLiveView(state.selectedDay);}
+
+      if(lk!==state.liveSlotKey){
+        state.liveSlotKey=lk;
+        updateStatus();
+        renderFullTable(state.selectedDay);
+        renderLiveView(state.selectedDay);
+      }
     }
   };
-  tick();setInterval(tick,1000);
+
+  tick();
+  setInterval(tick,1000);
 }
 
 // ── CSV ──
@@ -663,46 +1206,57 @@ async function hashText(t){
   const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));
   return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
+
 async function fetchCsv(){
   const r=await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`,{cache:'no-store'});
-  if(!r.ok)throw new Error('Gagal mengambil CSV');
+  if(!r.ok) throw new Error('Gagal mengambil CSV');
   return r.text();
 }
+
 async function applyCsv(csvText){
   state.data=buildDataModel(csvText);
   state.csvHash=await hashText(csvText);
-  const days=state.data.days.length?state.data.days:CONFIG.fallbackDays;
+
+  const days=state.data.days.length ? state.data.days : CONFIG.fallbackDays;
   state.selectedDay=getCurrentAcademicDay(days);
   state.liveSlotKey=`${state.selectedDay}__${getCurrentActiveSlotId(state.selectedDay)||''}`;
+
   updateTicker();
   updateStatus();
   renderFullTable(state.selectedDay);
   renderLiveView(state.selectedDay);
 }
+
 setInterval(async()=>{
   try{
     const c=await fetchCsv();
     const h=await hashText(c);
-    if(h!==state.csvHash)await applyCsv(c);
-  }catch(e){
+    if(h!==state.csvHash) await applyCsv(c);
+  } catch(e){
     console.warn(e);
   }
-},CONFIG.autoRefreshMs);
+}, CONFIG.autoRefreshMs);
 
-window.addEventListener('resize',()=>requestAnimationFrame(()=>{
-  if(!state.data)return;
-  if(state.currentMode==='full') renderFullTable(state.selectedDay);
-  else renderLiveView(state.selectedDay);
-}));
+window.addEventListener('resize',()=>{
+  requestAnimationFrame(()=>{
+    if(!state.data) return;
+    if(state.currentMode==='full') renderFullTable(state.selectedDay);
+    else renderLiveView(state.selectedDay);
+  });
+});
 
 // ── INIT ──
 startClock();
-fetchCsv().then(applyCsv).then(()=>{
-  switchToMode('full');
-  startModeTimer();
-}).catch(e=>{
-  el.tableSlot.innerHTML=`<div class="error-box">${esc(e.message)}<br><br>Pastikan Google Sheets sudah di-publish sebagai CSV publik.</div>`;
-});
+
+fetchCsv()
+  .then(applyCsv)
+  .then(()=>{
+    switchToMode('full');
+    startModeTimer();
+  })
+  .catch(e=>{
+    el.tableSlot.innerHTML=`<div class="error-box">${esc(e.message)}<br><br>Pastikan Google Sheets sudah di-publish sebagai CSV publik.</div>`;
+  });
 </script>
 </body>
 </html>
