@@ -3,120 +3,120 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jadwal Perkuliahan Mahasiswa - Layar Besar</title>
+  <title>Jadwal Perkuliahan Mahasiswa - Monitor Lobby</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
-    :root {
-      --navy:#3B3F8C;
-      --navy-dark:#1E2260;
-      --navy-mid:#5558A8;
-      --accent:#6C6FD4;
-      --gold:#D4A829;
-      --gold-soft:#FBF3D9;
-      --text:#1A1D3A;
-      --muted:#5C6180;
-      --grid:#D0D3EE;
-      --empty:#F5F6FC;
-      --panel:rgba(255,255,255,0.92);
+    :root{
+      --navy:#343a8f;
+      --navy-dark:#1c2360;
+      --navy-mid:#5960b8;
+      --accent:#7378e2;
+      --gold:#d4a829;
+      --gold-soft:#fbf3d9;
+      --text:#171b3d;
+      --muted:#5f6688;
+      --grid:#d5d8ef;
+      --empty:#f6f7fd;
+      --panel:rgba(255,255,255,.93);
       --radius:18px;
-      --shadow:0 12px 36px rgba(60,64,180,0.14);
-      --rh-f6-bg:#D4E8F6;
-      --rh-f6-t:#1A3566;
-      --rh-f4-bg:#C6ECDF;
-      --rh-f4-t:#0C3820;
-      --rh-def-bg:#DDDFF5;
-      --rh-def-t:#23266B;
+      --shadow:0 12px 34px rgba(60,64,180,.14);
+      --rh-f6-bg:#d4e8f6;
+      --rh-f6-t:#1a3566;
+      --rh-f4-bg:#c6ecdf;
+      --rh-f4-t:#0c3820;
+      --rh-def-bg:#dddff5;
+      --rh-def-t:#23266b;
       --ease-soft:cubic-bezier(.22,.82,.24,1);
       --ease-smooth:cubic-bezier(.23,.88,.30,1);
     }
 
-    * { box-sizing:border-box; margin:0; padding:0; }
+    *{box-sizing:border-box;margin:0;padding:0}
 
-    html, body {
+    html,body{
       width:100%;
       height:100%;
       overflow:hidden;
       font-family:'Plus Jakarta Sans',sans-serif;
       color:var(--text);
       background:
-        radial-gradient(ellipse at 12% 22%, rgba(108,111,212,0.12) 0%, transparent 42%),
-        radial-gradient(ellipse at 88% 78%, rgba(212,168,41,0.10) 0%, transparent 36%),
-        linear-gradient(150deg,#ECEFFE 0%,#F7F5FF 48%,#EEF6F2 100%);
+        radial-gradient(ellipse at 12% 22%, rgba(108,111,212,.12) 0%, transparent 42%),
+        radial-gradient(ellipse at 88% 78%, rgba(212,168,41,.10) 0%, transparent 36%),
+        linear-gradient(150deg,#eceffe 0%,#f7f5ff 48%,#eef6f2 100%);
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
       text-rendering:optimizeLegibility;
     }
 
-    .app {
+    .app{
       width:100%;
       height:100vh;
       display:flex;
       flex-direction:column;
-      gap:6px;
-      padding:8px;
+      gap:8px;
+      padding:10px;
       overflow:hidden;
     }
 
     /* HEADER */
-    .header {
+    .header{
       flex:0 0 auto;
-      min-height:72px;
+      min-height:82px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
-      padding:8px 18px;
+      gap:18px;
+      padding:10px 22px;
       background:var(--panel);
-      border:1px solid rgba(255,255,255,0.88);
+      border:1px solid rgba(255,255,255,.90);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       backdrop-filter:blur(14px);
     }
 
-    .header-left {
+    .header-left{
+      min-width:0;
       display:flex;
       flex-direction:column;
       gap:4px;
-      min-width:0;
     }
 
-    .semester-badge {
+    .semester-badge{
       display:inline-flex;
       align-items:center;
       width:fit-content;
-      padding:4px 12px;
+      padding:5px 13px;
       border-radius:999px;
-      background:linear-gradient(135deg,rgba(108,111,212,0.16),rgba(212,168,41,0.14));
+      background:linear-gradient(135deg,rgba(108,111,212,.16),rgba(212,168,41,.14));
       color:var(--navy-dark);
-      font-size:11px;
+      font-size:12px;
       font-weight:800;
-      letter-spacing:.4px;
+      letter-spacing:.45px;
     }
 
-    .header h1 {
-      font-size:clamp(18px,1.7vw,30px);
+    .header h1{
+      font-size:34px;
       line-height:1;
       color:var(--navy-dark);
       font-weight:800;
     }
 
-    .status-bar {
+    .status-bar{
       display:flex;
       flex-wrap:wrap;
-      gap:4px 16px;
+      gap:6px 18px;
     }
 
-    .status-item {
-      font-size:12px;
+    .status-item{
+      font-size:13px;
       color:var(--muted);
       font-weight:700;
       white-space:nowrap;
     }
 
-    .status-item strong { color:var(--navy-dark); }
+    .status-item strong{color:var(--navy-dark)}
 
-    .header-right {
+    .header-right{
       flex-shrink:0;
       display:flex;
       flex-direction:column;
@@ -124,27 +124,27 @@
       gap:4px;
     }
 
-    .clock-time {
+    .clock-time{
       font-family:'JetBrains Mono',monospace;
-      font-size:clamp(28px,2.3vw,44px);
+      font-size:48px;
       line-height:1;
       color:var(--navy-dark);
       font-weight:700;
       letter-spacing:1px;
     }
 
-    .clock-date {
-      font-size:clamp(11px,0.85vw,15px);
+    .clock-date{
+      font-size:16px;
       font-weight:700;
       color:var(--navy-mid);
     }
 
-    .mode-badge {
-      padding:4px 12px;
+    .mode-badge{
+      padding:5px 14px;
       border-radius:999px;
-      font-size:11px;
+      font-size:12px;
       font-weight:800;
-      letter-spacing:.4px;
+      letter-spacing:.45px;
       transition:
         transform .45s var(--ease-soft),
         box-shadow .45s var(--ease-soft),
@@ -152,131 +152,115 @@
       transform:translateZ(0);
     }
 
-    .mode-badge.mode-full {
+    .mode-badge.mode-full{
       background:linear-gradient(135deg,var(--navy),var(--accent));
       color:#fff;
-      box-shadow:0 6px 16px rgba(59,63,140,0.15);
+      box-shadow:0 6px 16px rgba(59,63,140,.15);
     }
 
-    .mode-badge.mode-live {
-      background:linear-gradient(135deg,#E53935,#EF6C00);
+    .mode-badge.mode-live{
+      background:linear-gradient(135deg,#e53935,#ef6c00);
       color:#fff;
-      box-shadow:0 8px 18px rgba(229,57,53,0.18);
-      animation:live-breathe 2.8s ease-in-out infinite;
+      box-shadow:0 8px 18px rgba(229,57,53,.18);
+      animation:live-breathe 3s ease-in-out infinite;
     }
 
-    @keyframes live-breathe {
-      0%,100% { transform:translateY(0) scale(1); }
-      50% { transform:translateY(-1px) scale(1.02); }
+    @keyframes live-breathe{
+      0%,100%{transform:translateY(0) scale(1)}
+      50%{transform:translateY(-1px) scale(1.02)}
     }
 
-    .mode-progress-bar {
-      min-width:140px;
+    .mode-progress-bar{
+      min-width:160px;
       height:4px;
       border-radius:999px;
-      background:rgba(60,64,180,0.12);
+      background:rgba(60,64,180,.12);
       overflow:hidden;
     }
 
-    .mode-progress-fill {
+    .mode-progress-fill{
       height:100%;
       background:linear-gradient(90deg,var(--navy),var(--accent));
       transition:width 1s linear;
     }
 
     /* TICKER */
-    .ticker {
+    .ticker{
       flex:0 0 auto;
-      min-height:40px;
+      min-height:46px;
       display:flex;
       align-items:center;
-      padding:0 14px;
+      padding:0 16px;
       background:var(--panel);
-      border:1px solid rgba(255,255,255,0.84);
+      border:1px solid rgba(255,255,255,.86);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       backdrop-filter:blur(12px);
       overflow:hidden;
     }
 
-    .ticker-label {
+    .ticker-label{
       flex-shrink:0;
-      margin-right:14px;
-      padding:4px 11px;
+      margin-right:16px;
+      padding:5px 12px;
       border-radius:999px;
       background:linear-gradient(135deg,var(--navy),var(--accent));
       color:#fff;
-      font-size:11px;
+      font-size:12px;
       font-weight:800;
       letter-spacing:.35px;
     }
 
-    .ticker-viewport {
+    .ticker-viewport{
       flex:1;
-      height:24px;
+      height:26px;
       display:flex;
       align-items:center;
       overflow:hidden;
       position:relative;
     }
 
-    .ticker-flip-stack {
+    .ticker-flip-stack{
       position:relative;
       width:100%;
       height:100%;
       isolation:isolate;
     }
 
-    .ticker-item {
+    .ticker-item{
       position:absolute;
       inset:0;
       display:flex;
       align-items:center;
-      font-size:14px;
+      font-size:16px;
       font-weight:700;
-      color:#3A4070;
+      color:#3a4070;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
       opacity:0;
       transform:translate3d(0,-118%,0);
       transition:
-        transform 1.02s var(--ease-smooth),
-        opacity 1.02s ease;
+        transform 1.08s var(--ease-smooth),
+        opacity 1.08s ease;
       will-change:transform, opacity;
       backface-visibility:hidden;
       -webkit-backface-visibility:hidden;
     }
 
-    .ticker-item.active {
-      opacity:1;
-      transform:translate3d(0,0,0);
-    }
+    .ticker-item.active{opacity:1;transform:translate3d(0,0,0)}
+    .ticker-item.next{opacity:0;transform:translate3d(0,-118%,0)}
+    .ticker-item.out-down{opacity:0;transform:translate3d(0,118%,0)}
+    .ticker-item.in-down{opacity:1;transform:translate3d(0,0,0)}
+    .ticker-item.no-anim{transition:none!important}
 
-    .ticker-item.next {
-      opacity:0;
-      transform:translate3d(0,-118%,0);
-    }
-
-    .ticker-item.out-down {
-      opacity:0;
-      transform:translate3d(0,118%,0);
-    }
-
-    .ticker-item.in-down {
-      opacity:1;
-      transform:translate3d(0,0,0);
-    }
-
-    .ticker-item.no-anim { transition:none !important; }
-
-    /* PANEL */
-    .table-panel {
+    /* TABLE PANEL */
+    .table-panel{
       flex:1 1 auto;
       min-height:0;
-      padding:5px;
+      padding:6px;
       background:var(--panel);
-      border:1px solid rgba(255,255,255,0.86);
+      border:1px solid rgba(255,255,255,.88);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       backdrop-filter:blur(12px);
@@ -284,7 +268,7 @@
       position:relative;
     }
 
-    .view-container {
+    .view-container{
       width:100%;
       height:100%;
       position:relative;
@@ -292,32 +276,32 @@
       border-radius:14px;
     }
 
-    .view-pane {
+    .view-pane{
       position:absolute;
       inset:0;
       opacity:0;
       transform:translate3d(0,10px,0) scale(.995);
       transition:
-        opacity .58s var(--ease-soft),
-        transform .58s var(--ease-soft);
+        opacity .62s var(--ease-soft),
+        transform .62s var(--ease-soft);
       overflow:hidden;
       will-change:opacity, transform;
     }
 
-    .view-pane.active {
+    .view-pane.active{
       opacity:1;
       transform:translate3d(0,0,0) scale(1);
       z-index:1;
     }
 
-    .view-pane.inactive {
+    .view-pane.inactive{
       opacity:0;
       transform:translate3d(0,12px,0) scale(.992);
       z-index:0;
       pointer-events:none;
     }
 
-    .scale-host {
+    .scale-host{
       position:absolute;
       inset:0;
       width:100%;
@@ -326,83 +310,83 @@
       transform-origin:top left;
     }
 
-    #tableSlot {
+    #tableSlot{
       width:100%;
       height:100%;
       overflow:hidden;
     }
 
-    .table-inner {
+    .table-inner{
       width:100%;
       height:100%;
       overflow:hidden;
     }
 
     /* TABLE */
-    table.schedule {
+    table.schedule{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
       table-layout:fixed;
-      background:rgba(255,255,255,0.90);
+      background:rgba(255,255,255,.92);
       border-radius:14px;
       overflow:hidden;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
     }
 
     table.schedule th,
-    table.schedule td {
+    table.schedule td{
       border-right:1px solid var(--grid);
       border-bottom:1px solid var(--grid);
       text-align:center;
       vertical-align:middle;
       overflow:hidden;
-      padding:0 3px;
+      padding:0 4px;
       transition:
         background-color .35s ease,
         box-shadow .4s var(--ease-soft),
         transform .4s var(--ease-soft);
     }
 
-    table.schedule tr > *:first-child { border-left:1px solid var(--grid); }
-    table.schedule thead tr:first-child > * { border-top:1px solid var(--grid); }
+    table.schedule tr > *:first-child{border-left:1px solid var(--grid)}
+    table.schedule thead tr:first-child > *{border-top:1px solid var(--grid)}
 
-    table.schedule thead th {
+    table.schedule thead th{
       font-weight:800;
       color:#fff;
-      background:linear-gradient(180deg,#7679CC 0%,#5558A8 100%);
+      background:linear-gradient(180deg,#7679cc 0%,#5558a8 100%);
       white-space:nowrap;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,0.28);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
     }
 
-    table.schedule thead th.rh-f6  { background:var(--rh-f6-bg); color:var(--rh-f6-t); }
-    table.schedule thead th.rh-f4  { background:var(--rh-f4-bg); color:var(--rh-f4-t); }
-    table.schedule thead th.rh-def { background:var(--rh-def-bg); color:var(--rh-def-t); }
+    table.schedule thead th.rh-f6{background:var(--rh-f6-bg);color:var(--rh-f6-t)}
+    table.schedule thead th.rh-f4{background:var(--rh-f4-bg);color:var(--rh-f4-t)}
+    table.schedule thead th.rh-def{background:var(--rh-def-bg);color:var(--rh-def-t)}
 
-    td.session-cell  { background:#F6F7FD; font-weight:800; color:#3A4070; }
-    td.session-empty { background:#F6F7FD; }
-    td.time-cell     { background:#F3F4FB; font-family:'JetBrains Mono',monospace; font-weight:700; color:#4A5280; white-space:nowrap; }
-    td.empty-cell    { background:var(--empty); }
-    td.special-time  { background:#EEF6E8; font-weight:700; color:#3A6020; }
-    td.special-cell  { background:#EEF6E8; color:#3A6020; font-weight:800; }
+    td.session-cell{background:#f6f7fd;font-weight:800;color:#3a4070}
+    td.session-empty{background:#f6f7fd}
+    td.time-cell{background:#f3f4fb;font-family:'JetBrains Mono',monospace;font-weight:700;color:#4a5280;white-space:nowrap}
+    td.empty-cell{background:var(--empty)}
+    td.special-time{background:#eef6e8;font-weight:700;color:#3a6020}
+    td.special-cell{background:#eef6e8;color:#3a6020;font-weight:800}
 
-    td.course-cell {
+    td.course-cell{
       font-weight:700;
-      padding:2px 3px;
+      padding:2px 4px;
       line-height:1.16;
       max-width:0;
       position:relative;
     }
 
-    .c-code {
+    .c-code{
       font-weight:700;
-      opacity:.76;
+      opacity:.78;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
 
-    .c-name {
+    .c-name{
       font-weight:800;
       overflow:hidden;
       display:-webkit-box;
@@ -411,74 +395,74 @@
       line-height:1.14;
     }
 
-    .c-meta {
-      opacity:.86;
+    .c-meta{
+      opacity:.88;
       overflow:hidden;
       white-space:nowrap;
       text-overflow:ellipsis;
       margin-top:1px;
     }
 
-    tr.current-row td {
-      border-top:2px solid rgba(212,168,41,.92) !important;
-      border-bottom:2px solid rgba(212,168,41,.92) !important;
+    tr.current-row td{
+      border-top:2px solid rgba(212,168,41,.92)!important;
+      border-bottom:2px solid rgba(212,168,41,.92)!important;
     }
 
-    td.time-cell.current-time {
-      background:linear-gradient(180deg,#FBF3D9 0%, #F7E9BD 100%);
-      color:#6B5010;
+    td.time-cell.current-time{
+      background:linear-gradient(180deg,#fbf3d9 0%, #f7e9bd 100%);
+      color:#6b5010;
       font-weight:800;
       box-shadow:
         inset 0 0 0 1px rgba(212,168,41,.22),
         0 0 0 1px rgba(212,168,41,.10);
-      animation:active-soft-glow 2.8s ease-in-out infinite;
+      animation:active-soft-glow 3s ease-in-out infinite;
     }
 
-    td.course-cell.current-course {
+    td.course-cell.current-course{
       box-shadow:
         inset 0 0 0 2px rgba(212,168,41,.88),
         0 10px 24px rgba(212,168,41,.12);
       z-index:1;
       transform:translateY(-1px);
-      animation:active-soft-glow 2.8s ease-in-out infinite;
+      animation:active-soft-glow 3s ease-in-out infinite;
     }
 
-    @keyframes active-soft-glow {
-      0%,100% {
+    @keyframes active-soft-glow{
+      0%,100%{
         box-shadow:
           inset 0 0 0 2px rgba(212,168,41,.82),
           0 8px 20px rgba(212,168,41,.10);
       }
-      50% {
+      50%{
         box-shadow:
           inset 0 0 0 2px rgba(212,168,41,1),
           0 12px 28px rgba(212,168,41,.18);
       }
     }
 
-    .live-badge {
+    .live-badge{
       display:block;
       width:fit-content;
       margin:0 auto 2px;
-      padding:0 6px;
+      padding:1px 7px;
       border-radius:999px;
-      background:linear-gradient(135deg,#FBF3D9,#F4E3A8);
-      color:#6B5010;
+      background:linear-gradient(135deg,#fbf3d9,#f4e3a8);
+      color:#6b5010;
       font-weight:800;
       letter-spacing:.2px;
       white-space:nowrap;
       overflow:hidden;
-      box-shadow:0 4px 14px rgba(212,168,41,0.16);
-      animation:gold-breathe 2.5s ease-in-out infinite;
+      box-shadow:0 4px 14px rgba(212,168,41,.16);
+      animation:gold-breathe 2.8s ease-in-out infinite;
     }
 
-    @keyframes gold-breathe {
-      0%,100% { transform:translateY(0) scale(1); }
-      50% { transform:translateY(-1px) scale(1.02); }
+    @keyframes gold-breathe{
+      0%,100%{transform:translateY(0) scale(1)}
+      50%{transform:translateY(-1px) scale(1.02)}
     }
 
     /* LIVE VIEW */
-    .live-view {
+    .live-view{
       width:100%;
       height:100%;
       display:flex;
@@ -488,7 +472,7 @@
       overflow:auto;
     }
 
-    .live-header {
+    .live-header{
       display:flex;
       align-items:center;
       gap:10px;
@@ -498,45 +482,36 @@
       animation:headerIn .5s var(--ease-soft);
     }
 
-    @keyframes headerIn {
-      from { opacity:0; transform:translate3d(0,8px,0); }
-      to   { opacity:1; transform:translate3d(0,0,0); }
+    @keyframes headerIn{
+      from{opacity:0;transform:translate3d(0,8px,0)}
+      to{opacity:1;transform:translate3d(0,0,0)}
     }
 
-    .live-dot {
+    .live-dot{
       width:12px;
       height:12px;
       border-radius:50%;
-      background:#E53935;
+      background:#e53935;
       flex-shrink:0;
-      animation:live-dot-soft 2.4s ease-in-out infinite;
+      animation:live-dot-soft 2.5s ease-in-out infinite;
       box-shadow:0 0 0 0 rgba(229,57,53,.20);
     }
 
-    @keyframes live-dot-soft {
-      0%,100% {
+    @keyframes live-dot-soft{
+      0%,100%{
         transform:scale(1);
         box-shadow:0 0 0 0 rgba(229,57,53,.18);
       }
-      50% {
+      50%{
         transform:scale(1.12);
         box-shadow:0 0 0 8px rgba(229,57,53,0);
       }
     }
 
-    .live-header-title {
-      font-size:18px;
-      font-weight:800;
-      color:var(--navy-dark);
-    }
+    .live-header-title{font-size:20px;font-weight:800;color:var(--navy-dark)}
+    .live-header-sub{font-size:14px;font-weight:600;color:var(--muted)}
 
-    .live-header-sub {
-      font-size:13px;
-      font-weight:600;
-      color:var(--muted);
-    }
-
-    .live-cards {
+    .live-cards{
       display:flex;
       flex-wrap:wrap;
       gap:12px;
@@ -544,10 +519,10 @@
       align-content:flex-start;
     }
 
-    .live-card {
-      flex:1 1 260px;
-      max-width:320px;
-      background:rgba(255,255,255,.94);
+    .live-card{
+      flex:1 1 280px;
+      max-width:340px;
+      background:rgba(255,255,255,.95);
       border:1px solid var(--grid);
       border-radius:16px;
       box-shadow:0 6px 18px rgba(60,64,180,.10);
@@ -559,22 +534,16 @@
       overflow:hidden;
     }
 
-    .live-card.animate-in {
-      animation:cardIn .56s var(--ease-soft) both;
+    .live-card.animate-in{
+      animation:cardIn .58s var(--ease-soft) both;
     }
 
-    @keyframes cardIn {
-      from {
-        opacity:0;
-        transform:translate3d(0,12px,0) scale(.99);
-      }
-      to {
-        opacity:1;
-        transform:translate3d(0,0,0) scale(1);
-      }
+    @keyframes cardIn{
+      from{opacity:0;transform:translate3d(0,12px,0) scale(.99)}
+      to{opacity:1;transform:translate3d(0,0,0) scale(1)}
     }
 
-    .live-card::before {
+    .live-card::before{
       content:'';
       position:absolute;
       left:0;
@@ -585,31 +554,31 @@
       border-radius:16px 0 0 16px;
     }
 
-    .live-card-room {
-      font-size:10px;
+    .live-card-room{
+      font-size:11px;
       font-weight:800;
       letter-spacing:.4px;
       color:var(--accent);
       text-transform:uppercase;
     }
 
-    .live-card-code { font-size:11px; font-weight:700; color:var(--muted); }
-    .live-card-name { font-size:15px; font-weight:800; color:var(--navy-dark); line-height:1.2; }
-    .live-card-meta { font-size:12px; font-weight:600; color:var(--muted); }
+    .live-card-code{font-size:12px;font-weight:700;color:var(--muted)}
+    .live-card-name{font-size:16px;font-weight:800;color:var(--navy-dark);line-height:1.2}
+    .live-card-meta{font-size:13px;font-weight:600;color:var(--muted)}
 
-    .live-card-time {
+    .live-card-time{
       margin-top:4px;
       width:fit-content;
-      padding:4px 9px;
+      padding:4px 10px;
       border-radius:999px;
       background:var(--gold-soft);
       color:var(--gold);
       font-family:'JetBrains Mono',monospace;
-      font-size:12px;
+      font-size:13px;
       font-weight:700;
     }
 
-    .live-empty {
+    .live-empty{
       flex:1;
       display:flex;
       align-items:center;
@@ -620,46 +589,26 @@
       animation:cardIn .45s var(--ease-soft);
     }
 
-    .live-empty-icon { font-size:42px; opacity:.4; }
-    .live-empty-text { font-size:17px; font-weight:700; }
-    .live-empty-sub { font-size:13px; }
+    .live-empty-icon{font-size:44px;opacity:.4}
+    .live-empty-text{font-size:18px;font-weight:700}
+    .live-empty-sub{font-size:14px}
 
-    .error-box {
+    .error-box{
       margin:10px;
       padding:14px;
       border-radius:12px;
-      background:#FFF0F0;
-      border:1px solid #EFAAAA;
-      color:#7B1D1D;
-      font-size:13px;
+      background:#fff0f0;
+      border:1px solid #efaaaa;
+      color:#7b1d1d;
+      font-size:14px;
       line-height:1.5;
     }
 
-    /* KHUSUS LAYAR BESAR */
-    @media (min-width: 1600px), (min-height: 950px) {
-      .app { padding:10px; gap:8px; }
-      .header { min-height:78px; padding:9px 20px; }
-      .ticker { min-height:42px; }
-      .table-panel { padding:6px; }
-      .status-item { font-size:13px; }
-      .ticker-item { font-size:15px; }
-    }
-
-    @media (min-width: 1920px) {
-      .header h1 { font-size:32px; }
-      .clock-time { font-size:46px; }
-      .clock-date { font-size:15px; }
-      .semester-badge { font-size:12px; }
-      .mode-badge { font-size:12px; }
-      .ticker-label { font-size:12px; }
-      .ticker-item { font-size:16px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation:none !important;
-        transition:none !important;
-        scroll-behavior:auto !important;
+    @media (prefers-reduced-motion: reduce){
+      *,*::before,*::after{
+        animation:none!important;
+        transition:none!important;
+        scroll-behavior:auto!important;
       }
     }
   </style>
@@ -712,10 +661,10 @@ const CONFIG = {
   autoRefreshMs:60000,
   fallbackDays:['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
   roomHeaderClasses:{F6:'rh-f6',F4:'rh-f4'},
-  modeSwitchMs:25*1000,
+  modeSwitchMs:30*1000,
   tickerFallback:'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
-  tickerFlipMs:6500,
-  tickerAnimMs:1040
+  tickerFlipMs:7000,
+  tickerAnimMs:1080
 };
 
 const state = {
@@ -1005,27 +954,27 @@ function renderFullTable(day){
     return;
   }
 
-  const containerH=Math.max(320, el.viewFull.clientHeight - 4);
-  const containerW=Math.max(1200, el.viewFull.clientWidth - 4);
+  const containerH=Math.max(360, el.viewFull.clientHeight - 4);
+  const containerW=Math.max(1500, el.viewFull.clientWidth - 4);
 
-  const thH=Math.max(34, Math.min(48, Math.floor(containerH*0.058)));
-  const usableBodyH=Math.max(180, containerH - thH - 4);
+  const thH=Math.max(38, Math.min(54, Math.floor(containerH*0.060)));
+  const usableBodyH=Math.max(220, containerH - thH - 4);
 
   const rowsMeta = buildRowHeights(slots, usableBodyH, activeSlotId);
 
   const kuliahHeights = rowsMeta.filter(r=>r.isKuliah).map(r=>r.height);
   const avgRowH = kuliahHeights.length
     ? Math.round(kuliahHeights.reduce((a,b)=>a+b,0) / kuliahHeights.length)
-    : 22;
+    : 24;
 
   const roomCols=rooms.length;
   const roomWidth=containerW / Math.max(roomCols + 2, 3);
 
-  const fHeader=Math.max(12, Math.min(18, Math.floor(Math.min(roomWidth*0.19, avgRowH*0.66))));
-  const fBase  =Math.max(10, Math.min(15, Math.floor((Math.min(roomWidth*0.18, avgRowH*0.52))*10)/10));
-  const fCode  =Math.max(8.5, Math.min(12, Math.floor((fBase*0.90)*10)/10));
-  const fMeta  =Math.max(8, Math.min(10.5, Math.floor((fBase*0.82)*10)/10));
-  const fBadge =Math.max(8, Math.min(10.5, Math.floor((fBase*0.80)*10)/10));
+  const fHeader=Math.max(14, Math.min(20, Math.floor(Math.min(roomWidth*0.19, avgRowH*0.66))));
+  const fBase  =Math.max(11.5, Math.min(16, Math.floor((Math.min(roomWidth*0.18, avgRowH*0.54))*10)/10));
+  const fCode  =Math.max(9.5, Math.min(13, Math.floor((fBase*0.90)*10)/10));
+  const fMeta  =Math.max(8.5, Math.min(11, Math.floor((fBase*0.82)*10)/10));
+  const fBadge =Math.max(8.5, Math.min(11, Math.floor((fBase*0.80)*10)/10));
 
   const sessionCount=new Map();
   const renderedSession=new Set();
@@ -1037,8 +986,8 @@ function renderFullTable(day){
     }
   });
 
-  const sesiW=Math.max(44,Math.min(66,Math.floor(containerW*0.042)));
-  const jamW =Math.max(88,Math.min(118,Math.floor(containerW*0.076)));
+  const sesiW=Math.max(48,Math.min(72,Math.floor(containerW*0.042)));
+  const jamW =Math.max(94,Math.min(124,Math.floor(containerW*0.078)));
 
   let html=`<div class="table-inner">
   <table class="schedule" id="schedTable" style="font-size:${fBase}px;">
@@ -1073,7 +1022,7 @@ function renderFullTable(day){
         renderedSession.add(sesi);
       }
 
-      html+=`<td class="time-cell${isCur?' current-time':''}" style="height:${rowH}px;font-size:${Math.max(8.5,fBase*0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      html+=`<td class="time-cell${isCur?' current-time':''}" style="height:${rowH}px;font-size:${Math.max(9,fBase*0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
 
       for(const room of rooms){
         const item=getScheduleItem(day,room.KODE_RUANG,sid);
@@ -1152,7 +1101,7 @@ function renderLiveView(day){
   } else {
     liveItems.forEach(({room,item},idx)=>{
       const c=mkColor(item.KODE_MK||'');
-      html+=`<div class="live-card animate-in" style="background:${c.bg};color:${c.t};animation-delay:${idx*70}ms;">
+      html+=`<div class="live-card animate-in" style="background:${c.bg};color:${c.t};animation-delay:${idx*80}ms;">
         <div class="live-card-room">${esc(room.NAMA_TAMPIL_RUANG||room.KODE_RUANG)}</div>
         <div class="live-card-code">${esc(item.KODE_MK||'')}${item.KELAS?` · Kelas ${esc(item.KELAS)}`:''}</div>
         <div class="live-card-name" style="color:${c.t}">${esc(item.NAMA_MK||'')}</div>
