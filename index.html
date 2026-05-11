@@ -124,7 +124,7 @@
     }
 
     .title-wrap::before{
-      content:'Soft Premium';
+      content:'Semester Genap 2025/2026';
       position:absolute;
       left:0;
       top:0;
@@ -152,7 +152,7 @@
       color:var(--muted);
       font-size:clamp(11px, .78vw, 15px);
       line-height:1.18;
-      max-width:980px;
+      max-width:760px;
     }
 
     .mini-status{
@@ -167,8 +167,15 @@
       padding:8px 12px;
       display:inline-flex;
       flex-wrap:wrap;
-      gap:4px;
+      gap:10px 18px;
+      align-items:center;
       box-shadow:var(--shadow-soft);
+    }
+
+    .mini-status .status-item{
+      white-space:nowrap;
+      display:inline-flex;
+      align-items:center;
     }
 
     .clock{
@@ -294,15 +301,15 @@
       box-shadow:0 12px 32px rgba(104, 98, 181, .10);
       border-radius:20px;
       overflow:hidden;
-      --thead-height:34px;
-      --row-height:28px;
+      --thead-height:40px;
+      --row-height:34px;
       --special-row-height:24px;
-      --header-font:11px;
-      --cell-font:9px;
-      --code-font:8px;
-      --meta-font:7px;
-      --special-font:9px;
-      --session-font:10px;
+      --header-font:13px;
+      --cell-font:11px;
+      --code-font:9px;
+      --meta-font:8px;
+      --special-font:10px;
+      --session-font:11px;
     }
 
     .schedule th,.schedule td{
@@ -359,7 +366,7 @@
     td.course-cell{
       height:var(--row-height);
       font-size:var(--cell-font);
-      line-height:1.07;
+      line-height:1.14;
       font-weight:700;
       word-break:break-word;
       overflow-wrap:anywhere;
@@ -480,7 +487,7 @@
       <div class="header-main">
         <div class="title-wrap">
           <h1>Jadwal Perkuliahan Mahasiswa</h1>
-          <p>Tampilan Soft Premium dengan warna pastel lembut, panel elegan, dan keterbacaan yang tetap nyaman untuk layar besar kampus.</p>
+          
           <div class="mini-status" id="miniStatus">Memuat data spreadsheet...</div>
         </div>
         <div class="clock">
@@ -853,22 +860,22 @@
       const stageHeight = Math.max(240, el.tableStage.clientHeight);
       const stageWidth = Math.max(320, el.tableStage.clientWidth);
 
-      const headerHeight = Math.max(28, Math.min(33, stageHeight * 0.03));
-      const specialWeight = 0.55;
+      const headerHeight = Math.max(34, Math.min(42, stageHeight * 0.038));
+      const specialWeight = 0.60;
       const borderReserve = (slots.length + 8) * 2.2;
       const bodyHeight = Math.max(110, stageHeight - headerHeight - borderReserve);
       const baseUnit = bodyHeight / (kuliahCount + specialCount * specialWeight);
 
-      const rowHeight = Math.max(21, Math.min(28, baseUnit));
-      const specialRowHeight = Math.max(15, Math.min(18, baseUnit * specialWeight));
+      const rowHeight = Math.max(25, Math.min(34, baseUnit));
+      const specialRowHeight = Math.max(17, Math.min(22, baseUnit * specialWeight));
 
       const roomCount = Math.max(1, state.data.rooms.length);
-      const headerFont = Math.max(9.5, Math.min(11.5, stageWidth / (roomCount * 12.2)));
-      const sessionFont = Math.max(8.5, Math.min(10.5, rowHeight * 0.33));
-      const cellFont = Math.max(7.8, Math.min(9.4, rowHeight * 0.28));
-      const codeFont = Math.max(6.8, Math.min(8.2, rowHeight * 0.22));
-      const metaFont = Math.max(6.2, Math.min(7.5, rowHeight * 0.18));
-      const specialFont = Math.max(7.8, Math.min(8.8, specialRowHeight * 0.42));
+      const headerFont = Math.max(11, Math.min(13.5, stageWidth / (roomCount * 11.2)));
+      const sessionFont = Math.max(9.8, Math.min(12, rowHeight * 0.34));
+      const cellFont = Math.max(9.2, Math.min(11.2, rowHeight * 0.28));
+      const codeFont = Math.max(8, Math.min(9.4, rowHeight * 0.22));
+      const metaFont = Math.max(7, Math.min(8.4, rowHeight * 0.18));
+      const specialFont = Math.max(8.6, Math.min(10.2, specialRowHeight * 0.42));
 
       table.style.setProperty('--thead-height', `${headerHeight}px`);
       table.style.setProperty('--row-height', `${rowHeight}px`);
@@ -1001,14 +1008,18 @@
 
       const liveSummary = getCurrentLiveCourseSummary(state.selectedDay);
 
-      el.miniStatus.innerHTML = [
+      const items = [
         `Hari tampil: <strong>${escapeHtml(state.selectedDay)}</strong>`,
         `Ruang: <strong>${state.data.rooms.length}</strong>`,
         `Slot: <strong>${slotLabel}</strong>`,
         `Jadwal: <strong>${state.data.schedules.filter(x => normalizeText(x.HARI).toLowerCase() === normalizeText(state.selectedDay).toLowerCase()).length}</strong>`,
         liveSummary ? `<strong>${escapeHtml(liveSummary)}</strong>` : 'Belum ada perkuliahan yang sedang berlangsung',
         'Sumber: spreadsheet 1 sheet · Soft Premium'
-      ].join(' &nbsp;&middot;&nbsp; ');
+      ];
+
+      el.miniStatus.innerHTML = items
+        .map(item => `<span class="status-item">${item}</span>`)
+        .join('');
     }
 
     function showError(message){
