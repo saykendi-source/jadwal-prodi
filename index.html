@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jadwal Perkuliahan Mahasiswa - Monitor Lobby</title>
+  <title>Jadwal Perkuliahan Mahasiswa</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
@@ -314,17 +314,36 @@
       width:100%;
       height:100%;
       overflow:hidden;
+      position:relative;
     }
 
-    .table-inner{
+    .table-scroll{
       width:100%;
       height:100%;
-      overflow:hidden;
+      overflow:auto;
+      border-radius:14px;
+      scroll-behavior:smooth;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(89,96,184,.45) rgba(213,216,239,.35);
+    }
+
+    .table-scroll::-webkit-scrollbar{
+      width:10px;
+      height:10px;
+    }
+
+    .table-scroll::-webkit-scrollbar-track{
+      background:rgba(213,216,239,.35);
+      border-radius:999px;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb{
+      background:rgba(89,96,184,.45);
+      border-radius:999px;
     }
 
     /* TABLE */
     table.schedule{
-      width:100%;
       border-collapse:separate;
       border-spacing:0;
       table-layout:fixed;
@@ -352,6 +371,9 @@
     table.schedule thead tr:first-child > *{border-top:1px solid var(--grid)}
 
     table.schedule thead th{
+      position:sticky;
+      top:0;
+      z-index:30;
       font-weight:800;
       color:#fff;
       background:linear-gradient(180deg,#7679cc 0%,#5558a8 100%);
@@ -359,9 +381,23 @@
       box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
     }
 
-    table.schedule thead th.rh-f6{background:var(--rh-f6-bg);color:var(--rh-f6-t)}
-    table.schedule thead th.rh-f4{background:var(--rh-f4-bg);color:var(--rh-f4-t)}
-    table.schedule thead th.rh-def{background:var(--rh-def-bg);color:var(--rh-def-t)}
+    table.schedule thead th.rh-f6{
+      background:var(--rh-f6-bg);
+      color:var(--rh-f6-t);
+      z-index:31;
+    }
+
+    table.schedule thead th.rh-f4{
+      background:var(--rh-f4-bg);
+      color:var(--rh-f4-t);
+      z-index:31;
+    }
+
+    table.schedule thead th.rh-def{
+      background:var(--rh-def-bg);
+      color:var(--rh-def-t);
+      z-index:31;
+    }
 
     td.session-cell{background:#f6f7fd;font-weight:800;color:#3a4070}
     td.session-empty{background:#f6f7fd}
@@ -403,12 +439,19 @@
       margin-top:1px;
     }
 
+    tr.current-row{
+      scroll-margin-top:86px;
+      scroll-margin-bottom:32px;
+    }
+
     tr.current-row td{
       border-top:2px solid rgba(212,168,41,.92)!important;
       border-bottom:2px solid rgba(212,168,41,.92)!important;
     }
 
     td.time-cell.current-time{
+      position:relative;
+      z-index:2;
       background:linear-gradient(180deg,#fbf3d9 0%, #f7e9bd 100%);
       color:#6b5010;
       font-weight:800;
@@ -419,10 +462,11 @@
     }
 
     td.course-cell.current-course{
+      position:relative;
+      z-index:2;
       box-shadow:
         inset 0 0 0 2px rgba(212,168,41,.88),
         0 10px 24px rgba(212,168,41,.12);
-      z-index:1;
       transform:translateY(-1px);
       animation:active-soft-glow 3s ease-in-out infinite;
     }
@@ -554,14 +598,7 @@
       border-radius:16px 0 0 16px;
     }
 
-    .live-card-room{
-      font-size:11px;
-      font-weight:800;
-      letter-spacing:.4px;
-      color:var(--accent);
-      text-transform:uppercase;
-    }
-
+    .live-card-room{font-size:11px;font-weight:800;letter-spacing:.4px;color:var(--accent);text-transform:uppercase}
     .live-card-code{font-size:12px;font-weight:700;color:var(--muted)}
     .live-card-name{font-size:16px;font-weight:800;color:var(--navy-dark);line-height:1.2}
     .live-card-meta{font-size:13px;font-weight:600;color:var(--muted)}
@@ -818,9 +855,9 @@ function buildDataModel(csvText){
 function getSlotsForDay(day){
   const dl=n(day).toLowerCase();
   const sp=state.data.slots.filter(r=>n(r.HARI).toLowerCase()===dl);
-  if(sp.length) return sp;
+  if(sp.length)return sp;
   const gl=state.data.slots.filter(r=>!n(r.HARI));
-  return gl.length ? gl : state.data.slots;
+  return gl.length?gl:state.data.slots;
 }
 
 function getScheduleItem(day,roomCode,slotId){
@@ -849,14 +886,14 @@ function getCurrentActiveSlotId(day){
 
 function getCurrentAcademicDay(days){
   const c=currentDayName();
-  return days.includes(c) ? c : (days[0] || 'Senin');
+  return days.includes(c)?c:(days[0]||'Senin');
 }
 
 function mkColor(kodeMk){
   const code=n(kodeMk).toUpperCase().replace(/\s+/g,'');
   const m=code.match(/^([A-Z]+)(\d)/);
-  const key=m ? `${m[1]}${m[2]}xx` : 'DEFAULT';
-  const map = {
+  const key=m?`${m[1]}${m[2]}xx`:'DEFAULT';
+  const map={
     'TI1xx':{bg:'#EEF4FA',t:'#1A3050'},
     'TI2xx':{bg:'#EDF7F1',t:'#0E3020'},
     'TI3xx':{bg:'#FFF9EC',t:'#3A2800'},
@@ -868,70 +905,42 @@ function mkColor(kodeMk){
     'TIDA0xx':{bg:'#F0F4E8',t:'#203010'},
     'DEFAULT':{bg:'#F3F4FA',t:'#1A1D3A'}
   };
-  return map[key] || map.DEFAULT;
+  return map[key]||map.DEFAULT;
 }
 
 function roomHClass(room){
   const g=n(room.GRUP_WARNA_RUANG).toUpperCase();
-  return CONFIG.roomHeaderClasses[g] || 'rh-def';
+  return CONFIG.roomHeaderClasses[g]||'rh-def';
 }
 
-function applyScale(){
-  const host=el.scaleHost;
-  if(!host) return;
-  host.style.transform='none';
-  host.style.width='100%';
-  host.style.height='100%';
-  host.style.marginTop='0';
-}
-
-function buildRowHeights(slots, usableBodyH, activeSlotId){
-  const rows = slots.map((slot)=>{
-    const isKuliah = n(slot.TIPE_BARIS).toUpperCase()==='KULIAH';
-    let weight = isKuliah ? 1 : 0.52;
-
-    if(isKuliah && activeSlotId){
-      const sid = +slot.ID_SLOT;
-      if(sid === activeSlotId) weight = 1.14;
-      else if(Math.abs(sid - activeSlotId) === 1) weight = 1.05;
-    }
-
-    return {
-      slot,
-      isKuliah,
-      weight,
-      height:0,
-      fractional:0
-    };
-  });
-
-  const totalWeight = rows.reduce((a,b)=>a+b.weight,0) || 1;
-
-  rows.forEach(r=>{
-    const raw = (r.weight / totalWeight) * usableBodyH;
-    r.height = Math.floor(raw);
-    r.fractional = raw - r.height;
-  });
-
-  let used = rows.reduce((a,b)=>a+b.height,0);
-  let remain = usableBodyH - used;
-
-  const priority = rows.slice().sort((a,b)=>{
-    const aCur = (+a.slot.ID_SLOT===activeSlotId) ? 3 : 0;
-    const bCur = (+b.slot.ID_SLOT===activeSlotId) ? 3 : 0;
-    const aScore = aCur + (a.isKuliah ? 1 : 0) + a.fractional;
-    const bScore = bCur + (b.isKuliah ? 1 : 0) + b.fractional;
-    return bScore - aScore;
-  });
-
-  let i=0;
-  while(remain>0 && priority.length){
-    priority[i % priority.length].height += 1;
-    remain--;
-    i++;
+function scrollCurrentRowIntoView(){
+  const wrap = document.querySelector('.table-scroll');
+  const currentRow = document.querySelector('tr.current-row');
+  if(!wrap){
+    return;
   }
 
-  return rows;
+  if(!currentRow){
+    wrap.scrollTo({top:0, behavior:'smooth'});
+    return;
+  }
+
+  const wrapRect = wrap.getBoundingClientRect();
+  const rowRect = currentRow.getBoundingClientRect();
+
+  const topSafe = 86;
+  const bottomSafe = 28;
+
+  const rowAbove = rowRect.top < wrapRect.top + topSafe;
+  const rowBelow = rowRect.bottom > wrapRect.bottom - bottomSafe;
+
+  if(rowAbove || rowBelow){
+    currentRow.scrollIntoView({
+      behavior:'smooth',
+      block:'center',
+      inline:'nearest'
+    });
+  }
 }
 
 function renderFullTable(day){
@@ -955,26 +964,21 @@ function renderFullTable(day){
   }
 
   const containerH=Math.max(360, el.viewFull.clientHeight - 4);
-  const containerW=Math.max(1500, el.viewFull.clientWidth - 4);
+  const containerW=Math.max(1100, el.viewFull.clientWidth - 4);
 
-  const thH=Math.max(38, Math.min(54, Math.floor(containerH*0.060)));
-  const usableBodyH=Math.max(220, containerH - thH - 4);
-
-  const rowsMeta = buildRowHeights(slots, usableBodyH, activeSlotId);
-
-  const kuliahHeights = rowsMeta.filter(r=>r.isKuliah).map(r=>r.height);
-  const avgRowH = kuliahHeights.length
-    ? Math.round(kuliahHeights.reduce((a,b)=>a+b,0) / kuliahHeights.length)
-    : 24;
+  const thH=Math.max(42, Math.min(56, Math.floor(containerH*0.065)));
+  const rowH=Math.max(42, Math.min(62, Math.floor(containerH*0.075)));
+  const specialH=Math.max(26, Math.min(34, Math.floor(rowH*0.58)));
 
   const roomCols=rooms.length;
-  const roomWidth=containerW / Math.max(roomCols + 2, 3);
+  const availableTableW = Math.max(containerW - 24, 980);
+  const roomWidth=Math.max(140, Math.floor((availableTableW - 164) / Math.max(roomCols,1)));
 
-  const fHeader=Math.max(14, Math.min(20, Math.floor(Math.min(roomWidth*0.19, avgRowH*0.66))));
-  const fBase  =Math.max(11.5, Math.min(16, Math.floor((Math.min(roomWidth*0.18, avgRowH*0.54))*10)/10));
-  const fCode  =Math.max(9.5, Math.min(13, Math.floor((fBase*0.90)*10)/10));
-  const fMeta  =Math.max(8.5, Math.min(11, Math.floor((fBase*0.82)*10)/10));
-  const fBadge =Math.max(8.5, Math.min(11, Math.floor((fBase*0.80)*10)/10));
+  const fHeader=Math.max(14, Math.min(20, Math.floor(roomWidth*0.12)));
+  const fBase=Math.max(11.5, Math.min(15, Math.floor(roomWidth*0.10)));
+  const fCode=Math.max(9.5, Math.min(12.5, Math.floor(fBase*0.9)));
+  const fMeta=Math.max(8.5, Math.min(10.5, Math.floor(fBase*0.82)));
+  const fBadge=Math.max(8.5, Math.min(10.5, Math.floor(fBase*0.82)));
 
   const sessionCount=new Map();
   const renderedSession=new Set();
@@ -986,49 +990,49 @@ function renderFullTable(day){
     }
   });
 
-  const sesiW=Math.max(48,Math.min(72,Math.floor(containerW*0.042)));
-  const jamW =Math.max(94,Math.min(124,Math.floor(containerW*0.078)));
+  const sesiW=54;
+  const jamW=110;
+  const tableWidth = sesiW + jamW + (roomWidth * rooms.length);
 
-  let html=`<div class="table-inner">
-  <table class="schedule" id="schedTable" style="font-size:${fBase}px;">
-    <colgroup>
-      <col style="width:${sesiW}px">
-      <col style="width:${jamW}px">
-      ${rooms.map(()=>'<col>').join('')}
-    </colgroup>
-    <thead>
-      <tr style="height:${thH}px;">
-        <th style="font-size:${fHeader}px;">SESI</th>
-        <th style="font-size:${fHeader}px;">JAM</th>
-        ${rooms.map(r=>`<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}
-      </tr>
-    </thead>
-    <tbody>`;
+  let html=`<div class="table-scroll">
+    <table class="schedule" id="schedTable" style="width:${tableWidth}px;font-size:${fBase}px;">
+      <colgroup>
+        <col style="width:${sesiW}px">
+        <col style="width:${jamW}px">
+        ${rooms.map(()=>`<col style="width:${roomWidth}px">`).join('')}
+      </colgroup>
+      <thead>
+        <tr style="height:${thH}px;">
+          <th style="font-size:${fHeader}px;">SESI</th>
+          <th style="font-size:${fHeader}px;">JAM</th>
+          ${rooms.map(r=>`<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>`;
 
-  for(const row of rowsMeta){
-    const slot = row.slot;
-    const rowH = row.height;
+  for(const slot of slots){
     const type=n(slot.TIPE_BARIS).toUpperCase();
     const sid=+slot.ID_SLOT;
     const isCur=type==='KULIAH' && activeSlotId===sid;
+    const currentHeight=type==='KULIAH'?rowH:specialH;
 
-    html+=`<tr class="${isCur?'current-row':''}">`;
+    html += `<tr class="${isCur?'current-row':''}">`;
 
     if(type==='KULIAH'){
       const sesi=n(slot.SESI)||'-';
 
       if(!renderedSession.has(sesi)){
-        html+=`<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}" style="height:${rowH}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
+        html += `<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}" style="height:${currentHeight}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
         renderedSession.add(sesi);
       }
 
-      html+=`<td class="time-cell${isCur?' current-time':''}" style="height:${rowH}px;font-size:${Math.max(9,fBase*0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      html += `<td class="time-cell${isCur?' current-time':''}" style="height:${currentHeight}px;font-size:${Math.max(9,fBase*0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
 
       for(const room of rooms){
         const item=getScheduleItem(day,room.KODE_RUANG,sid);
         if(item){
           const c=mkColor(item.KODE_MK||'');
-          html+=`<td class="course-cell${isCur?' current-course':''}" style="height:${rowH}px;background:${c.bg};color:${c.t};">
+          html += `<td class="course-cell${isCur?' current-course':''}" style="height:${currentHeight}px;background:${c.bg};color:${c.t};">
             ${isCur?`<div class="live-badge" style="font-size:${fBadge}px;">▶ Sedang Berlangsung</div>`:''}
             <div class="c-code" style="font-size:${fCode}px;">${esc(item.KODE_MK||'')}${item.KELAS?` (${esc(item.KELAS)})`:''}</div>
             <div class="c-name" style="font-size:${fBase}px;">${esc(item.NAMA_MK||'')}</div>
@@ -1036,21 +1040,26 @@ function renderFullTable(day){
             ${item.PROGRAM_ANGKATAN?`<div class="c-meta" style="font-size:${fMeta}px;">${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
           </td>`;
         } else {
-          html+=`<td class="empty-cell${isCur?' current-course':''}" style="height:${rowH}px;"></td>`;
+          html += `<td class="empty-cell${isCur?' current-course':''}" style="height:${currentHeight}px;"></td>`;
         }
       }
     } else {
-      html+=`<td class="session-empty" style="height:${rowH}px;"></td>`;
-      html+=`<td class="special-time" style="height:${rowH}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
-      html+=`<td class="special-cell" colspan="${rooms.length}" style="height:${rowH}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
+      html += `<td class="session-empty" style="height:${currentHeight}px;"></td>`;
+      html += `<td class="special-time" style="height:${currentHeight}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      html += `<td class="special-cell" colspan="${rooms.length}" style="height:${currentHeight}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
     }
 
-    html+='</tr>';
+    html += `</tr>`;
   }
 
-  html+=`</tbody></table></div>`;
-  el.tableSlot.innerHTML=html;
-  requestAnimationFrame(applyScale);
+  html += `</tbody></table></div>`;
+  el.tableSlot.innerHTML = html;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      scrollCurrentRowIntoView();
+    });
+  });
 }
 
 function renderLiveView(day){
@@ -1345,8 +1354,11 @@ setInterval(async()=>{
 window.addEventListener('resize',()=>{
   requestAnimationFrame(()=>{
     if(!state.data) return;
-    if(state.currentMode==='full') renderFullTable(state.selectedDay);
-    else renderLiveView(state.selectedDay);
+    if(state.currentMode==='full'){
+      renderFullTable(state.selectedDay);
+    }else{
+      renderLiveView(state.selectedDay);
+    }
   });
 });
 
