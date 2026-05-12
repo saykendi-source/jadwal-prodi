@@ -21,12 +21,9 @@
       --panel:rgba(255,255,255,.93);
       --radius:18px;
       --shadow:0 12px 34px rgba(60,64,180,.14);
-      --rh-f6-bg:#d4e8f6;
-      --rh-f6-t:#1a3566;
-      --rh-f4-bg:#c6ecdf;
-      --rh-f4-t:#0c3820;
-      --rh-def-bg:#dddff5;
-      --rh-def-t:#23266b;
+      --rh-f6-bg:#d4e8f6; --rh-f6-t:#1a3566;
+      --rh-f4-bg:#c6ecdf; --rh-f4-t:#0c3820;
+      --rh-def-bg:#dddff5; --rh-def-t:#23266b;
       --ease-soft:cubic-bezier(.22,.82,.24,1);
       --ease-smooth:cubic-bezier(.23,.88,.30,1);
     }
@@ -34,161 +31,85 @@
     *{box-sizing:border-box;margin:0;padding:0}
 
     html,body{
-      width:100%;
-      height:100%;
-      overflow:hidden;
+      width:100%;height:100%;overflow:hidden;
       font-family:'Plus Jakarta Sans',sans-serif;
       color:var(--text);
       background:
-        radial-gradient(ellipse at 12% 22%, rgba(108,111,212,.12) 0%, transparent 42%),
-        radial-gradient(ellipse at 88% 78%, rgba(212,168,41,.10) 0%, transparent 36%),
+        radial-gradient(ellipse at 12% 22%,rgba(108,111,212,.12) 0%,transparent 42%),
+        radial-gradient(ellipse at 88% 78%,rgba(212,168,41,.10) 0%,transparent 36%),
         linear-gradient(150deg,#eceffe 0%,#f7f5ff 48%,#eef6f2 100%);
       -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      text-rendering:optimizeLegibility;
     }
 
     .app{
-      width:100%;
-      height:100vh;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      padding:10px;
+      width:100%;height:100vh;
+      display:flex;flex-direction:column;
+      gap:8px;padding:10px;
       overflow:hidden;
     }
 
+    /* ── HEADER ── */
     .header{
       flex:0 0 auto;
       min-height:82px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:18px;
-      padding:10px 22px;
+      display:flex;align-items:center;justify-content:space-between;
+      gap:18px;padding:10px 22px;
       background:var(--panel);
       border:1px solid rgba(255,255,255,.90);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       backdrop-filter:blur(14px);
     }
-
-    .header-left{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-
+    .header-left{min-width:0;display:flex;flex-direction:column;gap:4px;}
     .semester-badge{
-      display:inline-flex;
-      align-items:center;
-      width:fit-content;
-      padding:5px 13px;
-      border-radius:999px;
+      display:inline-flex;align-items:center;width:fit-content;
+      padding:5px 13px;border-radius:999px;
       background:linear-gradient(135deg,rgba(108,111,212,.16),rgba(212,168,41,.14));
-      color:var(--navy-dark);
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.45px;
+      color:var(--navy-dark);font-size:12px;font-weight:800;letter-spacing:.45px;
     }
-
-    .header h1{
-      font-size:34px;
-      line-height:1;
-      color:var(--navy-dark);
-      font-weight:800;
-    }
-
-    .status-bar{
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px 18px;
-    }
-
-    .status-item{
-      font-size:13px;
-      color:var(--muted);
-      font-weight:700;
-      white-space:nowrap;
-    }
-
-    .status-item strong{color:var(--navy-dark)}
-
-    .header-right{
-      flex-shrink:0;
-      display:flex;
-      flex-direction:column;
-      align-items:flex-end;
-      gap:4px;
-    }
-
+    .header h1{font-size:34px;line-height:1;color:var(--navy-dark);font-weight:800;}
+    .status-bar{display:flex;flex-wrap:wrap;gap:6px 18px;}
+    .status-item{font-size:13px;color:var(--muted);font-weight:700;white-space:nowrap;}
+    .status-item strong{color:var(--navy-dark);}
+    .header-right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
     .clock-time{
       font-family:'JetBrains Mono',monospace;
-      font-size:48px;
-      line-height:1;
-      color:var(--navy-dark);
-      font-weight:700;
-      letter-spacing:1px;
+      font-size:48px;line-height:1;
+      color:var(--navy-dark);font-weight:700;letter-spacing:1px;
     }
-
-    .clock-date{
-      font-size:16px;
-      font-weight:700;
-      color:var(--navy-mid);
-    }
-
+    .clock-date{font-size:16px;font-weight:700;color:var(--navy-mid);}
     .mode-badge{
-      padding:5px 14px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.45px;
-      transition:
-        transform .45s var(--ease-soft),
-        box-shadow .45s var(--ease-soft),
-        background .45s ease;
-      transform:translateZ(0);
+      padding:5px 14px;border-radius:999px;
+      font-size:12px;font-weight:800;letter-spacing:.45px;
+      transition:background .45s ease,transform .45s var(--ease-soft),box-shadow .45s var(--ease-soft);
     }
-
     .mode-badge.mode-full{
       background:linear-gradient(135deg,var(--navy),var(--accent));
-      color:#fff;
-      box-shadow:0 6px 16px rgba(59,63,140,.15);
+      color:#fff;box-shadow:0 6px 16px rgba(59,63,140,.15);
     }
-
     .mode-badge.mode-live{
       background:linear-gradient(135deg,#e53935,#ef6c00);
-      color:#fff;
-      box-shadow:0 8px 18px rgba(229,57,53,.18);
+      color:#fff;box-shadow:0 8px 18px rgba(229,57,53,.18);
       animation:live-breathe 3s ease-in-out infinite;
     }
-
     @keyframes live-breathe{
       0%,100%{transform:translateY(0) scale(1)}
       50%{transform:translateY(-1px) scale(1.02)}
     }
-
     .mode-progress-bar{
-      min-width:160px;
-      height:4px;
-      border-radius:999px;
-      background:rgba(60,64,180,.12);
-      overflow:hidden;
+      min-width:160px;height:4px;border-radius:999px;
+      background:rgba(60,64,180,.12);overflow:hidden;
     }
-
     .mode-progress-fill{
       height:100%;
       background:linear-gradient(90deg,var(--navy),var(--accent));
       transition:width 1s linear;
     }
 
+    /* ── TICKER ── */
     .ticker{
-      flex:0 0 auto;
-      min-height:46px;
-      display:flex;
-      align-items:center;
-      padding:0 16px;
+      flex:0 0 auto;min-height:46px;
+      display:flex;align-items:center;padding:0 16px;
       background:var(--panel);
       border:1px solid rgba(255,255,255,.86);
       border-radius:var(--radius);
@@ -196,472 +117,256 @@
       backdrop-filter:blur(12px);
       overflow:hidden;
     }
-
     .ticker-label{
-      flex-shrink:0;
-      margin-right:16px;
-      padding:5px 12px;
-      border-radius:999px;
+      flex-shrink:0;margin-right:16px;
+      padding:5px 12px;border-radius:999px;
       background:linear-gradient(135deg,var(--navy),var(--accent));
-      color:#fff;
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.35px;
+      color:#fff;font-size:12px;font-weight:800;letter-spacing:.35px;
     }
-
     .ticker-viewport{
-      flex:1;
-      height:26px;
-      display:flex;
-      align-items:center;
-      overflow:hidden;
-      position:relative;
+      flex:1;height:26px;
+      display:flex;align-items:center;
+      overflow:hidden;position:relative;
     }
-
-    .ticker-flip-stack{
-      position:relative;
-      width:100%;
-      height:100%;
-      isolation:isolate;
-    }
-
+    .ticker-flip-stack{position:relative;width:100%;height:100%;isolation:isolate;}
     .ticker-item{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      font-size:16px;
-      font-weight:700;
-      color:#3a4070;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      opacity:0;
-      transform:translate3d(0,-118%,0);
-      transition:
-        transform 1.08s var(--ease-smooth),
-        opacity 1.08s ease;
-      will-change:transform, opacity;
-      backface-visibility:hidden;
-      -webkit-backface-visibility:hidden;
+      position:absolute;inset:0;
+      display:flex;align-items:center;
+      font-size:16px;font-weight:700;color:#3a4070;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      opacity:0;transform:translate3d(0,-118%,0);
+      transition:transform 1.08s var(--ease-smooth),opacity 1.08s ease;
+      will-change:transform,opacity;
     }
+    .ticker-item.active{opacity:1;transform:translate3d(0,0,0);}
+    .ticker-item.next{opacity:0;transform:translate3d(0,-118%,0);}
+    .ticker-item.out-down{opacity:0;transform:translate3d(0,118%,0);}
+    .ticker-item.in-down{opacity:1;transform:translate3d(0,0,0);}
+    .ticker-item.no-anim{transition:none!important;}
 
-    .ticker-item.active{opacity:1;transform:translate3d(0,0,0)}
-    .ticker-item.next{opacity:0;transform:translate3d(0,-118%,0)}
-    .ticker-item.out-down{opacity:0;transform:translate3d(0,118%,0)}
-    .ticker-item.in-down{opacity:1;transform:translate3d(0,0,0)}
-    .ticker-item.no-anim{transition:none!important}
-
+    /* ── TABLE PANEL ── */
     .table-panel{
-      flex:1 1 auto;
-      min-height:0;
+      flex:1 1 auto;min-height:0;
       padding:6px;
       background:var(--panel);
       border:1px solid rgba(255,255,255,.88);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       backdrop-filter:blur(12px);
-      overflow:hidden;
-      position:relative;
+      overflow:hidden;position:relative;
     }
-
     .view-container{
-      width:100%;
-      height:100%;
-      position:relative;
-      overflow:hidden;
+      width:100%;height:100%;
+      position:relative;overflow:hidden;
       border-radius:14px;
     }
-
     .view-pane{
-      position:absolute;
-      inset:0;
+      position:absolute;inset:0;
       opacity:0;
-      transform:translate3d(0,10px,0) scale(.995);
-      transition:
-        opacity .62s var(--ease-soft),
-        transform .62s var(--ease-soft);
-      overflow:hidden;
-      will-change:opacity, transform;
+      transform:translate3d(0,10px,0) scale(.996);
+      transition:opacity .62s var(--ease-soft),transform .62s var(--ease-soft);
+      overflow:hidden;will-change:opacity,transform;
     }
+    .view-pane.active{opacity:1;transform:translate3d(0,0,0) scale(1);z-index:1;}
+    .view-pane.inactive{opacity:0;transform:translate3d(0,12px,0) scale(.992);z-index:0;pointer-events:none;}
 
-    .view-pane.active{
-      opacity:1;
-      transform:translate3d(0,0,0) scale(1);
-      z-index:1;
-    }
-
-    .view-pane.inactive{
-      opacity:0;
-      transform:translate3d(0,12px,0) scale(.992);
-      z-index:0;
-      pointer-events:none;
-    }
-
-    .scale-host{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      overflow:hidden;
-      transform-origin:top left;
-    }
-
-    #tableSlot{
-      width:100%;
-      height:100%;
-      overflow:hidden;
-      position:relative;
+    /* ── FULL TABLE LAYOUT: frozen header + scrollable body ── */
+    /*
+      The viewFull pane is a flex-column:
+        .tbl-header-band  → frozen, clips header table
+        .tbl-body-band    → flex:1, scrollable (both axes)
+      Both bands contain a <table> with IDENTICAL colgroup widths.
+      Horizontal scroll of body is mirrored to header via JS.
+    */
+    #viewFull{
       display:flex;
       flex-direction:column;
     }
 
-    .table-header-wrap{
+    .tbl-header-band{
       flex:0 0 auto;
-      overflow:hidden;
-      border-radius:14px 14px 0 0;
+      overflow:hidden;          /* clips, never scrolls */
       background:rgba(255,255,255,.96);
-      box-shadow:0 1px 0 rgba(213,216,239,.95);
+      border-radius:14px 14px 0 0;
+      box-shadow:0 2px 0 rgba(213,216,239,.9);
+      position:relative;z-index:2;
     }
 
-    .table-header-viewport{
-      width:100%;
+    /* inner div that mirrors body's scrollLeft */
+    .tbl-header-inner{
       overflow:hidden;
+      width:100%;
     }
 
-    .table-body-wrap{
+    .tbl-body-band{
       flex:1 1 auto;
       min-height:0;
-      overflow:hidden;
+      overflow:auto;            /* scrolls both axes */
       border-radius:0 0 14px 14px;
-    }
-
-    .table-body-scroll{
-      width:100%;
-      height:100%;
-      overflow-y:auto;
-      overflow-x:auto;
-      scroll-behavior:smooth;
+      background:rgba(255,255,255,.88);
+      /* nice thin scrollbar */
       scrollbar-width:thin;
-      scrollbar-color:rgba(89,96,184,.45) rgba(213,216,239,.35);
+      scrollbar-color:rgba(89,96,184,.45) rgba(213,216,239,.3);
     }
+    .tbl-body-band::-webkit-scrollbar{width:8px;height:8px;}
+    .tbl-body-band::-webkit-scrollbar-track{background:rgba(213,216,239,.3);border-radius:999px;}
+    .tbl-body-band::-webkit-scrollbar-thumb{background:rgba(89,96,184,.45);border-radius:999px;}
 
-    .table-body-scroll::-webkit-scrollbar{
-      width:10px;
-      height:10px;
-    }
-
-    .table-body-scroll::-webkit-scrollbar-track{
-      background:rgba(213,216,239,.35);
-      border-radius:999px;
-    }
-
-    .table-body-scroll::-webkit-scrollbar-thumb{
-      background:rgba(89,96,184,.45);
-      border-radius:999px;
-    }
-
+    /* ── SHARED TABLE STYLES ── */
     table.schedule{
-      border-collapse:separate;
-      border-spacing:0;
+      border-collapse:separate;border-spacing:0;
       table-layout:fixed;
-      background:rgba(255,255,255,.92);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
+      /* width set by JS; both header & body table use same value */
     }
 
     table.schedule th,
     table.schedule td{
       border-right:1px solid var(--grid);
       border-bottom:1px solid var(--grid);
-      text-align:center;
-      vertical-align:middle;
-      overflow:hidden;
-      padding:0 4px;
-      transition:
-        background-color .35s ease,
-        box-shadow .4s var(--ease-soft),
-        transform .4s var(--ease-soft);
+      text-align:center;vertical-align:middle;
+      overflow:hidden;padding:0 4px;
     }
-
-    table.schedule tr > *:first-child{
-      border-left:1px solid var(--grid);
-    }
-
-    table.schedule thead tr:first-child > *{
-      border-top:1px solid var(--grid);
-    }
+    table.schedule tr > *:first-child{border-left:1px solid var(--grid);}
+    table.schedule.head-tbl thead tr:first-child > *{border-top:1px solid var(--grid);}
 
     table.schedule thead th{
-      font-weight:800;
-      color:#fff;
+      font-weight:800;color:#fff;
       background:linear-gradient(180deg,#7679cc 0%,#5558a8 100%);
       white-space:nowrap;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
     }
+    table.schedule thead th.rh-f6{background:var(--rh-f6-bg);color:var(--rh-f6-t);}
+    table.schedule thead th.rh-f4{background:var(--rh-f4-bg);color:var(--rh-f4-t);}
+    table.schedule thead th.rh-def{background:var(--rh-def-bg);color:var(--rh-def-t);}
 
-    table.schedule thead th.rh-f6{
-      background:var(--rh-f6-bg);
-      color:var(--rh-f6-t);
+    /* body table: remove top border on first data row (header table already has bottom border) */
+    table.schedule.body-tbl tbody tr:first-child > *{border-top:none;}
+
+    td.session-cell{background:#f6f7fd;font-weight:800;color:#3a4070;}
+    td.session-empty{background:#f6f7fd;}
+    td.time-cell{
+      background:#f3f4fb;
+      font-family:'JetBrains Mono',monospace;
+      font-weight:700;color:#4a5280;
+      white-space:nowrap;
     }
-
-    table.schedule thead th.rh-f4{
-      background:var(--rh-f4-bg);
-      color:var(--rh-f4-t);
-    }
-
-    table.schedule thead th.rh-def{
-      background:var(--rh-def-bg);
-      color:var(--rh-def-t);
-    }
-
-    table.schedule.body-only tbody tr:first-child > *{
-      border-top:none !important;
-    }
-
-    td.session-cell{background:#f6f7fd;font-weight:800;color:#3a4070}
-    td.session-empty{background:#f6f7fd}
-    td.time-cell{background:#f3f4fb;font-family:'JetBrains Mono',monospace;font-weight:700;color:#4a5280;white-space:nowrap}
-    td.empty-cell{background:var(--empty)}
-    td.special-time{background:#eef6e8;font-weight:700;color:#3a6020}
-    td.special-cell{background:#eef6e8;color:#3a6020;font-weight:800}
+    td.empty-cell{background:var(--empty);}
+    td.special-time{background:#eef6e8;font-weight:700;color:#3a6020;}
+    td.special-cell{background:#eef6e8;color:#3a6020;font-weight:800;}
 
     td.course-cell{
-      font-weight:700;
-      padding:2px 4px;
+      font-weight:700;padding:2px 4px;
       line-height:1.16;
-      max-width:0;
-      position:relative;
+      max-width:0; /* forces table-layout:fixed to clip */
     }
+    .c-code{font-weight:700;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .c-name{font-weight:800;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.14;}
+    .c-meta{opacity:.88;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:1px;}
 
-    .c-code{
-      font-weight:700;
-      opacity:.78;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .c-name{
-      font-weight:800;
-      overflow:hidden;
-      display:-webkit-box;
-      -webkit-line-clamp:2;
-      -webkit-box-orient:vertical;
-      line-height:1.14;
-    }
-
-    .c-meta{
-      opacity:.88;
-      overflow:hidden;
-      white-space:nowrap;
-      text-overflow:ellipsis;
-      margin-top:1px;
-    }
-
+    /* ── ACTIVE ROW HIGHLIGHT ── */
     tr.current-row td{
-      border-top:2px solid rgba(212,168,41,.92)!important;
-      border-bottom:2px solid rgba(212,168,41,.92)!important;
+      border-top:2.5px solid rgba(212,168,41,.92)!important;
+      border-bottom:2.5px solid rgba(212,168,41,.92)!important;
     }
-
-    td.time-cell.current-time,
-    td.course-cell.current-course{
-      position:relative;
-      z-index:2;
-    }
-
     td.time-cell.current-time{
-      background:linear-gradient(180deg,#fbf3d9 0%, #f7e9bd 100%);
-      color:#6b5010;
-      font-weight:800;
-      box-shadow:
-        inset 0 0 0 1px rgba(212,168,41,.22),
-        0 0 0 1px rgba(212,168,41,.10);
-      animation:active-soft-glow 3s ease-in-out infinite;
+      background:linear-gradient(180deg,#fbf3d9,#f7e9bd);
+      color:#6b5010;font-weight:800;
+      box-shadow:inset 0 0 0 1px rgba(212,168,41,.22);
+      animation:active-glow 3s ease-in-out infinite;
     }
-
     td.course-cell.current-course{
-      box-shadow:
-        inset 0 0 0 2px rgba(212,168,41,.88),
-        0 10px 24px rgba(212,168,41,.12);
-      transform:translateY(-1px);
-      animation:active-soft-glow 3s ease-in-out infinite;
+      box-shadow:inset 0 0 0 2.5px rgba(212,168,41,.9),0 8px 20px rgba(212,168,41,.10);
+      animation:active-glow 3s ease-in-out infinite;
     }
-
-    @keyframes active-soft-glow{
-      0%,100%{
-        box-shadow:
-          inset 0 0 0 2px rgba(212,168,41,.82),
-          0 8px 20px rgba(212,168,41,.10);
-      }
-      50%{
-        box-shadow:
-          inset 0 0 0 2px rgba(212,168,41,1),
-          0 12px 28px rgba(212,168,41,.18);
-      }
+    @keyframes active-glow{
+      0%,100%{filter:brightness(1);}
+      50%{filter:brightness(1.03);}
     }
 
     .live-badge{
-      display:block;
-      width:fit-content;
-      margin:0 auto 2px;
-      padding:1px 7px;
-      border-radius:999px;
+      display:block;width:fit-content;margin:0 auto 2px;
+      padding:1px 7px;border-radius:999px;
       background:linear-gradient(135deg,#fbf3d9,#f4e3a8);
-      color:#6b5010;
-      font-weight:800;
-      letter-spacing:.2px;
-      white-space:nowrap;
-      overflow:hidden;
-      box-shadow:0 4px 14px rgba(212,168,41,.16);
+      color:#6b5010;font-weight:800;letter-spacing:.2px;
+      white-space:nowrap;overflow:hidden;
+      box-shadow:0 3px 10px rgba(212,168,41,.14);
       animation:gold-breathe 2.8s ease-in-out infinite;
     }
-
     @keyframes gold-breathe{
-      0%,100%{transform:translateY(0) scale(1)}
-      50%{transform:translateY(-1px) scale(1.02)}
+      0%,100%{transform:scale(1);}
+      50%{transform:scale(1.025);}
     }
 
+    /* ── LIVE VIEW ── */
     .live-view{
-      width:100%;
-      height:100%;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      padding:14px 18px;
+      width:100%;height:100%;
+      display:flex;flex-direction:column;
+      gap:10px;padding:14px 18px;
       overflow:auto;
     }
-
     .live-header{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding-bottom:8px;
-      border-bottom:2px solid var(--grid);
-      flex-shrink:0;
-      animation:headerIn .5s var(--ease-soft);
+      display:flex;align-items:center;gap:10px;
+      padding-bottom:8px;border-bottom:2px solid var(--grid);
+      flex-shrink:0;animation:headerIn .5s var(--ease-soft);
     }
-
-    @keyframes headerIn{
-      from{opacity:0;transform:translate3d(0,8px,0)}
-      to{opacity:1;transform:translate3d(0,0,0)}
-    }
-
+    @keyframes headerIn{from{opacity:0;transform:translate3d(0,8px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
     .live-dot{
-      width:12px;
-      height:12px;
-      border-radius:50%;
-      background:#e53935;
-      flex-shrink:0;
+      width:12px;height:12px;border-radius:50%;
+      background:#e53935;flex-shrink:0;
       animation:live-dot-soft 2.5s ease-in-out infinite;
-      box-shadow:0 0 0 0 rgba(229,57,53,.20);
     }
-
     @keyframes live-dot-soft{
-      0%,100%{
-        transform:scale(1);
-        box-shadow:0 0 0 0 rgba(229,57,53,.18);
-      }
-      50%{
-        transform:scale(1.12);
-        box-shadow:0 0 0 8px rgba(229,57,53,0);
-      }
+      0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(229,57,53,.18);}
+      50%{transform:scale(1.12);box-shadow:0 0 0 8px rgba(229,57,53,0);}
     }
-
-    .live-header-title{font-size:20px;font-weight:800;color:var(--navy-dark)}
-    .live-header-sub{font-size:14px;font-weight:600;color:var(--muted)}
-
-    .live-cards{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      flex:1;
-      align-content:flex-start;
-    }
-
+    .live-header-title{font-size:20px;font-weight:800;color:var(--navy-dark);}
+    .live-header-sub{font-size:14px;font-weight:600;color:var(--muted);}
+    .live-cards{display:flex;flex-wrap:wrap;gap:12px;flex:1;align-content:flex-start;}
     .live-card{
-      flex:1 1 280px;
-      max-width:340px;
+      flex:1 1 280px;max-width:340px;
       background:rgba(255,255,255,.95);
-      border:1px solid var(--grid);
-      border-radius:16px;
+      border:1px solid var(--grid);border-radius:16px;
       box-shadow:0 6px 18px rgba(60,64,180,.10);
       padding:12px 14px;
-      display:flex;
-      flex-direction:column;
-      gap:5px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .live-card.animate-in{
+      display:flex;flex-direction:column;gap:5px;
+      position:relative;overflow:hidden;
       animation:cardIn .58s var(--ease-soft) both;
     }
-
     @keyframes cardIn{
       from{opacity:0;transform:translate3d(0,12px,0) scale(.99)}
       to{opacity:1;transform:translate3d(0,0,0) scale(1)}
     }
-
     .live-card::before{
-      content:'';
-      position:absolute;
-      left:0;
-      top:0;
-      bottom:0;
-      width:4px;
+      content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
       background:linear-gradient(180deg,var(--navy),var(--accent));
       border-radius:16px 0 0 16px;
     }
-
-    .live-card-room{font-size:11px;font-weight:800;letter-spacing:.4px;color:var(--accent);text-transform:uppercase}
-    .live-card-code{font-size:12px;font-weight:700;color:var(--muted)}
-    .live-card-name{font-size:16px;font-weight:800;color:var(--navy-dark);line-height:1.2}
-    .live-card-meta{font-size:13px;font-weight:600;color:var(--muted)}
-
+    .live-card-room{font-size:11px;font-weight:800;letter-spacing:.4px;color:var(--accent);text-transform:uppercase;}
+    .live-card-code{font-size:12px;font-weight:700;color:var(--muted);}
+    .live-card-name{font-size:16px;font-weight:800;color:var(--navy-dark);line-height:1.2;}
+    .live-card-meta{font-size:13px;font-weight:600;color:var(--muted);}
     .live-card-time{
-      margin-top:4px;
-      width:fit-content;
-      padding:4px 10px;
-      border-radius:999px;
-      background:var(--gold-soft);
-      color:var(--gold);
-      font-family:'JetBrains Mono',monospace;
-      font-size:13px;
-      font-weight:700;
+      margin-top:4px;width:fit-content;padding:4px 10px;border-radius:999px;
+      background:var(--gold-soft);color:var(--gold);
+      font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;
     }
-
     .live-empty{
-      flex:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      gap:8px;
-      color:var(--muted);
+      flex:1;display:flex;align-items:center;justify-content:center;
+      flex-direction:column;gap:8px;color:var(--muted);
       animation:cardIn .45s var(--ease-soft);
     }
-
-    .live-empty-icon{font-size:44px;opacity:.4}
-    .live-empty-text{font-size:18px;font-weight:700}
-    .live-empty-sub{font-size:14px}
+    .live-empty-icon{font-size:44px;opacity:.4;}
+    .live-empty-text{font-size:18px;font-weight:700;}
+    .live-empty-sub{font-size:14px;}
 
     .error-box{
-      margin:10px;
-      padding:14px;
-      border-radius:12px;
-      background:#fff0f0;
-      border:1px solid #efaaaa;
-      color:#7b1d1d;
-      font-size:14px;
-      line-height:1.5;
+      margin:10px;padding:14px;border-radius:12px;
+      background:#fff0f0;border:1px solid #efaaaa;
+      color:#7b1d1d;font-size:14px;line-height:1.5;
     }
 
-    @media (prefers-reduced-motion: reduce){
-      *,*::before,*::after{
-        animation:none!important;
-        transition:none!important;
-        scroll-behavior:auto!important;
-      }
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation:none!important;transition:none!important;}
     }
   </style>
 </head>
@@ -687,460 +392,396 @@
     <div class="ticker-viewport">
       <div class="ticker-flip-stack">
         <div class="ticker-item active" id="tickerCurrent">Memuat informasi...</div>
-        <div class="ticker-item next" id="tickerNext"></div>
+        <div class="ticker-item next"   id="tickerNext"></div>
       </div>
     </div>
   </section>
 
-  <section class="table-panel" id="tablePanel">
+  <section class="table-panel">
     <div class="view-container" id="viewContainer">
+
+      <!-- FULL SCHEDULE VIEW: frozen header + scrollable body -->
       <div class="view-pane active" id="viewFull">
-        <div class="scale-host" id="scaleHost">
-          <div id="tableSlot"><div class="error-box">Memuat jadwal...</div></div>
+        <!-- frozen header band -->
+        <div class="tbl-header-band" id="tblHeaderBand">
+          <div class="tbl-header-inner" id="tblHeaderInner">
+            <!-- header table injected by JS -->
+          </div>
+        </div>
+        <!-- scrollable body band -->
+        <div class="tbl-body-band" id="tblBodyBand">
+          <!-- body table injected by JS -->
+          <div class="error-box" id="tblBodyPlaceholder">Memuat jadwal...</div>
         </div>
       </div>
+
+      <!-- LIVE VIEW -->
       <div class="view-pane inactive" id="viewLive">
         <div class="live-view" id="liveView"></div>
       </div>
+
     </div>
   </section>
 
 </div>
-
 <script>
+// ─────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────
 const CONFIG = {
-  csvUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
-  autoRefreshMs:60000,
-  fallbackDays:['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
-  roomHeaderClasses:{F6:'rh-f6',F4:'rh-f4'},
-  modeSwitchMs:30*1000,
+  csvUrl:        'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
+  autoRefreshMs: 60_000,
+  fallbackDays:  ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+  roomHeaderClasses: { F6:'rh-f6', F4:'rh-f4' },
+  modeSwitchMs:  5 * 60_000,
   tickerFallback:'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
-  tickerFlipMs:7000,
-  tickerAnimMs:1080
+  tickerFlipMs:  7_000,
+  tickerAnimMs:  1_080,
 };
 
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
 const state = {
-  data:null,
-  selectedDay:'Senin',
-  csvHash:'',
-  liveSlotKey:'',
-  currentMode:'full',
-  modeTimer:null,
-  modeRemainMs:CONFIG.modeSwitchMs,
-  tickerItems:[],
-  tickerIndex:0,
-  tickerTimer:null,
-  tickerAnimating:false
+  data:           null,
+  selectedDay:    'Senin',
+  csvHash:        '',
+  liveSlotKey:    '',
+  currentMode:    'full',
+  modeTimer:      null,
+  modeRemainMs:   CONFIG.modeSwitchMs,
+  tickerItems:    [],
+  tickerIndex:    0,
+  tickerTimer:    null,
+  tickerAnimating:false,
 };
 
+// ─────────────────────────────────────────────
+// DOM REFS
+// ─────────────────────────────────────────────
 const el = {
-  statusBar:document.getElementById('statusBar'),
-  clockTime:document.getElementById('clockTime'),
-  clockDate:document.getElementById('clockDate'),
-  tickerCurrent:document.getElementById('tickerCurrent'),
-  tickerNext:document.getElementById('tickerNext'),
-  viewFull:document.getElementById('viewFull'),
-  viewLive:document.getElementById('viewLive'),
-  tableSlot:document.getElementById('tableSlot'),
-  scaleHost:document.getElementById('scaleHost'),
-  liveView:document.getElementById('liveView'),
-  modeBadge:document.getElementById('modeBadge'),
-  modeProgress:document.getElementById('modeProgress'),
-  viewContainer:document.getElementById('viewContainer')
+  statusBar:      document.getElementById('statusBar'),
+  clockTime:      document.getElementById('clockTime'),
+  clockDate:      document.getElementById('clockDate'),
+  tickerCurrent:  document.getElementById('tickerCurrent'),
+  tickerNext:     document.getElementById('tickerNext'),
+  viewFull:       document.getElementById('viewFull'),
+  viewLive:       document.getElementById('viewLive'),
+  tblHeaderInner: document.getElementById('tblHeaderInner'),
+  tblBodyBand:    document.getElementById('tblBodyBand'),
+  tblBodyPlaceholder: document.getElementById('tblBodyPlaceholder'),
+  liveView:       document.getElementById('liveView'),
+  modeBadge:      document.getElementById('modeBadge'),
+  modeProgress:   document.getElementById('modeProgress'),
+  viewContainer:  document.getElementById('viewContainer'),
 };
 
-const n=v=>String(v??'').trim();
-const nk=v=>n(v).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g,'').toUpperCase();
-const esc=v=>String(v??'')
-  .replace(/&/g,'&amp;')
-  .replace(/</g,'&lt;')
-  .replace(/>/g,'&gt;')
-  .replace(/"/g,'&quot;')
-  .replace(/'/g,'&#039;');
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+const n   = v => String(v ?? '').trim();
+const nk  = v => n(v).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g, '').toUpperCase();
+const esc = v => String(v ?? '')
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+const isYes = v => { const x = n(v).toLowerCase(); return x==='' || ['ya','y','true','1','aktif'].includes(x); };
 
-const isYes=v=>{
-  const x=n(v).toLowerCase();
-  return x==='' || ['ya','y','true','1','aktif'].includes(x);
-};
-
-function getCanonicalKey(k){
+function getCanonicalKey(k) {
   const m = {
-    JENISDATA:'JENIS_DATA',
-    AKTIF:'AKTIF',
-    HARI:'HARI',
-    SESI:'SESI',
-    IDSLOT:'ID_SLOT',
-    IDSLOTMULAI:'ID_SLOT_MULAI',
-    IDSLOTSELESAI:'ID_SLOT_SELESAI',
-    LABELWAKTU:'LABEL_WAKTU',
-    TIPEBARIS:'TIPE_BARIS',
-    URUTANSLOT:'URUTAN_SLOT',
-    KODERUANG:'KODE_RUANG',
-    NAMATAMPILRUANG:'NAMA_TAMPIL_RUANG',
-    URUTANKOLOMRUANG:'URUTAN_KOLOM_RUANG',
-    GRUPWARNARUANG:'GRUP_WARNA_RUANG',
-    KODEMK:'KODE_MK',
-    NAMAMK:'NAMA_MK',
-    KELAS:'KELAS',
-    DOSEN:'DOSEN',
-    PROGRAMANGKATAN:'PROGRAM_ANGKATAN',
-    CATATAN:'CATATAN',
-    KETERANGAN:'CATATAN',
-    WARNABG:'WARNA_BG',
-    WARNATEXT:'WARNA_TEXT',
-    TANGGALINFO:'TANGGAL_INFO',
-    JENISINFO:'JENIS_INFO',
-    KETERANGANINFO:'KETERANGAN_INFO'
+    JENISDATA:'JENIS_DATA',AKTIF:'AKTIF',HARI:'HARI',SESI:'SESI',
+    IDSLOT:'ID_SLOT',IDSLOTMULAI:'ID_SLOT_MULAI',IDSLOTSELESAI:'ID_SLOT_SELESAI',
+    LABELWAKTU:'LABEL_WAKTU',TIPEBARIS:'TIPE_BARIS',URUTANSLOT:'URUTAN_SLOT',
+    KODERUANG:'KODE_RUANG',NAMATAMPILRUANG:'NAMA_TAMPIL_RUANG',
+    URUTANKOLOMRUANG:'URUTAN_KOLOM_RUANG',GRUPWARNARUANG:'GRUP_WARNA_RUANG',
+    KODEMK:'KODE_MK',NAMAMK:'NAMA_MK',KELAS:'KELAS',DOSEN:'DOSEN',
+    PROGRAMANGKATAN:'PROGRAM_ANGKATAN',CATATAN:'CATATAN',KETERANGAN:'CATATAN',
+    WARNABG:'WARNA_BG',WARNATEXT:'WARNA_TEXT',
+    TANGGALINFO:'TANGGAL_INFO',JENISINFO:'JENIS_INFO',KETERANGANINFO:'KETERANGAN_INFO',
   };
   return m[nk(k)] || k;
 }
 
-function parseTimeLabelToMinutes(label){
-  const c=n(label).replace(/–/g,'-');
-  const pts=c.split('-').map(x=>n(x));
-  if(pts.length<2) return null;
-  const p=s=>{
-    const m=s.match(/(\d{1,2})[.:](\d{2})/);
-    return m ? (+m[1]*60 + +m[2]) : null;
-  };
-  const s=p(pts[0]), e=p(pts[1]);
-  return (s!==null && e!==null) ? {start:s,end:e} : null;
+function parseTimeLabelToMinutes(label) {
+  const c   = n(label).replace(/–/g,'-');
+  const pts = c.split('-').map(x => n(x));
+  if (pts.length < 2) return null;
+  const p = s => { const m = s.match(/(\d{1,2})[.:](\d{2})/); return m ? (+m[1]*60 + +m[2]) : null; };
+  const s = p(pts[0]), e = p(pts[1]);
+  return (s !== null && e !== null) ? { start:s, end:e } : null;
 }
 
-const nowMinutes=()=>{
-  const d=new Date();
-  return d.getHours()*60 + d.getMinutes();
-};
+const nowMinutes    = () => { const d = new Date(); return d.getHours()*60 + d.getMinutes(); };
+const currentDayName= () => ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date().getDay()];
 
-const currentDayName=()=>['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date().getDay()];
-
-function buildObjectsFromCsv(csvText){
-  const rows=Papa.parse(csvText,{
-    delimiter:',',
-    quoteChar:'"',
-    escapeChar:'"',
-    skipEmptyLines:false
-  }).data || [];
-
-  const hi=rows.findIndex(r=>nk(r?.[0])==='JENISDATA');
-  if(hi===-1) throw new Error('Header JENIS_DATA tidak ditemukan.');
-
-  const headers=rows[hi].map(getCanonicalKey);
-
+// ─────────────────────────────────────────────
+// DATA MODEL
+// ─────────────────────────────────────────────
+function buildObjectsFromCsv(csvText) {
+  const rows = Papa.parse(csvText, { delimiter:',', quoteChar:'"', escapeChar:'"', skipEmptyLines:false }).data || [];
+  const hi   = rows.findIndex(r => nk(r?.[0]) === 'JENISDATA');
+  if (hi === -1) throw new Error('Header JENIS_DATA tidak ditemukan.');
+  const headers = rows[hi].map(getCanonicalKey);
   return rows.slice(hi+1)
-    .filter(r=>r.some(c=>n(c)!==''))
-    .map(r=>{
-      const o={};
-      headers.forEach((h,i)=>{ if(h) o[h]=r[i]??''; });
-      return o;
-    });
+    .filter(r => r.some(c => n(c) !== ''))
+    .map(r => { const o = {}; headers.forEach((h,i) => { if (h) o[h] = r[i] ?? ''; }); return o; });
 }
 
-function buildDataModel(csvText){
-  const rows=buildObjectsFromCsv(csvText);
-
-  const rooms=rows
-    .filter(r=>n(r.JENIS_DATA).toUpperCase()==='RUANG' && isYes(r.AKTIF))
-    .sort((a,b)=>(+a.URUTAN_KOLOM_RUANG||0)-(+b.URUTAN_KOLOM_RUANG||0));
-
-  const slots=rows
-    .filter(r=>n(r.JENIS_DATA).toUpperCase()==='SLOT' && isYes(r.AKTIF))
-    .sort((a,b)=>(+a.URUTAN_SLOT||+a.ID_SLOT||0)-(+b.URUTAN_SLOT||+b.ID_SLOT||0));
-
-  const schedules=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='JADWAL' && isYes(r.AKTIF));
-  const infos=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='INFO' && isYes(r.AKTIF));
-
-  const daysSet=new Set();
-  slots.forEach(r=>{ if(n(r.HARI)) daysSet.add(n(r.HARI)); });
-  schedules.forEach(r=>{ if(n(r.HARI)) daysSet.add(n(r.HARI)); });
-
-  const ordered=CONFIG.fallbackDays.filter(d=>daysSet.has(d));
-  const extra=[...daysSet].filter(d=>!ordered.includes(d));
-
-  return {
-    rooms,
-    slots,
-    schedules,
-    infos,
-    days:[...ordered,...extra],
-    hasGlobalSlots:slots.some(r=>!n(r.HARI))
-  };
+function buildDataModel(csvText) {
+  const rows = buildObjectsFromCsv(csvText);
+  const rooms     = rows.filter(r => n(r.JENIS_DATA).toUpperCase()==='RUANG'   && isYes(r.AKTIF)).sort((a,b)=>(+a.URUTAN_KOLOM_RUANG||0)-(+b.URUTAN_KOLOM_RUANG||0));
+  const slots     = rows.filter(r => n(r.JENIS_DATA).toUpperCase()==='SLOT'    && isYes(r.AKTIF)).sort((a,b)=>(+a.URUTAN_SLOT||+a.ID_SLOT||0)-(+b.URUTAN_SLOT||+b.ID_SLOT||0));
+  const schedules = rows.filter(r => n(r.JENIS_DATA).toUpperCase()==='JADWAL'  && isYes(r.AKTIF));
+  const infos     = rows.filter(r => n(r.JENIS_DATA).toUpperCase()==='INFO'    && isYes(r.AKTIF));
+  const daysSet   = new Set();
+  slots.forEach(r => { if (n(r.HARI)) daysSet.add(n(r.HARI)); });
+  schedules.forEach(r => { if (n(r.HARI)) daysSet.add(n(r.HARI)); });
+  const ordered = CONFIG.fallbackDays.filter(d => daysSet.has(d));
+  const extra   = [...daysSet].filter(d => !ordered.includes(d));
+  return { rooms, slots, schedules, infos, days:[...ordered,...extra], hasGlobalSlots:slots.some(r=>!n(r.HARI)) };
 }
 
-function getSlotsForDay(day){
-  const dl=n(day).toLowerCase();
-  const sp=state.data.slots.filter(r=>n(r.HARI).toLowerCase()===dl);
-  if(sp.length)return sp;
-  const gl=state.data.slots.filter(r=>!n(r.HARI));
-  return gl.length?gl:state.data.slots;
+function getSlotsForDay(day) {
+  const dl = n(day).toLowerCase();
+  const sp = state.data.slots.filter(r => n(r.HARI).toLowerCase() === dl);
+  if (sp.length) return sp;
+  const gl = state.data.slots.filter(r => !n(r.HARI));
+  return gl.length ? gl : state.data.slots;
 }
 
-function getScheduleItem(day,roomCode,slotId){
-  const dl=n(day).toLowerCase();
-  const rc=n(roomCode);
-  const sid=+slotId;
+function getScheduleItem(day, roomCode, slotId) {
+  const dl = n(day).toLowerCase(), rc = n(roomCode), sid = +slotId;
   return state.data.schedules.find(item =>
-    n(item.HARI).toLowerCase()===dl &&
-    n(item.KODE_RUANG)===rc &&
-    sid>=+item.ID_SLOT_MULAI &&
-    sid<=(+(item.ID_SLOT_SELESAI||item.ID_SLOT_MULAI))
+    n(item.HARI).toLowerCase()===dl && n(item.KODE_RUANG)===rc &&
+    sid >= +item.ID_SLOT_MULAI && sid <= (+(item.ID_SLOT_SELESAI||item.ID_SLOT_MULAI))
   ) || null;
 }
 
-function getCurrentActiveSlotId(day){
-  if(!state.data || n(day)!==currentDayName()) return null;
-  const cur=nowMinutes();
-
-  for(const slot of getSlotsForDay(day)){
-    if(n(slot.TIPE_BARIS).toUpperCase()!=='KULIAH') continue;
-    const p=parseTimeLabelToMinutes(slot.LABEL_WAKTU);
-    if(p && cur>=p.start && cur<p.end) return +slot.ID_SLOT;
+function getCurrentActiveSlotId(day) {
+  if (!state.data || n(day) !== currentDayName()) return null;
+  const cur = nowMinutes();
+  for (const slot of getSlotsForDay(day)) {
+    if (n(slot.TIPE_BARIS).toUpperCase() !== 'KULIAH') continue;
+    const p = parseTimeLabelToMinutes(slot.LABEL_WAKTU);
+    if (p && cur >= p.start && cur < p.end) return +slot.ID_SLOT;
   }
   return null;
 }
 
-function getCurrentAcademicDay(days){
-  const c=currentDayName();
-  return days.includes(c)?c:(days[0]||'Senin');
-}
+const getCurrentAcademicDay = days => { const c = currentDayName(); return days.includes(c) ? c : (days[0]||'Senin'); };
 
-function mkColor(kodeMk){
-  const code=n(kodeMk).toUpperCase().replace(/\s+/g,'');
-  const m=code.match(/^([A-Z]+)(\d)/);
-  const key=m?`${m[1]}${m[2]}xx`:'DEFAULT';
-  const map={
-    'TI1xx':{bg:'#EEF4FA',t:'#1A3050'},
-    'TI2xx':{bg:'#EDF7F1',t:'#0E3020'},
-    'TI3xx':{bg:'#FFF9EC',t:'#3A2800'},
-    'TI4xx':{bg:'#FAF0E8',t:'#3A1808'},
-    'TI5xx':{bg:'#F2EEF9',t:'#1E103A'},
-    'TI6xx':{bg:'#EEF6F1',t:'#0C3220'},
-    'TI7xx':{bg:'#EEF5F6',t:'#0C2A30'},
-    'TI8xx':{bg:'#FAEFF0',t:'#3A0C10'},
-    'TIDA0xx':{bg:'#F0F4E8',t:'#203010'},
-    'DEFAULT':{bg:'#F3F4FA',t:'#1A1D3A'}
+function mkColor(kodeMk) {
+  const code = n(kodeMk).toUpperCase().replace(/\s+/g,'');
+  const m    = code.match(/^([A-Z]+)(\d)/);
+  const key  = m ? `${m[1]}${m[2]}xx` : 'DEFAULT';
+  const map  = {
+    'TI1xx':{bg:'#EEF4FA',t:'#1A3050'}, 'TI2xx':{bg:'#EDF7F1',t:'#0E3020'},
+    'TI3xx':{bg:'#FFF9EC',t:'#3A2800'}, 'TI4xx':{bg:'#FAF0E8',t:'#3A1808'},
+    'TI5xx':{bg:'#F2EEF9',t:'#1E103A'}, 'TI6xx':{bg:'#EEF6F1',t:'#0C3220'},
+    'TI7xx':{bg:'#EEF5F6',t:'#0C2A30'}, 'TI8xx':{bg:'#FAEFF0',t:'#3A0C10'},
+    'TIDA0xx':{bg:'#F0F4E8',t:'#203010'}, 'DEFAULT':{bg:'#F3F4FA',t:'#1A1D3A'},
   };
-  return map[key]||map.DEFAULT;
+  return map[key] || map.DEFAULT;
 }
 
-function roomHClass(room){
-  const g=n(room.GRUP_WARNA_RUANG).toUpperCase();
-  return CONFIG.roomHeaderClasses[g]||'rh-def';
+function roomHClass(room) {
+  const g = n(room.GRUP_WARNA_RUANG).toUpperCase();
+  return CONFIG.roomHeaderClasses[g] || 'rh-def';
 }
 
-function bindHeaderBodySync(){
-  const body = document.querySelector('.table-body-scroll');
-  const head = document.querySelector('.table-header-viewport');
-  if(!body || !head) return;
+// ─────────────────────────────────────────────
+// SCROLL SYNC + AUTO-SCROLL
+// ─────────────────────────────────────────────
 
-  body.addEventListener('scroll', () => {
-    head.scrollLeft = body.scrollLeft;
-  }, { passive:true });
+/** Mirror body horizontal scroll → header */
+function bindHeaderBodySync() {
+  const body = el.tblBodyBand;
+  const head = el.tblHeaderInner;
+  if (!body || !head) return;
+  // Remove old listener by cloning (safe approach)
+  const newBody = body.cloneNode(false);
+  while (body.firstChild) newBody.appendChild(body.firstChild);
+  body.parentNode.replaceChild(newBody, body);
+  el.tblBodyBand = newBody; // update ref
+
+  newBody.addEventListener('scroll', () => {
+    head.scrollLeft = newBody.scrollLeft;
+  }, { passive: true });
 }
 
-function getActiveScrollTarget(){
-  return (
-    document.querySelector('.table-body-scroll .time-cell.current-time') ||
-    document.querySelector('.table-body-scroll .course-cell.current-course') ||
-    document.querySelector('.table-body-scroll tr.current-row')
-  );
-}
+/**
+ * Scroll the body band so the active row is centred vertically.
+ * @param {boolean} force  - always scroll even if row is already visible
+ */
+function scrollToActiveRow(force = false) {
+  const band   = el.tblBodyBand;
+  const target = band.querySelector('tr.current-row');
+  if (!band) return;
 
-function ensureCurrentRowVisible(force=false){
-  const wrap = document.querySelector('.table-body-scroll');
-  const target = getActiveScrollTarget();
-
-  if(!wrap) return;
-
-  if(!target){
-    if(force){
-      wrap.scrollTo({ top:0, behavior:'smooth' });
-    }
+  if (!target) {
+    if (force) band.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
-  const wrapRect = wrap.getBoundingClientRect();
+  const bandRect   = band.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
 
-  const currentScrollTop = wrap.scrollTop;
-  const targetTopInScroll = currentScrollTop + (targetRect.top - wrapRect.top);
-  const targetBottomInScroll = targetTopInScroll + targetRect.height;
+  const scrollTop = band.scrollTop;
+  const rowTopInBand    = scrollTop + (targetRect.top  - bandRect.top);
+  const rowBottomInBand = rowTopInBand + targetRect.height;
 
-  const safeTop = currentScrollTop + 10;
-  const safeBottom = currentScrollTop + wrap.clientHeight - 20;
+  // Margins so the row is never right at the edge
+  const marginTop    = 10;
+  const marginBottom = 20;
+  const visible      = rowTopInBand >= scrollTop + marginTop &&
+                       rowBottomInBand <= scrollTop + band.clientHeight - marginBottom;
 
-  const isAbove = targetTopInScroll < safeTop;
-  const isBelow = targetBottomInScroll > safeBottom;
-
-  if(force || isAbove || isBelow){
-    const targetCenter = targetTopInScroll + (targetRect.height / 2);
-    const desiredTop = targetCenter - (wrap.clientHeight / 2);
-    const maxScroll = Math.max(0, wrap.scrollHeight - wrap.clientHeight);
-    const nextTop = Math.max(0, Math.min(maxScroll, desiredTop));
-
-    wrap.scrollTo({
-      top: nextTop,
-      behavior: 'smooth'
-    });
+  if (force || !visible) {
+    const desired = rowTopInBand + targetRect.height / 2 - band.clientHeight / 2;
+    const maxScroll = Math.max(0, band.scrollHeight - band.clientHeight);
+    band.scrollTo({ top: Math.max(0, Math.min(maxScroll, desired)), behavior: 'smooth' });
   }
 }
 
-function renderFullTable(day){
-  if(!state.data){
-    el.tableSlot.innerHTML='<div class="error-box">Data belum tersedia.</div>';
+// ─────────────────────────────────────────────
+// RENDER FULL TABLE
+// ─────────────────────────────────────────────
+function renderFullTable(day) {
+  if (!state.data) {
+    el.tblHeaderInner.innerHTML = '';
+    el.tblBodyBand.innerHTML    = '<div class="error-box">Data belum tersedia.</div>';
     return;
   }
 
-  const slots=getSlotsForDay(day);
-  const rooms=state.data.rooms;
-  const activeSlotId=getCurrentActiveSlotId(day);
+  const slots        = getSlotsForDay(day);
+  const rooms        = state.data.rooms;
+  const activeSlotId = getCurrentActiveSlotId(day);
 
-  if(!rooms.length){
-    el.tableSlot.innerHTML='<div class="error-box">Data RUANG tidak ditemukan.</div>';
-    return;
-  }
+  if (!rooms.length) { el.tblBodyBand.innerHTML = '<div class="error-box">Data RUANG tidak ditemukan.</div>'; return; }
+  if (!slots.length) { el.tblBodyBand.innerHTML = '<div class="error-box">Data SLOT tidak ditemukan.</div>'; return; }
 
-  if(!slots.length){
-    el.tableSlot.innerHTML='<div class="error-box">Data SLOT tidak ditemukan.</div>';
-    return;
-  }
+  // ── Sizing ──
+  const cH = Math.max(360, el.viewFull.clientHeight - 4);
+  const cW = Math.max(900, el.viewFull.clientWidth  - 4);
 
-  const containerH=Math.max(360, el.viewFull.clientHeight - 4);
-  const containerW=Math.max(1100, el.viewFull.clientWidth - 4);
+  const thH      = Math.max(42, Math.min(56, Math.floor(cH * 0.065)));
+  const rowH     = Math.max(42, Math.min(64, Math.floor(cH * 0.076)));
+  const specialH = Math.max(26, Math.min(34, Math.floor(rowH * 0.58)));
 
-  const thH=Math.max(42, Math.min(56, Math.floor(containerH*0.065)));
-  const rowH=Math.max(42, Math.min(62, Math.floor(containerH*0.075)));
-  const specialH=Math.max(26, Math.min(34, Math.floor(rowH*0.58)));
+  const sesiW    = 58;
+  const jamW     = 118;
+  const roomCols = rooms.length;
+  const roomW    = roomCols <= 5
+    ? Math.max(180, Math.floor((cW - sesiW - jamW - 20) / roomCols))
+    : 190;
 
-  const roomCols=rooms.length;
-  const sesiW=58;
-  const jamW=118;
+  const fHeader = Math.max(13, Math.min(20, Math.floor(roomW * 0.11)));
+  const fBase   = Math.max(11, Math.min(15, Math.floor(roomW * 0.094)));
+  const fCode   = Math.max(9,  Math.min(12, Math.floor(fBase * 0.90)));
+  const fMeta   = Math.max(8,  Math.min(10, Math.floor(fBase * 0.82)));
+  const fBadge  = Math.max(8,  Math.min(10, Math.floor(fBase * 0.82)));
 
-  let roomWidth;
-  if(roomCols <= 5){
-    roomWidth = Math.max(180, Math.floor((containerW - sesiW - jamW - 20) / roomCols));
-  } else {
-    roomWidth = 190;
-  }
+  const tblWidth = sesiW + jamW + roomW * roomCols;
 
-  const fHeader=Math.max(14, Math.min(20, Math.floor(roomWidth*0.11)));
-  const fBase=Math.max(11.5, Math.min(15, Math.floor(roomWidth*0.095)));
-  const fCode=Math.max(9.5, Math.min(12.5, Math.floor(fBase*0.9)));
-  const fMeta=Math.max(8.5, Math.min(10.5, Math.floor(fBase*0.82)));
-  const fBadge=Math.max(8.5, Math.min(10.5, Math.floor(fBase*0.82)));
-
-  const sessionCount=new Map();
-  const renderedSession=new Set();
-
-  slots.forEach(s=>{
-    if(n(s.TIPE_BARIS).toUpperCase()==='KULIAH'){
-      const k=n(s.SESI)||'-';
-      sessionCount.set(k,(sessionCount.get(k)||0)+1);
-    }
-  });
-
-  const tableWidth = sesiW + jamW + (roomWidth * rooms.length);
-
+  // Shared colgroup markup
   const colGroup = `
     <colgroup>
       <col style="width:${sesiW}px">
       <col style="width:${jamW}px">
-      ${rooms.map(()=>`<col style="width:${roomWidth}px">`).join('')}
-    </colgroup>
-  `;
+      ${rooms.map(()=>`<col style="width:${roomW}px">`).join('')}
+    </colgroup>`;
 
-  const headerTable = `
-    <table class="schedule" style="width:${tableWidth}px;font-size:${fBase}px;">
+  // ── Header table ──
+  const headerTableHtml = `
+    <table class="schedule head-tbl" style="width:${tblWidth}px;font-size:${fBase}px;">
       ${colGroup}
       <thead>
         <tr style="height:${thH}px;">
           <th style="font-size:${fHeader}px;">SESI</th>
           <th style="font-size:${fHeader}px;">JAM</th>
-          ${rooms.map(r=>`<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}
+          ${rooms.map(r => `<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}
         </tr>
       </thead>
-    </table>
-  `;
+    </table>`;
+
+  // ── Body rows ──
+  const sessionCount   = new Map();
+  const renderedSession = new Set();
+  slots.forEach(s => {
+    if (n(s.TIPE_BARIS).toUpperCase() === 'KULIAH') {
+      const k = n(s.SESI) || '-';
+      sessionCount.set(k, (sessionCount.get(k) || 0) + 1);
+    }
+  });
 
   let bodyRows = '';
+  for (const slot of slots) {
+    const type   = n(slot.TIPE_BARIS).toUpperCase();
+    const sid    = +slot.ID_SLOT;
+    const isCur  = (type === 'KULIAH') && (activeSlotId === sid);
+    const rH     = (type === 'KULIAH') ? rowH : specialH;
 
-  for(const slot of slots){
-    const type=n(slot.TIPE_BARIS).toUpperCase();
-    const sid=+slot.ID_SLOT;
-    const isCur=type==='KULIAH' && activeSlotId===sid;
-    const currentHeight=type==='KULIAH'?rowH:specialH;
+    bodyRows += `<tr class="${isCur ? 'current-row' : ''}">`;
 
-    bodyRows += `<tr class="${isCur?'current-row':''}">`;
-
-    if(type==='KULIAH'){
-      const sesi=n(slot.SESI)||'-';
-
-      if(!renderedSession.has(sesi)){
-        bodyRows += `<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}" style="height:${currentHeight}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
+    if (type === 'KULIAH') {
+      const sesi = n(slot.SESI) || '-';
+      if (!renderedSession.has(sesi)) {
+        bodyRows += `<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}" style="height:${rH}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
         renderedSession.add(sesi);
       }
-
-      bodyRows += `<td class="time-cell${isCur?' current-time':''}" style="height:${currentHeight}px;font-size:${Math.max(9,fBase*0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
-
-      for(const room of rooms){
-        const item=getScheduleItem(day,room.KODE_RUANG,sid);
-        if(item){
-          const c=mkColor(item.KODE_MK||'');
-          bodyRows += `<td class="course-cell${isCur?' current-course':''}" style="height:${currentHeight}px;background:${c.bg};color:${c.t};">
-            ${isCur?`<div class="live-badge" style="font-size:${fBadge}px;">▶ Sedang Berlangsung</div>`:''}
+      bodyRows += `<td class="time-cell${isCur?' current-time':''}" style="height:${rH}px;font-size:${Math.max(9,fBase*0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      for (const room of rooms) {
+        const item = getScheduleItem(day, room.KODE_RUANG, sid);
+        if (item) {
+          const c = mkColor(item.KODE_MK || '');
+          bodyRows += `<td class="course-cell${isCur?' current-course':''}" style="height:${rH}px;background:${c.bg};color:${c.t};">
+            ${isCur ? `<div class="live-badge" style="font-size:${fBadge}px;">▶ Sedang Berlangsung</div>` : ''}
             <div class="c-code" style="font-size:${fCode}px;">${esc(item.KODE_MK||'')}${item.KELAS?` (${esc(item.KELAS)})`:''}</div>
             <div class="c-name" style="font-size:${fBase}px;">${esc(item.NAMA_MK||'')}</div>
-            ${item.DOSEN?`<div class="c-meta" style="font-size:${fMeta}px;">👤 ${esc(item.DOSEN)}</div>`:''}
-            ${item.PROGRAM_ANGKATAN?`<div class="c-meta" style="font-size:${fMeta}px;">${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
+            ${item.DOSEN     ? `<div class="c-meta" style="font-size:${fMeta}px;">👤 ${esc(item.DOSEN)}</div>` : ''}
+            ${item.PROGRAM_ANGKATAN ? `<div class="c-meta" style="font-size:${fMeta}px;">${esc(item.PROGRAM_ANGKATAN)}</div>` : ''}
           </td>`;
         } else {
-          bodyRows += `<td class="empty-cell${isCur?' current-course':''}" style="height:${currentHeight}px;"></td>`;
+          bodyRows += `<td class="empty-cell${isCur?' current-course':''}" style="height:${rH}px;"></td>`;
         }
       }
     } else {
-      bodyRows += `<td class="session-empty" style="height:${currentHeight}px;"></td>`;
-      bodyRows += `<td class="special-time" style="height:${currentHeight}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
-      bodyRows += `<td class="special-cell" colspan="${rooms.length}" style="height:${currentHeight}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
+      bodyRows += `<td class="session-empty" style="height:${rH}px;"></td>`;
+      bodyRows += `<td class="special-time"  style="height:${rH}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      bodyRows += `<td class="special-cell"  colspan="${rooms.length}" style="height:${rH}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
     }
-
     bodyRows += `</tr>`;
   }
 
-  const bodyTable = `
-    <table class="schedule body-only" style="width:${tableWidth}px;font-size:${fBase}px;">
+  const bodyTableHtml = `
+    <table class="schedule body-tbl" style="width:${tblWidth}px;font-size:${fBase}px;">
       ${colGroup}
       <tbody>${bodyRows}</tbody>
-    </table>
-  `;
+    </table>`;
 
-  el.tableSlot.innerHTML = `
-    <div class="table-header-wrap">
-      <div class="table-header-viewport">
-        ${headerTable}
-      </div>
-    </div>
-    <div class="table-body-wrap">
-      <div class="table-body-scroll">
-        ${bodyTable}
-      </div>
-    </div>
-  `;
+  // ── Inject HTML ──
+  el.tblHeaderInner.innerHTML = headerTableHtml;
+  el.tblBodyBand.innerHTML    = bodyTableHtml;
 
+  // ── Wire sync + scroll to active row ──
   requestAnimationFrame(() => {
     bindHeaderBodySync();
-    ensureCurrentRowVisible(true);
-    setTimeout(() => ensureCurrentRowVisible(true), 120);
+    scrollToActiveRow(true);
+    // Second pass for late-render cases
+    setTimeout(() => scrollToActiveRow(true), 150);
   });
 }
 
-function renderLiveView(day){
-  const activeSlotId=getCurrentActiveSlotId(day);
-  const slots=state.data ? getSlotsForDay(day) : [];
-  const activeSlot=slots.find(s=>+s.ID_SLOT===activeSlotId);
-  const timeLabel=activeSlot ? n(activeSlot.LABEL_WAKTU) : '';
+// ─────────────────────────────────────────────
+// RENDER LIVE VIEW
+// ─────────────────────────────────────────────
+function renderLiveView(day) {
+  const activeSlotId = getCurrentActiveSlotId(day);
+  const slots        = state.data ? getSlotsForDay(day) : [];
+  const activeSlot   = slots.find(s => +s.ID_SLOT === activeSlotId);
+  const timeLabel    = activeSlot ? n(activeSlot.LABEL_WAKTU) : '';
 
-  if(!activeSlotId || !state.data){
-    el.liveView.innerHTML=`
+  if (!activeSlotId || !state.data) {
+    el.liveView.innerHTML = `
       <div class="live-header">
         <div class="live-dot" style="background:#94A3B8;animation:none;"></div>
         <div>
@@ -1156,299 +797,256 @@ function renderLiveView(day){
     return;
   }
 
-  const rooms=state.data.rooms;
-  const liveItems=rooms
-    .map(room=>{
-      const item=getScheduleItem(day,room.KODE_RUANG,activeSlotId);
-      return item ? {room,item} : null;
-    })
-    .filter(Boolean);
+  const rooms     = state.data.rooms;
+  const liveItems = rooms.map(room => {
+    const item = getScheduleItem(day, room.KODE_RUANG, activeSlotId);
+    return item ? { room, item } : null;
+  }).filter(Boolean);
 
-  let html=`<div class="live-header">
-      <div class="live-dot"></div>
-      <div>
-        <div class="live-header-title">🔴 Perkuliahan Sedang Berlangsung</div>
-        <div class="live-header-sub">${esc(day)} — Sesi ${esc(activeSlot?.SESI||'')} &nbsp;|&nbsp; ${esc(timeLabel)}</div>
-      </div>
+  let html = `<div class="live-header">
+    <div class="live-dot"></div>
+    <div>
+      <div class="live-header-title">🔴 Perkuliahan Sedang Berlangsung</div>
+      <div class="live-header-sub">${esc(day)} — Sesi ${esc(activeSlot?.SESI||'')} &nbsp;|&nbsp; ${esc(timeLabel)}</div>
     </div>
-    <div class="live-cards">`;
+  </div>
+  <div class="live-cards">`;
 
-  if(!liveItems.length){
-    html+=`<div class="live-empty">
-      <div class="live-empty-icon">📭</div>
-      <div class="live-empty-text">Tidak ada mata kuliah di sesi ini</div>
-    </div>`;
+  if (!liveItems.length) {
+    html += `<div class="live-empty"><div class="live-empty-icon">📭</div><div class="live-empty-text">Tidak ada mata kuliah di sesi ini</div></div>`;
   } else {
-    liveItems.forEach(({room,item},idx)=>{
-      const c=mkColor(item.KODE_MK||'');
-      html+=`<div class="live-card animate-in" style="background:${c.bg};color:${c.t};animation-delay:${idx*80}ms;">
+    liveItems.forEach(({ room, item }, idx) => {
+      const c = mkColor(item.KODE_MK || '');
+      html += `<div class="live-card" style="background:${c.bg};color:${c.t};animation-delay:${idx*80}ms;">
         <div class="live-card-room">${esc(room.NAMA_TAMPIL_RUANG||room.KODE_RUANG)}</div>
         <div class="live-card-code">${esc(item.KODE_MK||'')}${item.KELAS?` · Kelas ${esc(item.KELAS)}`:''}</div>
         <div class="live-card-name" style="color:${c.t}">${esc(item.NAMA_MK||'')}</div>
-        ${item.DOSEN?`<div class="live-card-meta">👤 ${esc(item.DOSEN)}</div>`:''}
-        ${item.PROGRAM_ANGKATAN?`<div class="live-card-meta">🎓 ${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
+        ${item.DOSEN           ? `<div class="live-card-meta">👤 ${esc(item.DOSEN)}</div>` : ''}
+        ${item.PROGRAM_ANGKATAN? `<div class="live-card-meta">🎓 ${esc(item.PROGRAM_ANGKATAN)}</div>` : ''}
         <div class="live-card-time">⏱ ${esc(timeLabel)}</div>
       </div>`;
     });
   }
-
-  html+=`</div>`;
-  el.liveView.innerHTML=html;
+  html += `</div>`;
+  el.liveView.innerHTML = html;
 }
 
-function updateStatus(){
-  if(!state.data){
-    el.statusBar.textContent='Memuat data spreadsheet...';
-    return;
-  }
-
-  const slots=getSlotsForDay(state.selectedDay);
-  const jadCount=state.data.schedules.filter(r=>n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase()).length;
-  const liveId=getCurrentActiveSlotId(state.selectedDay);
-
-  const liveItem=liveId
+// ─────────────────────────────────────────────
+// STATUS BAR
+// ─────────────────────────────────────────────
+function updateStatus() {
+  if (!state.data) { el.statusBar.textContent = 'Memuat data spreadsheet...'; return; }
+  const slots    = getSlotsForDay(state.selectedDay);
+  const jadCount = state.data.schedules.filter(r => n(r.HARI).toLowerCase() === n(state.selectedDay).toLowerCase()).length;
+  const liveId   = getCurrentActiveSlotId(state.selectedDay);
+  const liveItem = liveId
     ? state.data.schedules.find(r =>
-        n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase() &&
-        liveId>=+r.ID_SLOT_MULAI &&
-        liveId<=(+(r.ID_SLOT_SELESAI||r.ID_SLOT_MULAI))
-      )
+        n(r.HARI).toLowerCase() === n(state.selectedDay).toLowerCase() &&
+        liveId >= +r.ID_SLOT_MULAI && liveId <= (+(r.ID_SLOT_SELESAI||r.ID_SLOT_MULAI)))
     : null;
-
-  const liveText=liveItem
+  const liveText = liveItem
     ? `<strong>▶ ${esc(liveItem.NAMA_MK||'Berlangsung')}</strong>`
     : 'Belum ada perkuliahan berlangsung';
-
-  el.statusBar.innerHTML=[
+  el.statusBar.innerHTML = [
     `Hari: <strong>${esc(state.selectedDay)}</strong>`,
     `Ruang: <strong>${state.data.rooms.length}</strong>`,
     `Slot: <strong>${slots.length}</strong>`,
     `Jadwal: <strong>${jadCount}</strong>`,
-    liveText
-  ].map(x=>`<span class="status-item">${x}</span>`).join('');
+    liveText,
+  ].map(x => `<span class="status-item">${x}</span>`).join('');
 }
 
-function stopTickerFlip(){
-  if(state.tickerTimer){
-    clearInterval(state.tickerTimer);
-    state.tickerTimer=null;
-  }
-}
+// ─────────────────────────────────────────────
+// TICKER
+// ─────────────────────────────────────────────
+function stopTickerFlip() { if (state.tickerTimer) { clearInterval(state.tickerTimer); state.tickerTimer = null; } }
 
-function resetTickerWithoutAnimation(nextText){
-  el.tickerCurrent.className='ticker-item active no-anim';
-  el.tickerCurrent.textContent=nextText;
-  el.tickerNext.className='ticker-item next no-anim';
-  el.tickerNext.textContent='';
+function resetTickerNoAnim(text) {
+  el.tickerCurrent.className = 'ticker-item active no-anim';
+  el.tickerCurrent.textContent = text;
+  el.tickerNext.className = 'ticker-item next no-anim';
+  el.tickerNext.textContent = '';
   void el.tickerCurrent.offsetWidth;
-  requestAnimationFrame(()=>{
-    el.tickerCurrent.className='ticker-item active';
-    el.tickerNext.className='ticker-item next';
+  requestAnimationFrame(() => {
+    el.tickerCurrent.className = 'ticker-item active';
+    el.tickerNext.className    = 'ticker-item next';
   });
 }
 
-function renderTickerNow(textValue){
-  const text=textValue || CONFIG.tickerFallback;
-  el.tickerCurrent.className='ticker-item active no-anim';
-  el.tickerCurrent.textContent=text;
-  el.tickerNext.className='ticker-item next no-anim';
-  el.tickerNext.textContent='';
-  void el.tickerCurrent.offsetWidth;
-  requestAnimationFrame(()=>{
-    el.tickerCurrent.className='ticker-item active';
-    el.tickerNext.className='ticker-item next';
-  });
-}
-
-function flipTicker(){
-  if(state.tickerAnimating || state.tickerItems.length <= 1) return;
-  state.tickerAnimating=true;
-
-  const nextIndex=(state.tickerIndex+1)%state.tickerItems.length;
-  const nextText=state.tickerItems[nextIndex] || CONFIG.tickerFallback;
-
-  el.tickerNext.className='ticker-item next no-anim';
-  el.tickerNext.textContent=nextText;
+function flipTicker() {
+  if (state.tickerAnimating || state.tickerItems.length <= 1) return;
+  state.tickerAnimating = true;
+  const nextIndex = (state.tickerIndex + 1) % state.tickerItems.length;
+  const nextText  = state.tickerItems[nextIndex];
+  el.tickerNext.className    = 'ticker-item next no-anim';
+  el.tickerNext.textContent  = nextText;
   void el.tickerNext.offsetWidth;
-  el.tickerNext.className='ticker-item next';
-
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      el.tickerCurrent.className='ticker-item active out-down';
-      el.tickerNext.className='ticker-item next in-down';
-    });
-  });
-
-  setTimeout(()=>{
-    resetTickerWithoutAnimation(nextText);
-    state.tickerIndex=nextIndex;
-    state.tickerAnimating=false;
+  el.tickerNext.className = 'ticker-item next';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.tickerCurrent.className = 'ticker-item active out-down';
+    el.tickerNext.className    = 'ticker-item next in-down';
+  }));
+  setTimeout(() => {
+    resetTickerNoAnim(nextText);
+    state.tickerIndex    = nextIndex;
+    state.tickerAnimating = false;
   }, CONFIG.tickerAnimMs);
 }
 
-function startTickerFlip(){
+function startTickerFlip() {
   stopTickerFlip();
-  if(state.tickerItems.length<=1) return;
-  state.tickerTimer=setInterval(flipTicker, CONFIG.tickerFlipMs);
+  if (state.tickerItems.length <= 1) return;
+  state.tickerTimer = setInterval(flipTicker, CONFIG.tickerFlipMs);
 }
 
-function updateTicker(){
-  if(!state.data){
-    state.tickerItems=[CONFIG.tickerFallback];
-    state.tickerIndex=0;
-    renderTickerNow(CONFIG.tickerFallback);
+function updateTicker() {
+  if (!state.data) {
+    state.tickerItems = [CONFIG.tickerFallback];
+    state.tickerIndex = 0;
+    resetTickerNoAnim(CONFIG.tickerFallback);
     stopTickerFlip();
     return;
   }
-
-  const items=state.data.infos
-    .map(r=>[n(r.TANGGAL_INFO), n(r.JENIS_INFO), n(r.KETERANGAN_INFO)].filter(Boolean).join(' - '))
+  const items = state.data.infos
+    .map(r => [n(r.TANGGAL_INFO), n(r.JENIS_INFO), n(r.KETERANGAN_INFO)].filter(Boolean).join(' - '))
     .filter(Boolean);
-
-  state.tickerItems=items.length ? items : [CONFIG.tickerFallback];
-  state.tickerIndex=0;
-  renderTickerNow(state.tickerItems[0]);
+  state.tickerItems = items.length ? items : [CONFIG.tickerFallback];
+  state.tickerIndex = 0;
+  resetTickerNoAnim(state.tickerItems[0]);
   startTickerFlip();
 }
 
-function switchToMode(mode){
-  state.currentMode=mode;
-  state.modeRemainMs=CONFIG.modeSwitchMs;
+// ─────────────────────────────────────────────
+// MODE SWITCHING
+// ─────────────────────────────────────────────
+function switchToMode(mode) {
+  state.currentMode  = mode;
+  state.modeRemainMs = CONFIG.modeSwitchMs;
 
-  if(mode==='full'){
-    el.viewFull.classList.add('active');
-    el.viewFull.classList.remove('inactive');
-    el.viewLive.classList.remove('active');
-    el.viewLive.classList.add('inactive');
-    el.modeBadge.textContent='📅 SEMUA SESI';
-    el.modeBadge.className='mode-badge mode-full';
+  if (mode === 'full') {
+    el.viewFull.classList.add('active');    el.viewFull.classList.remove('inactive');
+    el.viewLive.classList.remove('active'); el.viewLive.classList.add('inactive');
+    el.modeBadge.textContent = '📅 SEMUA SESI';
+    el.modeBadge.className   = 'mode-badge mode-full';
     renderFullTable(state.selectedDay);
-    setTimeout(() => ensureCurrentRowVisible(true), 120);
+    // Scroll after transition completes
+    setTimeout(() => scrollToActiveRow(true), 700);
   } else {
-    el.viewLive.classList.add('active');
-    el.viewLive.classList.remove('inactive');
-    el.viewFull.classList.remove('active');
-    el.viewFull.classList.add('inactive');
-    el.modeBadge.textContent='🔴 BERLANGSUNG';
-    el.modeBadge.className='mode-badge mode-live';
+    el.viewLive.classList.add('active');    el.viewLive.classList.remove('inactive');
+    el.viewFull.classList.remove('active'); el.viewFull.classList.add('inactive');
+    el.modeBadge.textContent = '🔴 BERLANGSUNG';
+    el.modeBadge.className   = 'mode-badge mode-live';
     renderLiveView(state.selectedDay);
   }
 }
 
-function startModeTimer(){
+function startModeTimer() {
   clearInterval(state.modeTimer);
-  state.modeRemainMs=CONFIG.modeSwitchMs;
-
-  state.modeTimer=setInterval(()=>{
-    state.modeRemainMs-=1000;
-    if(state.modeRemainMs<=0){
-      switchToMode(state.currentMode==='full' ? 'live' : 'full');
-    }
-    el.modeProgress.style.width=Math.max(0,(state.modeRemainMs/CONFIG.modeSwitchMs)*100)+'%';
-  },1000);
+  state.modeRemainMs = CONFIG.modeSwitchMs;
+  state.modeTimer = setInterval(() => {
+    state.modeRemainMs -= 1000;
+    if (state.modeRemainMs <= 0) switchToMode(state.currentMode === 'full' ? 'live' : 'full');
+    el.modeProgress.style.width = Math.max(0, (state.modeRemainMs / CONFIG.modeSwitchMs) * 100) + '%';
+  }, 1000);
 }
 
-function startClock(){
-  const tf=new Intl.DateTimeFormat('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const df=new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+// ─────────────────────────────────────────────
+// CLOCK + SLOT WATCHER
+// ─────────────────────────────────────────────
+function startClock() {
+  const tf = new Intl.DateTimeFormat('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const df = new Intl.DateTimeFormat('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
 
-  const tick=()=>{
-    const now=new Date();
-    el.clockTime.textContent=tf.format(now);
-    el.clockDate.textContent=df.format(now);
+  const tick = () => {
+    const now = new Date();
+    el.clockTime.textContent = tf.format(now);
+    el.clockDate.textContent = df.format(now);
 
-    if(state.data){
-      const autoDay=getCurrentAcademicDay(state.data.days.length ? state.data.days : CONFIG.fallbackDays);
+    if (!state.data) return;
 
-      if(autoDay!==state.selectedDay){
-        state.selectedDay=autoDay;
-        updateStatus();
-        if(state.currentMode==='full'){
-          renderFullTable(state.selectedDay);
-        }else{
-          renderLiveView(state.selectedDay);
-        }
-        return;
+    const autoDay = getCurrentAcademicDay(state.data.days.length ? state.data.days : CONFIG.fallbackDays);
+
+    // Day changed → full re-render
+    if (autoDay !== state.selectedDay) {
+      state.selectedDay = autoDay;
+      updateStatus();
+      state.currentMode === 'full' ? renderFullTable(state.selectedDay) : renderLiveView(state.selectedDay);
+      return;
+    }
+
+    const activeId = getCurrentActiveSlotId(state.selectedDay);
+    const lk       = `${state.selectedDay}__${activeId||''}`;
+
+    if (lk !== state.liveSlotKey) {
+      // Active slot changed → re-render and jump to new row
+      state.liveSlotKey = lk;
+      updateStatus();
+      if (state.currentMode === 'full') {
+        renderFullTable(state.selectedDay);
+      } else {
+        renderLiveView(state.selectedDay);
       }
-
-      const activeId=getCurrentActiveSlotId(state.selectedDay);
-      const lk=`${state.selectedDay}__${activeId||''}`;
-
-      if(lk!==state.liveSlotKey){
-        state.liveSlotKey=lk;
-        updateStatus();
-        if(state.currentMode==='full'){
-          renderFullTable(state.selectedDay);
-        }else{
-          renderLiveView(state.selectedDay);
-        }
-      }else{
-        if(state.currentMode==='full'){
-          ensureCurrentRowVisible(false);
-        }
-      }
+    } else if (state.currentMode === 'full') {
+      // No slot change, just gently keep row in view (non-forced)
+      scrollToActiveRow(false);
     }
   };
 
   tick();
-  setInterval(tick,1000);
+  setInterval(tick, 1000);
 }
 
-async function hashText(t){
-  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));
-  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+// ─────────────────────────────────────────────
+// CSV LOAD
+// ─────────────────────────────────────────────
+async function hashText(t) {
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
 }
-
-async function fetchCsv(){
-  const r=await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`,{cache:'no-store'});
-  if(!r.ok) throw new Error('Gagal mengambil CSV');
+async function fetchCsv() {
+  const r = await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`, { cache:'no-store' });
+  if (!r.ok) throw new Error('Gagal mengambil CSV');
   return r.text();
 }
-
-async function applyCsv(csvText){
-  state.data=buildDataModel(csvText);
-  state.csvHash=await hashText(csvText);
-
-  const days=state.data.days.length ? state.data.days : CONFIG.fallbackDays;
-  state.selectedDay=getCurrentAcademicDay(days);
-  state.liveSlotKey=`${state.selectedDay}__${getCurrentActiveSlotId(state.selectedDay)||''}`;
-
+async function applyCsv(csvText) {
+  state.data         = buildDataModel(csvText);
+  state.csvHash      = await hashText(csvText);
+  const days         = state.data.days.length ? state.data.days : CONFIG.fallbackDays;
+  state.selectedDay  = getCurrentAcademicDay(days);
+  state.liveSlotKey  = `${state.selectedDay}__${getCurrentActiveSlotId(state.selectedDay)||''}`;
   updateTicker();
   updateStatus();
   renderFullTable(state.selectedDay);
   renderLiveView(state.selectedDay);
 }
 
-setInterval(async()=>{
-  try{
-    const c=await fetchCsv();
-    const h=await hashText(c);
-    if(h!==state.csvHash) await applyCsv(c);
-  } catch(e){
-    console.warn(e);
-  }
+// Auto-refresh CSV
+setInterval(async () => {
+  try {
+    const c = await fetchCsv();
+    const h = await hashText(c);
+    if (h !== state.csvHash) await applyCsv(c);
+  } catch(e) { console.warn(e); }
 }, CONFIG.autoRefreshMs);
 
-window.addEventListener('resize',()=>{
-  requestAnimationFrame(()=>{
-    if(!state.data) return;
-    if(state.currentMode==='full'){
-      renderFullTable(state.selectedDay);
-    }else{
-      renderLiveView(state.selectedDay);
-    }
+// Re-render on resize
+window.addEventListener('resize', () => {
+  requestAnimationFrame(() => {
+    if (!state.data) return;
+    if (state.currentMode === 'full') renderFullTable(state.selectedDay);
+    else renderLiveView(state.selectedDay);
   });
 });
 
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
 startClock();
-
 fetchCsv()
   .then(applyCsv)
-  .then(()=>{
-    switchToMode('full');
-    startModeTimer();
-  })
-  .catch(e=>{
-    el.tableSlot.innerHTML=`<div class="error-box">${esc(e.message)}<br><br>Pastikan Google Sheets sudah di-publish sebagai CSV publik.</div>`;
+  .then(() => { switchToMode('full'); startModeTimer(); })
+  .catch(e => {
+    el.tblBodyBand.innerHTML = `<div class="error-box">${esc(e.message)}<br><br>Pastikan Google Sheets sudah di-publish sebagai CSV publik.</div>`;
   });
 </script>
 </body>
