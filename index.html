@@ -312,31 +312,51 @@
       height:100%;
       overflow:hidden;
       position:relative;
+      display:flex;
+      flex-direction:column;
     }
 
-    .table-scroll{
+    .table-header-wrap{
+      flex:0 0 auto;
+      overflow:hidden;
+      border-radius:14px 14px 0 0;
+      background:rgba(255,255,255,.96);
+      box-shadow:0 1px 0 rgba(213,216,239,.95);
+    }
+
+    .table-header-viewport{
+      width:100%;
+      overflow:hidden;
+    }
+
+    .table-body-wrap{
+      flex:1 1 auto;
+      min-height:0;
+      overflow:hidden;
+      border-radius:0 0 14px 14px;
+    }
+
+    .table-body-scroll{
       width:100%;
       height:100%;
       overflow-y:auto;
       overflow-x:auto;
-      position:relative;
-      border-radius:14px;
       scroll-behavior:smooth;
       scrollbar-width:thin;
       scrollbar-color:rgba(89,96,184,.45) rgba(213,216,239,.35);
     }
 
-    .table-scroll::-webkit-scrollbar{
+    .table-body-scroll::-webkit-scrollbar{
       width:10px;
       height:10px;
     }
 
-    .table-scroll::-webkit-scrollbar-track{
+    .table-body-scroll::-webkit-scrollbar-track{
       background:rgba(213,216,239,.35);
       border-radius:999px;
     }
 
-    .table-scroll::-webkit-scrollbar-thumb{
+    .table-body-scroll::-webkit-scrollbar-thumb{
       background:rgba(89,96,184,.45);
       border-radius:999px;
     }
@@ -346,8 +366,6 @@
       border-spacing:0;
       table-layout:fixed;
       background:rgba(255,255,255,.92);
-      border-radius:14px;
-      overflow:hidden;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
     }
 
@@ -365,38 +383,39 @@
         transform .4s var(--ease-soft);
     }
 
-    table.schedule tr > *:first-child{border-left:1px solid var(--grid)}
-    table.schedule thead tr:first-child > *{border-top:1px solid var(--grid)}
+    table.schedule tr > *:first-child{
+      border-left:1px solid var(--grid);
+    }
+
+    table.schedule thead tr:first-child > *{
+      border-top:1px solid var(--grid);
+    }
 
     table.schedule thead th{
-      position:sticky;
-      top:0;
-      z-index:40;
       font-weight:800;
       color:#fff;
       background:linear-gradient(180deg,#7679cc 0%,#5558a8 100%);
       white-space:nowrap;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.28),
-        0 2px 0 rgba(213,216,239,.95);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
     }
 
     table.schedule thead th.rh-f6{
       background:var(--rh-f6-bg);
       color:var(--rh-f6-t);
-      z-index:41;
     }
 
     table.schedule thead th.rh-f4{
       background:var(--rh-f4-bg);
       color:var(--rh-f4-t);
-      z-index:41;
     }
 
     table.schedule thead th.rh-def{
       background:var(--rh-def-bg);
       color:var(--rh-def-t);
-      z-index:41;
+    }
+
+    table.schedule.body-only tbody tr:first-child > *{
+      border-top:none !important;
     }
 
     td.session-cell{background:#f6f7fd;font-weight:800;color:#3a4070}
@@ -437,11 +456,6 @@
       white-space:nowrap;
       text-overflow:ellipsis;
       margin-top:1px;
-    }
-
-    tr.current-row{
-      scroll-margin-top:86px;
-      scroll-margin-bottom:32px;
     }
 
     tr.current-row td{
@@ -914,37 +928,45 @@ function roomHClass(room){
   return CONFIG.roomHeaderClasses[g]||'rh-def';
 }
 
+function bindHeaderBodySync(){
+  const body = document.querySelector('.table-body-scroll');
+  const head = document.querySelector('.table-header-viewport');
+  if(!body || !head) return;
+
+  body.addEventListener('scroll', () => {
+    head.scrollLeft = body.scrollLeft;
+  }, { passive:true });
+}
+
 function getActiveScrollTarget(){
   return (
-    document.querySelector('.time-cell.current-time') ||
-    document.querySelector('.course-cell.current-course') ||
-    document.querySelector('tr.current-row')
+    document.querySelector('.table-body-scroll .time-cell.current-time') ||
+    document.querySelector('.table-body-scroll .course-cell.current-course') ||
+    document.querySelector('.table-body-scroll tr.current-row')
   );
 }
 
-function ensureCurrentRowVisible(force = false){
-  const wrap = document.querySelector('.table-scroll');
+function ensureCurrentRowVisible(force=false){
+  const wrap = document.querySelector('.table-body-scroll');
   const target = getActiveScrollTarget();
 
   if(!wrap) return;
 
   if(!target){
     if(force){
-      wrap.scrollTo({ top: 0, behavior: 'smooth' });
+      wrap.scrollTo({ top:0, behavior:'smooth' });
     }
     return;
   }
 
   const wrapRect = wrap.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
-  const headerCell = wrap.querySelector('thead th');
-  const headerH = headerCell ? headerCell.getBoundingClientRect().height : 56;
 
   const currentScrollTop = wrap.scrollTop;
   const targetTopInScroll = currentScrollTop + (targetRect.top - wrapRect.top);
   const targetBottomInScroll = targetTopInScroll + targetRect.height;
 
-  const safeTop = currentScrollTop + headerH + 12;
+  const safeTop = currentScrollTop + 10;
   const safeBottom = currentScrollTop + wrap.clientHeight - 20;
 
   const isAbove = targetTopInScroll < safeTop;
@@ -952,7 +974,7 @@ function ensureCurrentRowVisible(force = false){
 
   if(force || isAbove || isBelow){
     const targetCenter = targetTopInScroll + (targetRect.height / 2);
-    const desiredTop = targetCenter - (wrap.clientHeight / 2) - (headerH / 2);
+    const desiredTop = targetCenter - (wrap.clientHeight / 2);
     const maxScroll = Math.max(0, wrap.scrollHeight - wrap.clientHeight);
     const nextTop = Math.max(0, Math.min(maxScroll, desiredTop));
 
@@ -991,11 +1013,18 @@ function renderFullTable(day){
   const specialH=Math.max(26, Math.min(34, Math.floor(rowH*0.58)));
 
   const roomCols=rooms.length;
-  const availableTableW = Math.max(containerW - 24, 980);
-  const roomWidth=Math.max(140, Math.floor((availableTableW - 164) / Math.max(roomCols,1)));
+  const sesiW=58;
+  const jamW=118;
 
-  const fHeader=Math.max(14, Math.min(20, Math.floor(roomWidth*0.12)));
-  const fBase=Math.max(11.5, Math.min(15, Math.floor(roomWidth*0.10)));
+  let roomWidth;
+  if(roomCols <= 5){
+    roomWidth = Math.max(180, Math.floor((containerW - sesiW - jamW - 20) / roomCols));
+  } else {
+    roomWidth = 190;
+  }
+
+  const fHeader=Math.max(14, Math.min(20, Math.floor(roomWidth*0.11)));
+  const fBase=Math.max(11.5, Math.min(15, Math.floor(roomWidth*0.095)));
   const fCode=Math.max(9.5, Math.min(12.5, Math.floor(fBase*0.9)));
   const fMeta=Math.max(8.5, Math.min(10.5, Math.floor(fBase*0.82)));
   const fBadge=Math.max(8.5, Math.min(10.5, Math.floor(fBase*0.82)));
@@ -1010,17 +1039,19 @@ function renderFullTable(day){
     }
   });
 
-  const sesiW=54;
-  const jamW=110;
   const tableWidth = sesiW + jamW + (roomWidth * rooms.length);
 
-  let html=`<div class="table-scroll">
-    <table class="schedule" id="schedTable" style="width:${tableWidth}px;font-size:${fBase}px;">
-      <colgroup>
-        <col style="width:${sesiW}px">
-        <col style="width:${jamW}px">
-        ${rooms.map(()=>`<col style="width:${roomWidth}px">`).join('')}
-      </colgroup>
+  const colGroup = `
+    <colgroup>
+      <col style="width:${sesiW}px">
+      <col style="width:${jamW}px">
+      ${rooms.map(()=>`<col style="width:${roomWidth}px">`).join('')}
+    </colgroup>
+  `;
+
+  const headerTable = `
+    <table class="schedule" style="width:${tableWidth}px;font-size:${fBase}px;">
+      ${colGroup}
       <thead>
         <tr style="height:${thH}px;">
           <th style="font-size:${fHeader}px;">SESI</th>
@@ -1028,7 +1059,10 @@ function renderFullTable(day){
           ${rooms.map(r=>`<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}
         </tr>
       </thead>
-      <tbody>`;
+    </table>
+  `;
+
+  let bodyRows = '';
 
   for(const slot of slots){
     const type=n(slot.TIPE_BARIS).toUpperCase();
@@ -1036,23 +1070,23 @@ function renderFullTable(day){
     const isCur=type==='KULIAH' && activeSlotId===sid;
     const currentHeight=type==='KULIAH'?rowH:specialH;
 
-    html += `<tr class="${isCur?'current-row':''}">`;
+    bodyRows += `<tr class="${isCur?'current-row':''}">`;
 
     if(type==='KULIAH'){
       const sesi=n(slot.SESI)||'-';
 
       if(!renderedSession.has(sesi)){
-        html += `<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}" style="height:${currentHeight}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
+        bodyRows += `<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}" style="height:${currentHeight}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
         renderedSession.add(sesi);
       }
 
-      html += `<td class="time-cell${isCur?' current-time':''}" style="height:${currentHeight}px;font-size:${Math.max(9,fBase*0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      bodyRows += `<td class="time-cell${isCur?' current-time':''}" style="height:${currentHeight}px;font-size:${Math.max(9,fBase*0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
 
       for(const room of rooms){
         const item=getScheduleItem(day,room.KODE_RUANG,sid);
         if(item){
           const c=mkColor(item.KODE_MK||'');
-          html += `<td class="course-cell${isCur?' current-course':''}" style="height:${currentHeight}px;background:${c.bg};color:${c.t};">
+          bodyRows += `<td class="course-cell${isCur?' current-course':''}" style="height:${currentHeight}px;background:${c.bg};color:${c.t};">
             ${isCur?`<div class="live-badge" style="font-size:${fBadge}px;">▶ Sedang Berlangsung</div>`:''}
             <div class="c-code" style="font-size:${fCode}px;">${esc(item.KODE_MK||'')}${item.KELAS?` (${esc(item.KELAS)})`:''}</div>
             <div class="c-name" style="font-size:${fBase}px;">${esc(item.NAMA_MK||'')}</div>
@@ -1060,22 +1094,40 @@ function renderFullTable(day){
             ${item.PROGRAM_ANGKATAN?`<div class="c-meta" style="font-size:${fMeta}px;">${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
           </td>`;
         } else {
-          html += `<td class="empty-cell${isCur?' current-course':''}" style="height:${currentHeight}px;"></td>`;
+          bodyRows += `<td class="empty-cell${isCur?' current-course':''}" style="height:${currentHeight}px;"></td>`;
         }
       }
     } else {
-      html += `<td class="session-empty" style="height:${currentHeight}px;"></td>`;
-      html += `<td class="special-time" style="height:${currentHeight}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
-      html += `<td class="special-cell" colspan="${rooms.length}" style="height:${currentHeight}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
+      bodyRows += `<td class="session-empty" style="height:${currentHeight}px;"></td>`;
+      bodyRows += `<td class="special-time" style="height:${currentHeight}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      bodyRows += `<td class="special-cell" colspan="${rooms.length}" style="height:${currentHeight}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
     }
 
-    html += `</tr>`;
+    bodyRows += `</tr>`;
   }
 
-  html += `</tbody></table></div>`;
-  el.tableSlot.innerHTML = html;
+  const bodyTable = `
+    <table class="schedule body-only" style="width:${tableWidth}px;font-size:${fBase}px;">
+      ${colGroup}
+      <tbody>${bodyRows}</tbody>
+    </table>
+  `;
+
+  el.tableSlot.innerHTML = `
+    <div class="table-header-wrap">
+      <div class="table-header-viewport">
+        ${headerTable}
+      </div>
+    </div>
+    <div class="table-body-wrap">
+      <div class="table-body-scroll">
+        ${bodyTable}
+      </div>
+    </div>
+  `;
 
   requestAnimationFrame(() => {
+    bindHeaderBodySync();
     ensureCurrentRowVisible(true);
     setTimeout(() => ensureCurrentRowVisible(true), 120);
   });
@@ -1185,12 +1237,9 @@ function stopTickerFlip(){
 function resetTickerWithoutAnimation(nextText){
   el.tickerCurrent.className='ticker-item active no-anim';
   el.tickerCurrent.textContent=nextText;
-
   el.tickerNext.className='ticker-item next no-anim';
   el.tickerNext.textContent='';
-
   void el.tickerCurrent.offsetWidth;
-
   requestAnimationFrame(()=>{
     el.tickerCurrent.className='ticker-item active';
     el.tickerNext.className='ticker-item next';
@@ -1203,9 +1252,7 @@ function renderTickerNow(textValue){
   el.tickerCurrent.textContent=text;
   el.tickerNext.className='ticker-item next no-anim';
   el.tickerNext.textContent='';
-
   void el.tickerCurrent.offsetWidth;
-
   requestAnimationFrame(()=>{
     el.tickerCurrent.className='ticker-item active';
     el.tickerNext.className='ticker-item next';
