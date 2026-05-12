@@ -300,8 +300,8 @@
     .live-view{
       width:100%;height:100%;
       display:flex;flex-direction:column;
-      gap:10px;padding:14px 18px;
-      overflow:auto;
+      gap:0;padding:10px 12px;
+      overflow:hidden;
     }
     .live-header{
       display:flex;align-items:center;gap:10px;
@@ -320,14 +320,24 @@
     }
     .live-header-title{font-size:20px;font-weight:800;color:var(--navy-dark);}
     .live-header-sub{font-size:14px;font-weight:600;color:var(--muted);}
-    .live-cards{display:flex;flex-wrap:wrap;gap:12px;flex:1;align-content:flex-start;}
+    .live-cards{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:10px;
+      flex:1;
+      align-content:start;
+      height:100%;
+    }
     .live-card{
-      flex:1 1 280px;max-width:340px;
+      min-width:0;
+      max-width:none;
+      min-height:0;
       background:rgba(255,255,255,.95);
       border:1px solid var(--grid);border-radius:16px;
       box-shadow:0 6px 18px rgba(60,64,180,.10);
-      padding:12px 14px;
-      display:flex;flex-direction:column;gap:5px;
+      padding:10px 12px;
+      display:flex;flex-direction:column;gap:4px;
+      justify-content:center;
       position:relative;overflow:hidden;
       animation:cardIn .58s var(--ease-soft) both;
     }
@@ -340,14 +350,14 @@
       background:linear-gradient(180deg,var(--navy),var(--accent));
       border-radius:16px 0 0 16px;
     }
-    .live-card-room{font-size:11px;font-weight:800;letter-spacing:.4px;color:var(--accent);text-transform:uppercase;}
-    .live-card-code{font-size:12px;font-weight:700;color:var(--muted);}
-    .live-card-name{font-size:16px;font-weight:800;color:var(--navy-dark);line-height:1.2;}
-    .live-card-meta{font-size:13px;font-weight:600;color:var(--muted);}
+    .live-card-room{font-size:10px;font-weight:800;letter-spacing:.35px;color:var(--accent);text-transform:uppercase;}
+    .live-card-code{font-size:11px;font-weight:700;color:var(--muted);}
+    .live-card-name{font-size:15px;font-weight:800;color:var(--navy-dark);line-height:1.18;}
+    .live-card-meta{font-size:12px;font-weight:600;color:var(--muted);}
     .live-card-time{
-      margin-top:4px;width:fit-content;padding:4px 10px;border-radius:999px;
+      margin-top:4px;width:fit-content;padding:3px 8px;border-radius:999px;
       background:var(--gold-soft);color:var(--gold);
-      font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;
+      font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;
     }
     .live-empty{
       flex:1;display:flex;align-items:center;justify-content:center;
@@ -357,6 +367,24 @@
     .live-empty-icon{font-size:44px;opacity:.4;}
     .live-empty-text{font-size:18px;font-weight:700;}
     .live-empty-sub{font-size:14px;}
+
+    .live-cards.dense-7{
+      grid-template-columns:repeat(auto-fit,minmax(165px,1fr));
+      gap:9px;
+    }
+    .live-cards.dense-9{
+      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:8px;
+    }
+    .live-cards.dense-9 .live-card{
+      padding:9px 10px;
+      border-radius:14px;
+    }
+    .live-cards.dense-9 .live-card-room{font-size:9px;}
+    .live-cards.dense-9 .live-card-code{font-size:10px;}
+    .live-cards.dense-9 .live-card-name{font-size:13px;}
+    .live-cards.dense-9 .live-card-meta{font-size:11px;}
+    .live-cards.dense-9 .live-card-time{font-size:11px;padding:2px 7px;}
 
     .error-box{
       margin:10px;padding:14px;border-radius:12px;
@@ -756,13 +784,6 @@ function renderLiveView(day) {
 
   if (!activeSlotId || !state.data) {
     el.liveView.innerHTML = `
-      <div class="live-header">
-        <div class="live-dot" style="background:#94A3B8;animation:none;"></div>
-        <div>
-          <div class="live-header-title">Tidak Ada Perkuliahan Berlangsung</div>
-          <div class="live-header-sub">${esc(day)} — Silakan lihat jadwal lengkap</div>
-        </div>
-      </div>
       <div class="live-empty">
         <div class="live-empty-icon">🎓</div>
         <div class="live-empty-text">Belum ada sesi aktif saat ini</div>
@@ -777,21 +798,15 @@ function renderLiveView(day) {
     return item ? { room, item } : null;
   }).filter(Boolean);
 
-  let html = `<div class="live-header">
-    <div class="live-dot"></div>
-    <div>
-      <div class="live-header-title">🔴 Perkuliahan Sedang Berlangsung</div>
-      <div class="live-header-sub">${esc(day)} — Sesi ${esc(activeSlot?.SESI||'')} &nbsp;|&nbsp; ${esc(timeLabel)}</div>
-    </div>
-  </div>
-  <div class="live-cards">`;
+  const densityClass = liveItems.length >= 9 ? ' dense-9' : (liveItems.length >= 7 ? ' dense-7' : '');
+  let html = `<div class="live-cards${densityClass}">`;
 
   if (!liveItems.length) {
     html += `<div class="live-empty"><div class="live-empty-icon">📭</div><div class="live-empty-text">Tidak ada mata kuliah di sesi ini</div></div>`;
   } else {
     liveItems.forEach(({ room, item }, idx) => {
       const c = mkColor(item.KODE_MK || '');
-      html += `<div class="live-card" style="background:${c.bg};color:${c.t};animation-delay:${idx*80}ms;">
+      html += `<div class="live-card" style="background:${c.bg};color:${c.t};animation-delay:${idx*60}ms;">
         <div class="live-card-room">${esc(room.NAMA_TAMPIL_RUANG||room.KODE_RUANG)}</div>
         <div class="live-card-code">${esc(item.KODE_MK||'')}${item.KELAS?` · Kelas ${esc(item.KELAS)}`:''}</div>
         <div class="live-card-name" style="color:${c.t}">${esc(item.NAMA_MK||'')}</div>
