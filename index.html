@@ -432,7 +432,7 @@ const CONFIG = {
   autoRefreshMs: 60_000,
   fallbackDays:  ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
   roomHeaderClasses: { F6:'rh-f6', F4:'rh-f4' },
-  modeSwitchMs:  5 * 60_000,
+  modeSwitchMs:  21_000,
   tickerFallback:'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
   tickerFlipMs:  7_000,
   tickerAnimMs:  1_080,
@@ -711,7 +711,6 @@ function renderFullTable(day) {
         if (item) {
           const c = mkColor(item.KODE_MK || '');
           bodyRows += `<td class="course-cell${isCur?' current-course':''}" style="height:${rH}px;background:${c.bg};color:${c.t};">
-            ${isCur ? `<div class="live-badge" style="font-size:${fBadge}px;">▶ Sedang Berlangsung</div>` : ''}
             <div class="c-code" style="font-size:${fCode}px;">${esc(item.KODE_MK||'')}${item.KELAS?` (${esc(item.KELAS)})`:''}</div>
             <div class="c-name" style="font-size:${fBase}px;">${esc(item.NAMA_MK||'')}</div>
             ${item.DOSEN     ? `<div class="c-meta" style="font-size:${fMeta}px;">👤 ${esc(item.DOSEN)}</div>` : ''}
