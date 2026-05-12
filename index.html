@@ -192,7 +192,6 @@
       position:relative;z-index:2;
     }
 
-    /* inner div that mirrors body's scrollLeft */
     .tbl-header-inner{
       overflow:hidden;
       width:100%;
@@ -201,14 +200,14 @@
     .tbl-body-band{
       flex:1 1 auto;
       min-height:0;
-      overflow:auto;            /* scrolls both axes */
+      overflow-x:hidden;        /* no horizontal scroll */
+      overflow-y:auto;          /* vertical scroll only */
       border-radius:0 0 14px 14px;
       background:rgba(255,255,255,.88);
-      /* nice thin scrollbar */
       scrollbar-width:thin;
       scrollbar-color:rgba(89,96,184,.45) rgba(213,216,239,.3);
     }
-    .tbl-body-band::-webkit-scrollbar{width:8px;height:8px;}
+    .tbl-body-band::-webkit-scrollbar{width:8px;}
     .tbl-body-band::-webkit-scrollbar-track{background:rgba(213,216,239,.3);border-radius:999px;}
     .tbl-body-band::-webkit-scrollbar-thumb{background:rgba(89,96,184,.45);border-radius:999px;}
 
@@ -216,7 +215,7 @@
     table.schedule{
       border-collapse:separate;border-spacing:0;
       table-layout:fixed;
-      /* width set by JS; both header & body table use same value */
+      width:100%; /* always fills container; columns share space evenly */
     }
 
     table.schedule th,
@@ -589,29 +588,8 @@ function roomHClass(room) {
 }
 
 // ─────────────────────────────────────────────
-// SCROLL SYNC + AUTO-SCROLL
+// AUTO-SCROLL TO ACTIVE ROW
 // ─────────────────────────────────────────────
-
-/** Mirror body horizontal scroll → header */
-function bindHeaderBodySync() {
-  const body = el.tblBodyBand;
-  const head = el.tblHeaderInner;
-  if (!body || !head) return;
-  // Remove old listener by cloning (safe approach)
-  const newBody = body.cloneNode(false);
-  while (body.firstChild) newBody.appendChild(body.firstChild);
-  body.parentNode.replaceChild(newBody, body);
-  el.tblBodyBand = newBody; // update ref
-
-  newBody.addEventListener('scroll', () => {
-    head.scrollLeft = newBody.scrollLeft;
-  }, { passive: true });
-}
-
-/**
- * Scroll the body band so the active row is centred vertically.
- * @param {boolean} force  - always scroll even if row is already visible
- */
 function scrollToActiveRow(force = false) {
   const band   = el.tblBodyBand;
   const target = band.querySelector('tr.current-row');
@@ -661,38 +639,37 @@ function renderFullTable(day) {
 
   // ── Sizing ──
   const cH = Math.max(360, el.viewFull.clientHeight - 4);
-  const cW = Math.max(900, el.viewFull.clientWidth  - 4);
+  const cW = Math.max(200, el.viewFull.clientWidth  - 4);
 
-  const thH      = Math.max(42, Math.min(56, Math.floor(cH * 0.065)));
-  const rowH     = Math.max(42, Math.min(64, Math.floor(cH * 0.076)));
-  const specialH = Math.max(26, Math.min(34, Math.floor(rowH * 0.58)));
+  const thH      = Math.max(38, Math.min(54, Math.floor(cH * 0.065)));
+  const rowH     = Math.max(38, Math.min(62, Math.floor(cH * 0.076)));
+  const specialH = Math.max(22, Math.min(32, Math.floor(rowH * 0.56)));
 
-  const sesiW    = 58;
-  const jamW     = 118;
+  // Fixed widths for SESI and JAM columns (px); rooms share the remaining width equally.
+  // Tables are 100% wide — no horizontal scroll.
+  const sesiW    = 52;
+  const jamW     = 108;
   const roomCols = rooms.length;
-  const roomW    = roomCols <= 5
-    ? Math.max(180, Math.floor((cW - sesiW - jamW - 20) / roomCols))
-    : 190;
+  // Compute the actual room column width for font sizing only (not used as explicit col width)
+  const roomW    = Math.max(60, Math.floor((cW - sesiW - jamW - 8) / Math.max(roomCols, 1)));
 
-  const fHeader = Math.max(13, Math.min(20, Math.floor(roomW * 0.11)));
-  const fBase   = Math.max(11, Math.min(15, Math.floor(roomW * 0.094)));
-  const fCode   = Math.max(9,  Math.min(12, Math.floor(fBase * 0.90)));
-  const fMeta   = Math.max(8,  Math.min(10, Math.floor(fBase * 0.82)));
-  const fBadge  = Math.max(8,  Math.min(10, Math.floor(fBase * 0.82)));
+  const fHeader = Math.max(10, Math.min(16, Math.floor(roomW * 0.115)));
+  const fBase   = Math.max(9,  Math.min(13, Math.floor(roomW * 0.096)));
+  const fCode   = Math.max(8,  Math.min(11, Math.floor(fBase * 0.90)));
+  const fMeta   = Math.max(7,  Math.min(10, Math.floor(fBase * 0.83)));
+  const fBadge  = Math.max(7,  Math.min(10, Math.floor(fBase * 0.83)));
 
-  const tblWidth = sesiW + jamW + roomW * roomCols;
-
-  // Shared colgroup markup
+  // Shared colgroup: SESI and JAM have fixed px widths; each room col gets equal share of remainder
   const colGroup = `
     <colgroup>
       <col style="width:${sesiW}px">
       <col style="width:${jamW}px">
-      ${rooms.map(()=>`<col style="width:${roomW}px">`).join('')}
+      ${rooms.map(()=>`<col>`).join('')}
     </colgroup>`;
 
-  // ── Header table ──
+  // ── Header table (100% wide, no explicit total width) ──
   const headerTableHtml = `
-    <table class="schedule head-tbl" style="width:${tblWidth}px;font-size:${fBase}px;">
+    <table class="schedule head-tbl" style="width:100%;font-size:${fBase}px;">
       ${colGroup}
       <thead>
         <tr style="height:${thH}px;">
@@ -753,7 +730,7 @@ function renderFullTable(day) {
   }
 
   const bodyTableHtml = `
-    <table class="schedule body-tbl" style="width:${tblWidth}px;font-size:${fBase}px;">
+    <table class="schedule body-tbl" style="width:100%;font-size:${fBase}px;">
       ${colGroup}
       <tbody>${bodyRows}</tbody>
     </table>`;
@@ -762,11 +739,9 @@ function renderFullTable(day) {
   el.tblHeaderInner.innerHTML = headerTableHtml;
   el.tblBodyBand.innerHTML    = bodyTableHtml;
 
-  // ── Wire sync + scroll to active row ──
+  // ── Scroll to active row ──
   requestAnimationFrame(() => {
-    bindHeaderBodySync();
     scrollToActiveRow(true);
-    // Second pass for late-render cases
     setTimeout(() => scrollToActiveRow(true), 150);
   });
 }
