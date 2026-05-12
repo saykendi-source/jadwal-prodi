@@ -58,7 +58,6 @@
       overflow:hidden;
     }
 
-    /* HEADER */
     .header{
       flex:0 0 auto;
       min-height:82px;
@@ -184,7 +183,6 @@
       transition:width 1s linear;
     }
 
-    /* TICKER */
     .ticker{
       flex:0 0 auto;
       min-height:46px;
@@ -254,7 +252,6 @@
     .ticker-item.in-down{opacity:1;transform:translate3d(0,0,0)}
     .ticker-item.no-anim{transition:none!important}
 
-    /* TABLE PANEL */
     .table-panel{
       flex:1 1 auto;
       min-height:0;
@@ -320,7 +317,9 @@
     .table-scroll{
       width:100%;
       height:100%;
-      overflow:auto;
+      overflow-y:auto;
+      overflow-x:auto;
+      position:relative;
       border-radius:14px;
       scroll-behavior:smooth;
       scrollbar-width:thin;
@@ -342,7 +341,6 @@
       border-radius:999px;
     }
 
-    /* TABLE */
     table.schedule{
       border-collapse:separate;
       border-spacing:0;
@@ -373,30 +371,32 @@
     table.schedule thead th{
       position:sticky;
       top:0;
-      z-index:30;
+      z-index:40;
       font-weight:800;
       color:#fff;
       background:linear-gradient(180deg,#7679cc 0%,#5558a8 100%);
       white-space:nowrap;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.28),
+        0 2px 0 rgba(213,216,239,.95);
     }
 
     table.schedule thead th.rh-f6{
       background:var(--rh-f6-bg);
       color:var(--rh-f6-t);
-      z-index:31;
+      z-index:41;
     }
 
     table.schedule thead th.rh-f4{
       background:var(--rh-f4-bg);
       color:var(--rh-f4-t);
-      z-index:31;
+      z-index:41;
     }
 
     table.schedule thead th.rh-def{
       background:var(--rh-def-bg);
       color:var(--rh-def-t);
-      z-index:31;
+      z-index:41;
     }
 
     td.session-cell{background:#f6f7fd;font-weight:800;color:#3a4070}
@@ -449,9 +449,13 @@
       border-bottom:2px solid rgba(212,168,41,.92)!important;
     }
 
-    td.time-cell.current-time{
+    td.time-cell.current-time,
+    td.course-cell.current-course{
       position:relative;
       z-index:2;
+    }
+
+    td.time-cell.current-time{
       background:linear-gradient(180deg,#fbf3d9 0%, #f7e9bd 100%);
       color:#6b5010;
       font-weight:800;
@@ -462,8 +466,6 @@
     }
 
     td.course-cell.current-course{
-      position:relative;
-      z-index:2;
       box-shadow:
         inset 0 0 0 2px rgba(212,168,41,.88),
         0 10px 24px rgba(212,168,41,.12);
@@ -505,7 +507,6 @@
       50%{transform:translateY(-1px) scale(1.02)}
     }
 
-    /* LIVE VIEW */
     .live-view{
       width:100%;
       height:100%;
@@ -913,32 +914,51 @@ function roomHClass(room){
   return CONFIG.roomHeaderClasses[g]||'rh-def';
 }
 
-function scrollCurrentRowIntoView(){
-  const wrap = document.querySelector('.table-scroll');
-  const currentRow = document.querySelector('tr.current-row');
-  if(!wrap){
-    return;
-  }
+function getActiveScrollTarget(){
+  return (
+    document.querySelector('.time-cell.current-time') ||
+    document.querySelector('.course-cell.current-course') ||
+    document.querySelector('tr.current-row')
+  );
+}
 
-  if(!currentRow){
-    wrap.scrollTo({top:0, behavior:'smooth'});
+function ensureCurrentRowVisible(force = false){
+  const wrap = document.querySelector('.table-scroll');
+  const target = getActiveScrollTarget();
+
+  if(!wrap) return;
+
+  if(!target){
+    if(force){
+      wrap.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     return;
   }
 
   const wrapRect = wrap.getBoundingClientRect();
-  const rowRect = currentRow.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const headerCell = wrap.querySelector('thead th');
+  const headerH = headerCell ? headerCell.getBoundingClientRect().height : 56;
 
-  const topSafe = 86;
-  const bottomSafe = 28;
+  const currentScrollTop = wrap.scrollTop;
+  const targetTopInScroll = currentScrollTop + (targetRect.top - wrapRect.top);
+  const targetBottomInScroll = targetTopInScroll + targetRect.height;
 
-  const rowAbove = rowRect.top < wrapRect.top + topSafe;
-  const rowBelow = rowRect.bottom > wrapRect.bottom - bottomSafe;
+  const safeTop = currentScrollTop + headerH + 12;
+  const safeBottom = currentScrollTop + wrap.clientHeight - 20;
 
-  if(rowAbove || rowBelow){
-    currentRow.scrollIntoView({
-      behavior:'smooth',
-      block:'center',
-      inline:'nearest'
+  const isAbove = targetTopInScroll < safeTop;
+  const isBelow = targetBottomInScroll > safeBottom;
+
+  if(force || isAbove || isBelow){
+    const targetCenter = targetTopInScroll + (targetRect.height / 2);
+    const desiredTop = targetCenter - (wrap.clientHeight / 2) - (headerH / 2);
+    const maxScroll = Math.max(0, wrap.scrollHeight - wrap.clientHeight);
+    const nextTop = Math.max(0, Math.min(maxScroll, desiredTop));
+
+    wrap.scrollTo({
+      top: nextTop,
+      behavior: 'smooth'
     });
   }
 }
@@ -1056,9 +1076,8 @@ function renderFullTable(day){
   el.tableSlot.innerHTML = html;
 
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      scrollCurrentRowIntoView();
-    });
+    ensureCurrentRowVisible(true);
+    setTimeout(() => ensureCurrentRowVisible(true), 120);
   });
 }
 
@@ -1256,6 +1275,7 @@ function switchToMode(mode){
     el.modeBadge.textContent='📅 SEMUA SESI';
     el.modeBadge.className='mode-badge mode-full';
     renderFullTable(state.selectedDay);
+    setTimeout(() => ensureCurrentRowVisible(true), 120);
   } else {
     el.viewLive.classList.add('active');
     el.viewLive.classList.remove('inactive');
@@ -1295,8 +1315,11 @@ function startClock(){
       if(autoDay!==state.selectedDay){
         state.selectedDay=autoDay;
         updateStatus();
-        renderFullTable(state.selectedDay);
-        renderLiveView(state.selectedDay);
+        if(state.currentMode==='full'){
+          renderFullTable(state.selectedDay);
+        }else{
+          renderLiveView(state.selectedDay);
+        }
         return;
       }
 
@@ -1306,8 +1329,15 @@ function startClock(){
       if(lk!==state.liveSlotKey){
         state.liveSlotKey=lk;
         updateStatus();
-        renderFullTable(state.selectedDay);
-        renderLiveView(state.selectedDay);
+        if(state.currentMode==='full'){
+          renderFullTable(state.selectedDay);
+        }else{
+          renderLiveView(state.selectedDay);
+        }
+      }else{
+        if(state.currentMode==='full'){
+          ensureCurrentRowVisible(false);
+        }
       }
     }
   };
