@@ -123,6 +123,28 @@
       background:linear-gradient(135deg,var(--navy),var(--accent));
       color:#fff;font-size:12px;font-weight:800;letter-spacing:.35px;
     }
+    /* FIX: indikator refresh status di ticker kanan */
+    .ticker-right{
+      flex-shrink:0;margin-left:12px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .refresh-indicator{
+      font-size:11px;font-weight:700;color:var(--muted);
+      white-space:nowrap;transition:opacity .3s;
+    }
+    .refresh-indicator.refreshing{color:var(--navy-mid);}
+    .refresh-dot{
+      width:6px;height:6px;border-radius:50%;
+      background:var(--muted);flex-shrink:0;
+      transition:background .3s;
+    }
+    .refresh-dot.ok{background:#4caf50;}
+    .refresh-dot.err{background:#e53935;}
+    .refresh-dot.refreshing{
+      background:var(--navy-mid);
+      animation:dot-spin .8s linear infinite;
+    }
+    @keyframes dot-spin{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
     .ticker-viewport{
       flex:1;height:26px;
       display:flex;align-items:center;
@@ -170,14 +192,7 @@
     .view-pane.active{opacity:1;transform:translate3d(0,0,0) scale(1);z-index:1;}
     .view-pane.inactive{opacity:0;transform:translate3d(0,12px,0) scale(.992);z-index:0;pointer-events:none;}
 
-    /* ── FULL TABLE LAYOUT: frozen header + scrollable body ── */
-    /*
-      The viewFull pane is a flex-column:
-        .tbl-header-band  → frozen, clips header table
-        .tbl-body-band    → flex:1, scrollable (both axes)
-      Both bands contain a <table> with IDENTICAL colgroup widths.
-      Horizontal scroll of body is mirrored to header via JS.
-    */
+    /* ── FULL TABLE LAYOUT ── */
     #viewFull{
       display:flex;
       flex-direction:column;
@@ -185,7 +200,7 @@
 
     .tbl-header-band{
       flex:0 0 auto;
-      overflow:hidden;          /* clips, never scrolls */
+      overflow:hidden;
       background:rgba(255,255,255,.96);
       border-radius:14px 14px 0 0;
       box-shadow:0 2px 0 rgba(213,216,239,.9);
@@ -200,8 +215,8 @@
     .tbl-body-band{
       flex:1 1 auto;
       min-height:0;
-      overflow-x:hidden;        /* no horizontal scroll */
-      overflow-y:auto;          /* vertical scroll only */
+      overflow-x:hidden;
+      overflow-y:auto;
       border-radius:0 0 14px 14px;
       background:rgba(255,255,255,.88);
       scrollbar-width:thin;
@@ -215,7 +230,7 @@
     table.schedule{
       border-collapse:separate;border-spacing:0;
       table-layout:fixed;
-      width:100%; /* always fills container; columns share space evenly */
+      width:100%;
     }
 
     table.schedule th,
@@ -238,7 +253,6 @@
     table.schedule thead th.rh-f4{background:var(--rh-f4-bg);color:var(--rh-f4-t);}
     table.schedule thead th.rh-def{background:var(--rh-def-bg);color:var(--rh-def-t);}
 
-    /* body table: remove top border on first data row (header table already has bottom border) */
     table.schedule.body-tbl tbody tr:first-child > *{border-top:none;}
 
     td.session-cell{background:#f6f7fd;font-weight:800;color:#3a4070;}
@@ -256,13 +270,14 @@
     td.course-cell{
       font-weight:700;padding:2px 4px;
       line-height:1.16;
-      max-width:0; /* forces table-layout:fixed to clip */
+      max-width:0;
     }
     .c-code{font-weight:700;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .c-name{font-weight:800;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.14;}
     .c-meta{opacity:.88;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:1px;}
 
     /* ── ACTIVE ROW HIGHLIGHT ── */
+    /* FIX: hanya gunakan class toggle, tidak rebuild DOM */
     tr.current-row td{
       border-top:2.5px solid rgba(212,168,41,.92)!important;
       border-bottom:2.5px solid rgba(212,168,41,.92)!important;
@@ -277,23 +292,12 @@
       box-shadow:inset 0 0 0 2.5px rgba(212,168,41,.9),0 8px 20px rgba(212,168,41,.10);
       animation:active-glow 3s ease-in-out infinite;
     }
+    td.empty-cell.current-course{
+      box-shadow:inset 0 0 0 2.5px rgba(212,168,41,.9);
+    }
     @keyframes active-glow{
       0%,100%{filter:brightness(1);}
       50%{filter:brightness(1.03);}
-    }
-
-    .live-badge{
-      display:block;width:fit-content;margin:0 auto 2px;
-      padding:1px 7px;border-radius:999px;
-      background:linear-gradient(135deg,#fbf3d9,#f4e3a8);
-      color:#6b5010;font-weight:800;letter-spacing:.2px;
-      white-space:nowrap;overflow:hidden;
-      box-shadow:0 3px 10px rgba(212,168,41,.14);
-      animation:gold-breathe 2.8s ease-in-out infinite;
-    }
-    @keyframes gold-breathe{
-      0%,100%{transform:scale(1);}
-      50%{transform:scale(1.025);}
     }
 
     /* ── LIVE VIEW ── */
@@ -329,9 +333,7 @@
       height:100%;
     }
     .live-card{
-      min-width:0;
-      max-width:none;
-      min-height:0;
+      min-width:0;max-width:none;min-height:0;
       background:rgba(255,255,255,.95);
       border:1px solid var(--grid);border-radius:16px;
       box-shadow:0 6px 18px rgba(60,64,180,.10);
@@ -368,23 +370,31 @@
     .live-empty-text{font-size:18px;font-weight:700;}
     .live-empty-sub{font-size:14px;}
 
-    .live-cards.dense-7{
-      grid-template-columns:repeat(auto-fit,minmax(165px,1fr));
-      gap:9px;
-    }
-    .live-cards.dense-9{
-      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-      gap:8px;
-    }
-    .live-cards.dense-9 .live-card{
-      padding:9px 10px;
-      border-radius:14px;
-    }
+    .live-cards.dense-7{grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:9px;}
+    .live-cards.dense-9{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;}
+    .live-cards.dense-9 .live-card{padding:9px 10px;border-radius:14px;}
     .live-cards.dense-9 .live-card-room{font-size:9px;}
     .live-cards.dense-9 .live-card-code{font-size:10px;}
     .live-cards.dense-9 .live-card-name{font-size:13px;}
     .live-cards.dense-9 .live-card-meta{font-size:11px;}
     .live-cards.dense-9 .live-card-time{font-size:11px;padding:2px 7px;}
+
+    /* FIX: toast / banner untuk error & fallback */
+    .toast{
+      position:fixed;bottom:18px;right:18px;
+      max-width:340px;padding:12px 16px;
+      background:#1c2360;color:#fff;
+      border-radius:12px;
+      font-size:13px;font-weight:700;line-height:1.5;
+      box-shadow:0 8px 24px rgba(28,35,96,.25);
+      z-index:9999;
+      animation:toastIn .4s var(--ease-soft);
+      display:none;
+    }
+    .toast.show{display:block;}
+    .toast.warn{background:#7b4b00;}
+    .toast.err{background:#7b1d1d;}
+    @keyframes toastIn{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 
     .error-box{
       margin:10px;padding:14px;border-radius:12px;
@@ -422,27 +432,25 @@
         <div class="ticker-item next"   id="tickerNext"></div>
       </div>
     </div>
+    <!-- FIX: indikator refresh status -->
+    <div class="ticker-right">
+      <div class="refresh-indicator" id="refreshIndicator">--</div>
+      <div class="refresh-dot" id="refreshDot"></div>
+    </div>
   </section>
 
   <section class="table-panel">
     <div class="view-container" id="viewContainer">
 
-      <!-- FULL SCHEDULE VIEW: frozen header + scrollable body -->
       <div class="view-pane active" id="viewFull">
-        <!-- frozen header band -->
         <div class="tbl-header-band" id="tblHeaderBand">
-          <div class="tbl-header-inner" id="tblHeaderInner">
-            <!-- header table injected by JS -->
-          </div>
+          <div class="tbl-header-inner" id="tblHeaderInner"></div>
         </div>
-        <!-- scrollable body band -->
         <div class="tbl-body-band" id="tblBodyBand">
-          <!-- body table injected by JS -->
           <div class="error-box" id="tblBodyPlaceholder">Memuat jadwal...</div>
         </div>
       </div>
 
-      <!-- LIVE VIEW -->
       <div class="view-pane inactive" id="viewLive">
         <div class="live-view" id="liveView"></div>
       </div>
@@ -451,67 +459,97 @@
   </section>
 
 </div>
+
+<!-- FIX: toast untuk notifikasi -->
+<div class="toast" id="toast"></div>
+
 <script>
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 // CONFIG
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 const CONFIG = {
-  csvUrl:        'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
-  autoRefreshMs: 60_000,
-  fallbackDays:  ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
-  roomHeaderClasses: { F6:'rh-f6', F4:'rh-f4' },
-  modeSwitchMs:  21_000,
-  tickerFallback:'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
-  tickerFlipMs:  7_000,
-  tickerAnimMs:  1_080,
+  csvUrl:           'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
+  autoRefreshMs:    60_000,
+  fallbackDays:     ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+  roomHeaderClasses:{ F6:'rh-f6', F4:'rh-f4' },
+  modeSwitchMs:     21_000,
+  tickerFallback:   'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
+  tickerFlipMs:     7_000,
+  tickerAnimMs:     1_080,
+  // FIX: konfigurasi timezone eksplisit agar konsisten di semua browser/server
+  timezone:         'Asia/Jakarta',
+  // FIX: retry CSV
+  fetchRetryCount:  3,
+  fetchRetryMs:     2_000,
+  // Kolom wajib yang harus ada di CSV agar data valid
+  requiredHeaders:  ['JENIS_DATA','AKTIF','HARI','KODE_RUANG','NAMA_MK'],
 };
 
-// ─────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// STATE — dikelola melalui setter agar lebih terstruktur
+// ═══════════════════════════════════════════════════════════
 const state = {
-  data:           null,
-  selectedDay:    'Senin',
-  csvHash:        '',
-  liveSlotKey:    '',
-  currentMode:    'full',
-  modeTimer:      null,
-  modeRemainMs:   CONFIG.modeSwitchMs,
-  tickerItems:    [],
-  tickerIndex:    0,
-  tickerTimer:    null,
-  tickerAnimating:false,
+  data:            null,
+  selectedDay:     'Senin',
+  csvHash:         '',
+  liveSlotKey:     '',
+  currentMode:     'full',
+  modeTimer:       null,
+  modeRemainMs:    CONFIG.modeSwitchMs,
+  tickerItems:     [],
+  tickerIndex:     0,
+  tickerTimer:     null,
+  tickerAnimating: false,
+  // FIX: dimensi di-cache oleh ResizeObserver
+  cachedWidth:     0,
+  cachedHeight:    0,
+  // FIX: state tab visibility
+  isVisible:       true,
+  // FIX: timestamp data terakhir berhasil
+  lastSuccessAt:   null,
+  // FIX: apakah tabel sudah pernah dirender (untuk update baris vs full render)
+  tableRendered:   false,
 };
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 // DOM REFS
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 const el = {
-  statusBar:      document.getElementById('statusBar'),
-  clockTime:      document.getElementById('clockTime'),
-  clockDate:      document.getElementById('clockDate'),
-  tickerCurrent:  document.getElementById('tickerCurrent'),
-  tickerNext:     document.getElementById('tickerNext'),
-  viewFull:       document.getElementById('viewFull'),
-  viewLive:       document.getElementById('viewLive'),
-  tblHeaderInner: document.getElementById('tblHeaderInner'),
-  tblBodyBand:    document.getElementById('tblBodyBand'),
-  tblBodyPlaceholder: document.getElementById('tblBodyPlaceholder'),
-  liveView:       document.getElementById('liveView'),
-  modeBadge:      document.getElementById('modeBadge'),
-  modeProgress:   document.getElementById('modeProgress'),
-  viewContainer:  document.getElementById('viewContainer'),
+  statusBar:          document.getElementById('statusBar'),
+  clockTime:          document.getElementById('clockTime'),
+  clockDate:          document.getElementById('clockDate'),
+  tickerCurrent:      document.getElementById('tickerCurrent'),
+  tickerNext:         document.getElementById('tickerNext'),
+  viewFull:           document.getElementById('viewFull'),
+  viewLive:           document.getElementById('viewLive'),
+  tblHeaderInner:     document.getElementById('tblHeaderInner'),
+  tblBodyBand:        document.getElementById('tblBodyBand'),
+  liveView:           document.getElementById('liveView'),
+  modeBadge:          document.getElementById('modeBadge'),
+  modeProgress:       document.getElementById('modeProgress'),
+  refreshIndicator:   document.getElementById('refreshIndicator'),
+  refreshDot:         document.getElementById('refreshDot'),
+  toast:              document.getElementById('toast'),
 };
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 // UTILS
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 const n   = v => String(v ?? '').trim();
 const nk  = v => n(v).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g, '').toUpperCase();
 const esc = v => String(v ?? '')
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-const isYes = v => { const x = n(v).toLowerCase(); return x==='' || ['ya','y','true','1','aktif'].includes(x); };
+const isYes = v => { const x = n(v).toLowerCase(); return x === '' || ['ya','y','true','1','aktif'].includes(x); };
+
+// FIX: waktu menggunakan timezone eksplisit dari CONFIG
+function getNowInTZ() {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: CONFIG.timezone }));
+}
+const nowMinutes     = () => { const d = getNowInTZ(); return d.getHours() * 60 + d.getMinutes(); };
+const currentDayName = () => {
+  return new Intl.DateTimeFormat('id-ID', { weekday:'long', timeZone: CONFIG.timezone }).format(new Date());
+};
 
 function getCanonicalKey(k) {
   const m = {
@@ -529,42 +567,75 @@ function getCanonicalKey(k) {
 }
 
 function parseTimeLabelToMinutes(label) {
-  const c   = n(label).replace(/–/g,'-');
+  const c   = n(label).replace(/–/g, '-');
   const pts = c.split('-').map(x => n(x));
   if (pts.length < 2) return null;
-  const p = s => { const m = s.match(/(\d{1,2})[.:](\d{2})/); return m ? (+m[1]*60 + +m[2]) : null; };
+  const p = s => { const m = s.match(/(\d{1,2})[.:](\d{2})/); return m ? (+m[1] * 60 + +m[2]) : null; };
   const s = p(pts[0]), e = p(pts[1]);
-  return (s !== null && e !== null) ? { start:s, end:e } : null;
+  return (s !== null && e !== null) ? { start: s, end: e } : null;
 }
 
-const nowMinutes    = () => { const d = new Date(); return d.getHours()*60 + d.getMinutes(); };
-const currentDayName= () => ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date().getDay()];
+// FIX: toast notifikasi
+let toastTimer = null;
+function showToast(msg, type = '', durationMs = 4000) {
+  el.toast.textContent = msg;
+  el.toast.className   = `toast show${type ? ' ' + type : ''}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.toast.className = 'toast'; }, durationMs);
+}
 
-// ─────────────────────────────────────────────
+// FIX: update refresh indicator
+function setRefreshState(state_) {
+  // state_: 'ok' | 'err' | 'refreshing'
+  const now = getNowInTZ();
+  const tf  = new Intl.DateTimeFormat('id-ID', { hour:'2-digit', minute:'2-digit', timeZone: CONFIG.timezone });
+  el.refreshDot.className       = `refresh-dot ${state_}`;
+  el.refreshIndicator.className = `refresh-indicator${state_ === 'refreshing' ? ' refreshing' : ''}`;
+  if (state_ === 'refreshing') {
+    el.refreshIndicator.textContent = 'Memperbarui…';
+  } else if (state_ === 'ok') {
+    state.lastSuccessAt = now;
+    el.refreshIndicator.textContent = `Diperbarui ${tf.format(now)}`;
+  } else {
+    el.refreshIndicator.textContent = state.lastSuccessAt
+      ? `Gagal — terakhir ${tf.format(state.lastSuccessAt)}`
+      : 'Gagal memuat';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 // DATA MODEL
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 function buildObjectsFromCsv(csvText) {
   const rows = Papa.parse(csvText, { delimiter:',', quoteChar:'"', escapeChar:'"', skipEmptyLines:false }).data || [];
   const hi   = rows.findIndex(r => nk(r?.[0]) === 'JENISDATA');
-  if (hi === -1) throw new Error('Header JENIS_DATA tidak ditemukan.');
+  if (hi === -1) throw new Error('Header JENIS_DATA tidak ditemukan di spreadsheet.');
   const headers = rows[hi].map(getCanonicalKey);
-  return rows.slice(hi+1)
+
+  // FIX: validasi kolom wajib
+  const missing = CONFIG.requiredHeaders.filter(h => !headers.includes(h));
+  if (missing.length) {
+    console.warn('[Jadwal] Kolom tidak ditemukan:', missing.join(', '));
+  }
+
+  return rows.slice(hi + 1)
     .filter(r => r.some(c => n(c) !== ''))
-    .map(r => { const o = {}; headers.forEach((h,i) => { if (h) o[h] = r[i] ?? ''; }); return o; });
+    .map(r => { const o = {}; headers.forEach((h, i) => { if (h) o[h] = r[i] ?? ''; }); return o; });
 }
 
 function buildDataModel(csvText) {
-  const rows = buildObjectsFromCsv(csvText);
-  const rooms     = rows.filter(r => n(r.JENIS_DATA).toUpperCase()==='RUANG'   && isYes(r.AKTIF)).sort((a,b)=>(+a.URUTAN_KOLOM_RUANG||0)-(+b.URUTAN_KOLOM_RUANG||0));
-  const slots     = rows.filter(r => n(r.JENIS_DATA).toUpperCase()==='SLOT'    && isYes(r.AKTIF)).sort((a,b)=>(+a.URUTAN_SLOT||+a.ID_SLOT||0)-(+b.URUTAN_SLOT||+b.ID_SLOT||0));
-  const schedules = rows.filter(r => n(r.JENIS_DATA).toUpperCase()==='JADWAL'  && isYes(r.AKTIF));
-  const infos     = rows.filter(r => n(r.JENIS_DATA).toUpperCase()==='INFO'    && isYes(r.AKTIF));
-  const daysSet   = new Set();
-  slots.forEach(r => { if (n(r.HARI)) daysSet.add(n(r.HARI)); });
+  const rows      = buildObjectsFromCsv(csvText);
+  const rooms     = rows.filter(r => n(r.JENIS_DATA).toUpperCase() === 'RUANG'  && isYes(r.AKTIF)).sort((a,b) => (+a.URUTAN_KOLOM_RUANG||0) - (+b.URUTAN_KOLOM_RUANG||0));
+  const slots     = rows.filter(r => n(r.JENIS_DATA).toUpperCase() === 'SLOT'   && isYes(r.AKTIF)).sort((a,b) => (+a.URUTAN_SLOT||+a.ID_SLOT||0) - (+b.URUTAN_SLOT||+b.ID_SLOT||0));
+  const schedules = rows.filter(r => n(r.JENIS_DATA).toUpperCase() === 'JADWAL' && isYes(r.AKTIF));
+  const infos     = rows.filter(r => n(r.JENIS_DATA).toUpperCase() === 'INFO'   && isYes(r.AKTIF));
+
+  const daysSet = new Set();
+  slots.forEach(r     => { if (n(r.HARI)) daysSet.add(n(r.HARI)); });
   schedules.forEach(r => { if (n(r.HARI)) daysSet.add(n(r.HARI)); });
   const ordered = CONFIG.fallbackDays.filter(d => daysSet.has(d));
   const extra   = [...daysSet].filter(d => !ordered.includes(d));
-  return { rooms, slots, schedules, infos, days:[...ordered,...extra], hasGlobalSlots:slots.some(r=>!n(r.HARI)) };
+  return { rooms, slots, schedules, infos, days: [...ordered, ...extra] };
 }
 
 function getSlotsForDay(day) {
@@ -578,8 +649,8 @@ function getSlotsForDay(day) {
 function getScheduleItem(day, roomCode, slotId) {
   const dl = n(day).toLowerCase(), rc = n(roomCode), sid = +slotId;
   return state.data.schedules.find(item =>
-    n(item.HARI).toLowerCase()===dl && n(item.KODE_RUANG)===rc &&
-    sid >= +item.ID_SLOT_MULAI && sid <= (+(item.ID_SLOT_SELESAI||item.ID_SLOT_MULAI))
+    n(item.HARI).toLowerCase() === dl && n(item.KODE_RUANG) === rc &&
+    sid >= +item.ID_SLOT_MULAI && sid <= (+(item.ID_SLOT_SELESAI || item.ID_SLOT_MULAI))
   ) || null;
 }
 
@@ -594,20 +665,46 @@ function getCurrentActiveSlotId(day) {
   return null;
 }
 
-const getCurrentAcademicDay = days => { const c = currentDayName(); return days.includes(c) ? c : (days[0]||'Senin'); };
+const getCurrentAcademicDay = days => {
+  const c = currentDayName();
+  return days.includes(c) ? c : (days[0] || 'Senin');
+};
 
-function mkColor(kodeMk) {
-  const code = n(kodeMk).toUpperCase().replace(/\s+/g,'');
-  const m    = code.match(/^([A-Z]+)(\d)/);
-  const key  = m ? `${m[1]}${m[2]}xx` : 'DEFAULT';
-  const map  = {
-    'TI1xx':{bg:'#EEF4FA',t:'#1A3050'}, 'TI2xx':{bg:'#EDF7F1',t:'#0E3020'},
-    'TI3xx':{bg:'#FFF9EC',t:'#3A2800'}, 'TI4xx':{bg:'#FAF0E8',t:'#3A1808'},
-    'TI5xx':{bg:'#F2EEF9',t:'#1E103A'}, 'TI6xx':{bg:'#EEF6F1',t:'#0C3220'},
-    'TI7xx':{bg:'#EEF5F6',t:'#0C2A30'}, 'TI8xx':{bg:'#FAEFF0',t:'#3A0C10'},
-    'TIDA0xx':{bg:'#F0F4E8',t:'#203010'}, 'DEFAULT':{bg:'#F3F4FA',t:'#1A1D3A'},
+// FIX: mkColor membaca dari kolom WARNA_BG/WARNA_TEXT di data jadwal jika tersedia,
+//      lalu fallback ke hash otomatis dari kode MK agar prefix baru tidak hilang warna
+const COLOR_PALETTE = [
+  {bg:'#EEF4FA',t:'#1A3050'},{bg:'#EDF7F1',t:'#0E3020'},
+  {bg:'#FFF9EC',t:'#3A2800'},{bg:'#FAF0E8',t:'#3A1808'},
+  {bg:'#F2EEF9',t:'#1E103A'},{bg:'#EEF6F1',t:'#0C3220'},
+  {bg:'#EEF5F6',t:'#0C2A30'},{bg:'#FAEFF0',t:'#3A0C10'},
+  {bg:'#F0F4E8',t:'#203010'},{bg:'#F5EEF8',t:'#2C0C38'},
+  {bg:'#FEF9E7',t:'#3A2A00'},{bg:'#E8F8F5',t:'#0C3028'},
+];
+
+function strHashIndex(str, len) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  return Math.abs(h) % len;
+}
+
+function mkColor(scheduleItem) {
+  // Prioritas 1: warna eksplisit dari kolom spreadsheet
+  if (scheduleItem && n(scheduleItem.WARNA_BG) && n(scheduleItem.WARNA_TEXT)) {
+    return { bg: n(scheduleItem.WARNA_BG), t: n(scheduleItem.WARNA_TEXT) };
+  }
+  // Prioritas 2: prefix kode MK yang dikenal
+  const code = n(scheduleItem?.KODE_MK || '').toUpperCase().replace(/\s+/g,'');
+  const knownMap = {
+    'TI1':{bg:'#EEF4FA',t:'#1A3050'},'TI2':{bg:'#EDF7F1',t:'#0E3020'},
+    'TI3':{bg:'#FFF9EC',t:'#3A2800'},'TI4':{bg:'#FAF0E8',t:'#3A1808'},
+    'TI5':{bg:'#F2EEF9',t:'#1E103A'},'TI6':{bg:'#EEF6F1',t:'#0C3220'},
+    'TI7':{bg:'#EEF5F6',t:'#0C2A30'},'TI8':{bg:'#FAEFF0',t:'#3A0C10'},
   };
-  return map[key] || map.DEFAULT;
+  const prefix = code.match(/^([A-Z]+\d)/)?.[1] || '';
+  if (prefix && knownMap[prefix]) return knownMap[prefix];
+  // Prioritas 3: hash otomatis dari kode MK — prefix baru tetap dapat warna konsisten
+  if (code) return COLOR_PALETTE[strHashIndex(code, COLOR_PALETTE.length)];
+  return { bg:'#F3F4FA', t:'#1A1D3A' };
 }
 
 function roomHClass(room) {
@@ -615,43 +712,129 @@ function roomHClass(room) {
   return CONFIG.roomHeaderClasses[g] || 'rh-def';
 }
 
-// ─────────────────────────────────────────────
-// AUTO-SCROLL TO ACTIVE ROW
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// FIX: localStorage fallback — data terakhir yang berhasil
+// ═══════════════════════════════════════════════════════════
+const LS_KEY = 'jadwal_csv_cache_v2';
+
+function saveCsvToCache(csvText) {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({ csv: csvText, ts: Date.now() }));
+  } catch(e) { /* storage penuh, abaikan */ }
+}
+
+function loadCsvFromCache() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// FIX: hash sekali, tidak dobel
+// ═══════════════════════════════════════════════════════════
+async function hashText(t) {
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// FIX: ResizeObserver — cache dimensi, render hanya saat berubah
+// ═══════════════════════════════════════════════════════════
+let resizeRenderPending = false;
+const ro = new ResizeObserver(entries => {
+  for (const entry of entries) {
+    const { width, height } = entry.contentRect;
+    // Hanya re-render jika dimensi benar-benar berubah signifikan (>2px)
+    if (Math.abs(width - state.cachedWidth) > 2 || Math.abs(height - state.cachedHeight) > 2) {
+      state.cachedWidth  = width;
+      state.cachedHeight = height;
+      if (!resizeRenderPending) {
+        resizeRenderPending = true;
+        requestAnimationFrame(() => {
+          resizeRenderPending = false;
+          if (!state.data) return;
+          // Resize selalu butuh full rebuild karena ukuran font berubah
+          state.tableRendered = false;
+          if (state.currentMode === 'full') renderFullTable(state.selectedDay);
+          else renderLiveView(state.selectedDay);
+        });
+      }
+    }
+  }
+});
+ro.observe(el.viewFull);
+
+// ═══════════════════════════════════════════════════════════
+// AUTO-SCROLL KE BARIS AKTIF
+// FIX: gunakan MutationObserver sekali untuk scroll setelah DOM selesai
+// ═══════════════════════════════════════════════════════════
 function scrollToActiveRow(force = false) {
   const band   = el.tblBodyBand;
   const target = band.querySelector('tr.current-row');
-  if (!band) return;
-
-  if (!target) {
-    if (force) band.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
+  if (!band || !target) { if (force) band?.scrollTo({ top:0, behavior:'smooth' }); return; }
 
   const bandRect   = band.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
-
-  const scrollTop = band.scrollTop;
-  const rowTopInBand    = scrollTop + (targetRect.top  - bandRect.top);
-  const rowBottomInBand = rowTopInBand + targetRect.height;
-
-  // Margins so the row is never right at the edge
-  const marginTop    = 10;
-  const marginBottom = 20;
-  const visible      = rowTopInBand >= scrollTop + marginTop &&
-                       rowBottomInBand <= scrollTop + band.clientHeight - marginBottom;
+  const scrollTop  = band.scrollTop;
+  const rowTop     = scrollTop + (targetRect.top  - bandRect.top);
+  const rowBot     = rowTop + targetRect.height;
+  const marginTop  = 10, marginBot = 20;
+  const visible    = rowTop >= scrollTop + marginTop && rowBot <= scrollTop + band.clientHeight - marginBot;
 
   if (force || !visible) {
-    const desired = rowTopInBand + targetRect.height / 2 - band.clientHeight / 2;
+    const desired   = rowTop + targetRect.height / 2 - band.clientHeight / 2;
     const maxScroll = Math.max(0, band.scrollHeight - band.clientHeight);
-    band.scrollTo({ top: Math.max(0, Math.min(maxScroll, desired)), behavior: 'smooth' });
+    band.scrollTo({ top: Math.max(0, Math.min(maxScroll, desired)), behavior:'smooth' });
   }
 }
 
-// ─────────────────────────────────────────────
+// FIX: scroll setelah DOM benar-benar selesai via MutationObserver
+function scrollAfterRender() {
+  const band = el.tblBodyBand;
+  if (!band) return;
+  // Jika sudah ada tbody, langsung scroll
+  if (band.querySelector('tbody')) { scrollToActiveRow(true); return; }
+  // Tunggu DOM dengan MutationObserver, timeout fallback 800ms
+  let done = false;
+  const mo = new MutationObserver(() => {
+    if (band.querySelector('tbody') && !done) {
+      done = true; mo.disconnect(); scrollToActiveRow(true);
+    }
+  });
+  mo.observe(band, { childList:true, subtree:true });
+  setTimeout(() => { if (!done) { done = true; mo.disconnect(); scrollToActiveRow(true); } }, 800);
+}
+
+// ═══════════════════════════════════════════════════════════
+// FIX: UPDATE HIGHLIGHT BARIS — tanpa rebuild DOM
+// Dipanggil setiap detik saat mode full dan slot aktif tidak berubah
+// ═══════════════════════════════════════════════════════════
+function updateActiveRowHighlight(activeSlotId) {
+  const band = el.tblBodyBand;
+  if (!band) return;
+
+  // Hapus highlight lama
+  band.querySelectorAll('tr.current-row').forEach(r => r.classList.remove('current-row'));
+  band.querySelectorAll('td.current-time').forEach(td => td.classList.remove('current-time'));
+  band.querySelectorAll('td.current-course').forEach(td => td.classList.remove('current-course'));
+
+  if (!activeSlotId) return;
+
+  // Tambahkan highlight baru berdasarkan data-slot attribute
+  band.querySelectorAll(`tr[data-slot="${activeSlotId}"]`).forEach(row => {
+    row.classList.add('current-row');
+    row.querySelectorAll('td.time-cell').forEach(td => td.classList.add('current-time'));
+    row.querySelectorAll('td.course-cell, td.empty-cell').forEach(td => td.classList.add('current-course'));
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
 // RENDER FULL TABLE
-// ─────────────────────────────────────────────
-function renderFullTable(day) {
+// FIX: jika tabel sudah ada dan hanya highlight berubah, cukup updateActiveRowHighlight
+// ═══════════════════════════════════════════════════════════
+function renderFullTable(day, forceRebuild = false) {
   if (!state.data) {
     el.tblHeaderInner.innerHTML = '';
     el.tblBodyBand.innerHTML    = '<div class="error-box">Data belum tersedia.</div>';
@@ -665,37 +848,38 @@ function renderFullTable(day) {
   if (!rooms.length) { el.tblBodyBand.innerHTML = '<div class="error-box">Data RUANG tidak ditemukan.</div>'; return; }
   if (!slots.length) { el.tblBodyBand.innerHTML = '<div class="error-box">Data SLOT tidak ditemukan.</div>'; return; }
 
-  // ── Sizing ──
-  const cH = Math.max(360, el.viewFull.clientHeight - 4);
-  const cW = Math.max(200, el.viewFull.clientWidth  - 4);
+  // FIX: jika tabel sudah ter-render dan hari tidak berubah, cukup update highlight
+  if (state.tableRendered && !forceRebuild) {
+    updateActiveRowHighlight(activeSlotId);
+    scrollToActiveRow(false);
+    return;
+  }
+
+  // ── Sizing dari cache ResizeObserver ──
+  const cH = Math.max(360, state.cachedHeight || el.viewFull.clientHeight - 4);
+  const cW = Math.max(200, state.cachedWidth  || el.viewFull.clientWidth  - 4);
 
   const thH      = Math.max(38, Math.min(54, Math.floor(cH * 0.065)));
   const rowH     = Math.max(38, Math.min(62, Math.floor(cH * 0.076)));
   const specialH = Math.max(22, Math.min(32, Math.floor(rowH * 0.56)));
-
-  // Fixed widths for SESI and JAM columns (px); rooms share the remaining width equally.
-  // Tables are 100% wide — no horizontal scroll.
   const sesiW    = 52;
   const jamW     = 108;
   const roomCols = rooms.length;
-  // Compute the actual room column width for font sizing only (not used as explicit col width)
   const roomW    = Math.max(60, Math.floor((cW - sesiW - jamW - 8) / Math.max(roomCols, 1)));
 
   const fHeader = Math.max(10, Math.min(16, Math.floor(roomW * 0.115)));
   const fBase   = Math.max(9,  Math.min(13, Math.floor(roomW * 0.096)));
   const fCode   = Math.max(8,  Math.min(11, Math.floor(fBase * 0.90)));
   const fMeta   = Math.max(7,  Math.min(10, Math.floor(fBase * 0.83)));
-  const fBadge  = Math.max(7,  Math.min(10, Math.floor(fBase * 0.83)));
 
-  // Shared colgroup: SESI and JAM have fixed px widths; each room col gets equal share of remainder
   const colGroup = `
     <colgroup>
       <col style="width:${sesiW}px">
       <col style="width:${jamW}px">
-      ${rooms.map(()=>`<col>`).join('')}
+      ${rooms.map(() => `<col>`).join('')}
     </colgroup>`;
 
-  // ── Header table (100% wide, no explicit total width) ──
+  // ── Header table ──
   const headerTableHtml = `
     <table class="schedule head-tbl" style="width:100%;font-size:${fBase}px;">
       ${colGroup}
@@ -703,13 +887,13 @@ function renderFullTable(day) {
         <tr style="height:${thH}px;">
           <th style="font-size:${fHeader}px;">SESI</th>
           <th style="font-size:${fHeader}px;">JAM</th>
-          ${rooms.map(r => `<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}
+          ${rooms.map(r => `<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG || r.KODE_RUANG)}</th>`).join('')}
         </tr>
       </thead>
     </table>`;
 
   // ── Body rows ──
-  const sessionCount   = new Map();
+  const sessionCount    = new Map();
   const renderedSession = new Set();
   slots.forEach(s => {
     if (n(s.TIPE_BARIS).toUpperCase() === 'KULIAH') {
@@ -720,38 +904,39 @@ function renderFullTable(day) {
 
   let bodyRows = '';
   for (const slot of slots) {
-    const type   = n(slot.TIPE_BARIS).toUpperCase();
-    const sid    = +slot.ID_SLOT;
-    const isCur  = (type === 'KULIAH') && (activeSlotId === sid);
-    const rH     = (type === 'KULIAH') ? rowH : specialH;
+    const type  = n(slot.TIPE_BARIS).toUpperCase();
+    const sid   = +slot.ID_SLOT;
+    const isCur = (type === 'KULIAH') && (activeSlotId === sid);
+    const rH    = (type === 'KULIAH') ? rowH : specialH;
 
-    bodyRows += `<tr class="${isCur ? 'current-row' : ''}">`;
+    // FIX: tambahkan data-slot attribute agar updateActiveRowHighlight bisa target per baris
+    bodyRows += `<tr class="${isCur ? 'current-row' : ''}" data-slot="${sid}">`;
 
     if (type === 'KULIAH') {
       const sesi = n(slot.SESI) || '-';
       if (!renderedSession.has(sesi)) {
-        bodyRows += `<td class="session-cell" rowspan="${sessionCount.get(sesi)||1}" style="height:${rH}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
+        bodyRows += `<td class="session-cell" rowspan="${sessionCount.get(sesi) || 1}" style="height:${rH}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
         renderedSession.add(sesi);
       }
-      bodyRows += `<td class="time-cell${isCur?' current-time':''}" style="height:${rH}px;font-size:${Math.max(9,fBase*0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      bodyRows += `<td class="time-cell${isCur ? ' current-time' : ''}" style="height:${rH}px;font-size:${Math.max(9, fBase * 0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
       for (const room of rooms) {
         const item = getScheduleItem(day, room.KODE_RUANG, sid);
         if (item) {
-          const c = mkColor(item.KODE_MK || '');
-          bodyRows += `<td class="course-cell${isCur?' current-course':''}" style="height:${rH}px;background:${c.bg};color:${c.t};">
-            <div class="c-code" style="font-size:${fCode}px;">${esc(item.KODE_MK||'')}${item.KELAS?` (${esc(item.KELAS)})`:''}</div>
-            <div class="c-name" style="font-size:${fBase}px;">${esc(item.NAMA_MK||'')}</div>
-            ${item.DOSEN     ? `<div class="c-meta" style="font-size:${fMeta}px;">👤 ${esc(item.DOSEN)}</div>` : ''}
-            ${item.PROGRAM_ANGKATAN ? `<div class="c-meta" style="font-size:${fMeta}px;">${esc(item.PROGRAM_ANGKATAN)}</div>` : ''}
+          const c = mkColor(item);
+          bodyRows += `<td class="course-cell${isCur ? ' current-course' : ''}" style="height:${rH}px;background:${c.bg};color:${c.t};">
+            <div class="c-code" style="font-size:${fCode}px;">${esc(item.KODE_MK || '')}${item.KELAS ? ` (${esc(item.KELAS)})` : ''}</div>
+            <div class="c-name" style="font-size:${fBase}px;">${esc(item.NAMA_MK || '')}</div>
+            ${item.DOSEN           ? `<div class="c-meta" style="font-size:${fMeta}px;">👤 ${esc(item.DOSEN)}</div>` : ''}
+            ${item.PROGRAM_ANGKATAN? `<div class="c-meta" style="font-size:${fMeta}px;">${esc(item.PROGRAM_ANGKATAN)}</div>` : ''}
           </td>`;
         } else {
-          bodyRows += `<td class="empty-cell${isCur?' current-course':''}" style="height:${rH}px;"></td>`;
+          bodyRows += `<td class="empty-cell${isCur ? ' current-course' : ''}" style="height:${rH}px;"></td>`;
         }
       }
     } else {
       bodyRows += `<td class="session-empty" style="height:${rH}px;"></td>`;
       bodyRows += `<td class="special-time"  style="height:${rH}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
-      bodyRows += `<td class="special-cell"  colspan="${rooms.length}" style="height:${rH}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
+      bodyRows += `<td class="special-cell"  colspan="${rooms.length}" style="height:${rH}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN) || 'Informasi akademik')}</td>`;
     }
     bodyRows += `</tr>`;
   }
@@ -762,20 +947,19 @@ function renderFullTable(day) {
       <tbody>${bodyRows}</tbody>
     </table>`;
 
-  // ── Inject HTML ──
+  // Inject HTML
   el.tblHeaderInner.innerHTML = headerTableHtml;
   el.tblBodyBand.innerHTML    = bodyTableHtml;
 
-  // ── Scroll to active row ──
-  requestAnimationFrame(() => {
-    scrollToActiveRow(true);
-    setTimeout(() => scrollToActiveRow(true), 150);
-  });
+  state.tableRendered = true;
+
+  // FIX: scroll via MutationObserver — tidak pakai setTimeout magic
+  scrollAfterRender();
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 // RENDER LIVE VIEW
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 function renderLiveView(day) {
   const activeSlotId = getCurrentActiveSlotId(day);
   const slots        = state.data ? getSlotsForDay(day) : [];
@@ -805,13 +989,13 @@ function renderLiveView(day) {
     html += `<div class="live-empty"><div class="live-empty-icon">📭</div><div class="live-empty-text">Tidak ada mata kuliah di sesi ini</div></div>`;
   } else {
     liveItems.forEach(({ room, item }, idx) => {
-      const c = mkColor(item.KODE_MK || '');
-      html += `<div class="live-card" style="background:${c.bg};color:${c.t};animation-delay:${idx*60}ms;">
-        <div class="live-card-room">${esc(room.NAMA_TAMPIL_RUANG||room.KODE_RUANG)}</div>
-        <div class="live-card-code">${esc(item.KODE_MK||'')}${item.KELAS?` · Kelas ${esc(item.KELAS)}`:''}</div>
-        <div class="live-card-name" style="color:${c.t}">${esc(item.NAMA_MK||'')}</div>
-        ${item.DOSEN           ? `<div class="live-card-meta">👤 ${esc(item.DOSEN)}</div>` : ''}
-        ${item.PROGRAM_ANGKATAN? `<div class="live-card-meta">🎓 ${esc(item.PROGRAM_ANGKATAN)}</div>` : ''}
+      const c = mkColor(item);
+      html += `<div class="live-card" style="background:${c.bg};color:${c.t};animation-delay:${idx * 60}ms;">
+        <div class="live-card-room">${esc(room.NAMA_TAMPIL_RUANG || room.KODE_RUANG)}</div>
+        <div class="live-card-code">${esc(item.KODE_MK || '')}${item.KELAS ? ` · Kelas ${esc(item.KELAS)}` : ''}</div>
+        <div class="live-card-name" style="color:${c.t}">${esc(item.NAMA_MK || '')}</div>
+        ${item.DOSEN            ? `<div class="live-card-meta">👤 ${esc(item.DOSEN)}</div>` : ''}
+        ${item.PROGRAM_ANGKATAN ? `<div class="live-card-meta">🎓 ${esc(item.PROGRAM_ANGKATAN)}</div>` : ''}
         <div class="live-card-time">⏱ ${esc(timeLabel)}</div>
       </div>`;
     });
@@ -820,9 +1004,9 @@ function renderLiveView(day) {
   el.liveView.innerHTML = html;
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 // STATUS BAR
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 function updateStatus() {
   if (!state.data) { el.statusBar.textContent = 'Memuat data spreadsheet...'; return; }
   const slots    = getSlotsForDay(state.selectedDay);
@@ -831,10 +1015,10 @@ function updateStatus() {
   const liveItem = liveId
     ? state.data.schedules.find(r =>
         n(r.HARI).toLowerCase() === n(state.selectedDay).toLowerCase() &&
-        liveId >= +r.ID_SLOT_MULAI && liveId <= (+(r.ID_SLOT_SELESAI||r.ID_SLOT_MULAI)))
+        liveId >= +r.ID_SLOT_MULAI && liveId <= (+(r.ID_SLOT_SELESAI || r.ID_SLOT_MULAI)))
     : null;
   const liveText = liveItem
-    ? `<strong>▶ ${esc(liveItem.NAMA_MK||'Berlangsung')}</strong>`
+    ? `<strong>▶ ${esc(liveItem.NAMA_MK || 'Berlangsung')}</strong>`
     : 'Belum ada perkuliahan berlangsung';
   el.statusBar.innerHTML = [
     `Hari: <strong>${esc(state.selectedDay)}</strong>`,
@@ -845,16 +1029,16 @@ function updateStatus() {
   ].map(x => `<span class="status-item">${x}</span>`).join('');
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 // TICKER
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 function stopTickerFlip() { if (state.tickerTimer) { clearInterval(state.tickerTimer); state.tickerTimer = null; } }
 
 function resetTickerNoAnim(text) {
-  el.tickerCurrent.className = 'ticker-item active no-anim';
+  el.tickerCurrent.className  = 'ticker-item active no-anim';
   el.tickerCurrent.textContent = text;
-  el.tickerNext.className = 'ticker-item next no-anim';
-  el.tickerNext.textContent = '';
+  el.tickerNext.className     = 'ticker-item next no-anim';
+  el.tickerNext.textContent   = '';
   void el.tickerCurrent.offsetWidth;
   requestAnimationFrame(() => {
     el.tickerCurrent.className = 'ticker-item active';
@@ -877,7 +1061,7 @@ function flipTicker() {
   }));
   setTimeout(() => {
     resetTickerNoAnim(nextText);
-    state.tickerIndex    = nextIndex;
+    state.tickerIndex     = nextIndex;
     state.tickerAnimating = false;
   }, CONFIG.tickerAnimMs);
 }
@@ -905,24 +1089,23 @@ function updateTicker() {
   startTickerFlip();
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 // MODE SWITCHING
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 function switchToMode(mode) {
   state.currentMode  = mode;
   state.modeRemainMs = CONFIG.modeSwitchMs;
 
   if (mode === 'full') {
-    el.viewFull.classList.add('active');    el.viewFull.classList.remove('inactive');
-    el.viewLive.classList.remove('active'); el.viewLive.classList.add('inactive');
+    el.viewFull.classList.add('active');     el.viewFull.classList.remove('inactive');
+    el.viewLive.classList.remove('active');  el.viewLive.classList.add('inactive');
     el.modeBadge.textContent = '📅 SEMUA SESI';
     el.modeBadge.className   = 'mode-badge mode-full';
-    renderFullTable(state.selectedDay);
-    // Scroll after transition completes
-    setTimeout(() => scrollToActiveRow(true), 700);
+    renderFullTable(state.selectedDay, true);   // force rebuild saat mode baru aktif
+    setTimeout(() => scrollToActiveRow(true), 680);
   } else {
-    el.viewLive.classList.add('active');    el.viewLive.classList.remove('inactive');
-    el.viewFull.classList.remove('active'); el.viewFull.classList.add('inactive');
+    el.viewLive.classList.add('active');     el.viewLive.classList.remove('inactive');
+    el.viewFull.classList.remove('active');  el.viewFull.classList.add('inactive');
     el.modeBadge.textContent = '🔴 BERLANGSUNG';
     el.modeBadge.className   = 'mode-badge mode-live';
     renderLiveView(state.selectedDay);
@@ -933,110 +1116,176 @@ function startModeTimer() {
   clearInterval(state.modeTimer);
   state.modeRemainMs = CONFIG.modeSwitchMs;
   state.modeTimer = setInterval(() => {
+    // FIX: jika tab tidak visible, jangan switch mode (browser sudah throttle)
+    if (!state.isVisible) return;
     state.modeRemainMs -= 1000;
     if (state.modeRemainMs <= 0) switchToMode(state.currentMode === 'full' ? 'live' : 'full');
     el.modeProgress.style.width = Math.max(0, (state.modeRemainMs / CONFIG.modeSwitchMs) * 100) + '%';
   }, 1000);
 }
 
-// ─────────────────────────────────────────────
-// CLOCK + SLOT WATCHER
-// ─────────────────────────────────────────────
-function startClock() {
-  const tf = new Intl.DateTimeFormat('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-  const df = new Intl.DateTimeFormat('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+// ═══════════════════════════════════════════════════════════
+// FIX: MASTER TICK — satu interval untuk semua kebutuhan per-detik
+// Menggantikan dua setInterval terpisah (clock + slot watcher)
+// ═══════════════════════════════════════════════════════════
+function startMasterTick() {
+  const tz = CONFIG.timezone;
+  const tf  = new Intl.DateTimeFormat('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone: tz });
+  const df  = new Intl.DateTimeFormat('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric', timeZone: tz });
 
-  const tick = () => {
+  function tick() {
     const now = new Date();
     el.clockTime.textContent = tf.format(now);
     el.clockDate.textContent = df.format(now);
 
     if (!state.data) return;
 
-    const autoDay = getCurrentAcademicDay(state.data.days.length ? state.data.days : CONFIG.fallbackDays);
+    const days    = state.data.days.length ? state.data.days : CONFIG.fallbackDays;
+    const autoDay = getCurrentAcademicDay(days);
 
-    // Day changed → full re-render
+    // Hari berubah → force full rebuild
     if (autoDay !== state.selectedDay) {
-      state.selectedDay = autoDay;
+      state.selectedDay  = autoDay;
+      state.tableRendered = false;
       updateStatus();
-      state.currentMode === 'full' ? renderFullTable(state.selectedDay) : renderLiveView(state.selectedDay);
+      state.currentMode === 'full' ? renderFullTable(state.selectedDay, true) : renderLiveView(state.selectedDay);
       return;
     }
 
     const activeId = getCurrentActiveSlotId(state.selectedDay);
-    const lk       = `${state.selectedDay}__${activeId||''}`;
+    const lk       = `${state.selectedDay}__${activeId || ''}`;
 
     if (lk !== state.liveSlotKey) {
-      // Active slot changed → re-render and jump to new row
-      state.liveSlotKey = lk;
+      // Slot aktif berubah → rebuild tabel agar rowspan session cell benar
+      state.liveSlotKey   = lk;
+      state.tableRendered = false;
       updateStatus();
-      if (state.currentMode === 'full') {
-        renderFullTable(state.selectedDay);
-      } else {
-        renderLiveView(state.selectedDay);
-      }
+      state.currentMode === 'full'
+        ? renderFullTable(state.selectedDay, true)
+        : renderLiveView(state.selectedDay);
     } else if (state.currentMode === 'full') {
-      // No slot change, just gently keep row in view (non-forced)
+      // FIX: tidak rebuild DOM — cukup update class highlight
+      updateActiveRowHighlight(activeId);
       scrollToActiveRow(false);
     }
-  };
+  }
 
   tick();
   setInterval(tick, 1000);
 }
 
-// ─────────────────────────────────────────────
-// CSV LOAD
-// ─────────────────────────────────────────────
-async function hashText(t) {
-  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
-  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
+// ═══════════════════════════════════════════════════════════
+// FIX: Page Visibility API — pause/resume saat tab background
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('visibilitychange', () => {
+  state.isVisible = !document.hidden;
+  if (state.isVisible) {
+    // Tab kembali aktif — recalculate state agar sinkron kembali
+    if (state.data) {
+      const days    = state.data.days.length ? state.data.days : CONFIG.fallbackDays;
+      state.selectedDay  = getCurrentAcademicDay(days);
+      state.liveSlotKey  = '';   // paksa refresh di tick berikutnya
+      state.tableRendered = false;
+    }
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// CSV LOAD dengan retry dan localStorage fallback
+// ═══════════════════════════════════════════════════════════
+async function fetchCsvWithRetry() {
+  let lastErr;
+  for (let i = 0; i < CONFIG.fetchRetryCount; i++) {
+    try {
+      const r = await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`, { cache:'no-store' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return await r.text();
+    } catch(e) {
+      lastErr = e;
+      if (i < CONFIG.fetchRetryCount - 1) {
+        await new Promise(res => setTimeout(res, CONFIG.fetchRetryMs));
+      }
+    }
+  }
+  throw lastErr;
 }
-async function fetchCsv() {
-  const r = await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`, { cache:'no-store' });
-  if (!r.ok) throw new Error('Gagal mengambil CSV');
-  return r.text();
-}
-async function applyCsv(csvText) {
-  state.data         = buildDataModel(csvText);
-  state.csvHash      = await hashText(csvText);
-  const days         = state.data.days.length ? state.data.days : CONFIG.fallbackDays;
-  state.selectedDay  = getCurrentAcademicDay(days);
-  state.liveSlotKey  = `${state.selectedDay}__${getCurrentActiveSlotId(state.selectedDay)||''}`;
+
+async function applyCsv(csvText, newHash) {
+  state.data          = buildDataModel(csvText);
+  // FIX: hash sudah dihitung di luar, tidak perlu hitung ulang
+  state.csvHash       = newHash || await hashText(csvText);
+  const days          = state.data.days.length ? state.data.days : CONFIG.fallbackDays;
+  state.selectedDay   = getCurrentAcademicDay(days);
+  state.liveSlotKey   = `${state.selectedDay}__${getCurrentActiveSlotId(state.selectedDay) || ''}`;
+  state.tableRendered = false;
+  saveCsvToCache(csvText);
   updateTicker();
   updateStatus();
-  renderFullTable(state.selectedDay);
+  renderFullTable(state.selectedDay, true);
   renderLiveView(state.selectedDay);
 }
 
-// Auto-refresh CSV
+// Auto-refresh CSV — FIX: hash sekali, tidak dobel
 setInterval(async () => {
+  if (!state.isVisible) return; // jangan refresh saat tab background
+  setRefreshState('refreshing');
   try {
-    const c = await fetchCsv();
-    const h = await hashText(c);
-    if (h !== state.csvHash) await applyCsv(c);
-  } catch(e) { console.warn(e); }
+    const csvText = await fetchCsvWithRetry();
+    const h       = await hashText(csvText);       // hash satu kali
+    if (h !== state.csvHash) {
+      await applyCsv(csvText, h);                  // teruskan hash, tidak hitung ulang
+      showToast('Data jadwal berhasil diperbarui.', '', 3000);
+    }
+    setRefreshState('ok');
+  } catch(e) {
+    console.warn('[Jadwal] Auto-refresh gagal:', e);
+    setRefreshState('err');
+    showToast('Gagal memperbarui data. Menampilkan data terakhir yang tersimpan.', 'warn', 5000);
+  }
 }, CONFIG.autoRefreshMs);
 
-// Re-render on resize
-window.addEventListener('resize', () => {
-  requestAnimationFrame(() => {
-    if (!state.data) return;
-    if (state.currentMode === 'full') renderFullTable(state.selectedDay);
-    else renderLiveView(state.selectedDay);
-  });
-});
-
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
 // INIT
-// ─────────────────────────────────────────────
-startClock();
-fetchCsv()
-  .then(applyCsv)
-  .then(() => { switchToMode('full'); startModeTimer(); })
-  .catch(e => {
-    el.tblBodyBand.innerHTML = `<div class="error-box">${esc(e.message)}<br><br>Pastikan Google Sheets sudah di-publish sebagai CSV publik.</div>`;
-  });
+// ═══════════════════════════════════════════════════════════
+(async function init() {
+  startMasterTick();
+
+  setRefreshState('refreshing');
+  try {
+    const csvText = await fetchCsvWithRetry();
+    const h       = await hashText(csvText);
+    await applyCsv(csvText, h);
+    setRefreshState('ok');
+    switchToMode('full');
+    startModeTimer();
+  } catch(e) {
+    console.warn('[Jadwal] Gagal fetch CSV awal:', e);
+    setRefreshState('err');
+
+    // FIX: coba gunakan data dari localStorage sebagai fallback
+    const cached = loadCsvFromCache();
+    if (cached) {
+      const ageMin = Math.round((Date.now() - cached.ts) / 60000);
+      showToast(`Tidak dapat memuat data terbaru. Menampilkan data dari ${ageMin} menit lalu.`, 'warn', 7000);
+      try {
+        const h = await hashText(cached.csv);
+        await applyCsv(cached.csv, h);
+        switchToMode('full');
+        startModeTimer();
+        return;
+      } catch(e2) {
+        console.warn('[Jadwal] Gagal load cache:', e2);
+      }
+    }
+
+    // Tidak ada data sama sekali
+    el.tblBodyBand.innerHTML = `<div class="error-box">
+      Gagal memuat jadwal: ${esc(e.message)}<br><br>
+      Pastikan Google Sheets sudah di-publish sebagai CSV publik, lalu muat ulang halaman.
+    </div>`;
+    showToast('Gagal memuat data jadwal.', 'err', 0);
+  }
+})();
 </script>
 </body>
 </html>
