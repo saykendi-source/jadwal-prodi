@@ -3,451 +3,450 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jadwal Perkuliahan Mahasiswa</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <title>Jadwal Perkuliahan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
-    :root{
-      --navy:#343a8f;
-      --navy-dark:#1c2360;
-      --navy-mid:#5960b8;
-      --accent:#7378e2;
-      --gold:#d4a829;
-      --gold-soft:#fbf3d9;
-      --text:#171b3d;
-      --muted:#5f6688;
-      --grid:#d5d8ef;
-      --empty:#f6f7fd;
-      --panel:rgba(255,255,255,.93);
-      --radius:18px;
-      --shadow:0 12px 34px rgba(60,64,180,.14);
-      --rh-f6-bg:#d4e8f6; --rh-f6-t:#1a3566;
-      --rh-f4-bg:#c6ecdf; --rh-f4-t:#0c3820;
-      --rh-def-bg:#dddff5; --rh-def-t:#23266b;
-      --ease-soft:cubic-bezier(.22,.82,.24,1);
-      --ease-smooth:cubic-bezier(.23,.88,.30,1);
+    /* ── DESIGN TOKENS ── */
+    :root {
+      --ink:        #0d0f1a;
+      --ink-2:      #3a3e5c;
+      --ink-3:      #7a7f9d;
+      --surface:    #ffffff;
+      --surface-2:  #f4f5fa;
+      --surface-3:  #eceef8;
+      --border:     rgba(100,105,160,.14);
+      --border-2:   rgba(100,105,160,.22);
+      --accent:     #4f52e8;
+      --accent-dim: rgba(79,82,232,.12);
+      --gold:       #c9922a;
+      --gold-dim:   rgba(201,146,42,.14);
+      --live:       #e53935;
+      --live-dim:   rgba(229,57,53,.12);
+      --r:          10px;
+      --r-lg:       16px;
+      --shadow-sm:  0 1px 3px rgba(10,12,40,.06), 0 1px 2px rgba(10,12,40,.04);
+      --shadow:     0 4px 16px rgba(10,12,40,.08), 0 1px 4px rgba(10,12,40,.04);
+      --tz:         'Asia/Jakarta';
     }
 
-    *{box-sizing:border-box;margin:0;padding:0}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html,body{
-      width:100%;height:100%;overflow:hidden;
-      font-family:'Plus Jakarta Sans',sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(ellipse at 12% 22%,rgba(108,111,212,.12) 0%,transparent 42%),
-        radial-gradient(ellipse at 88% 78%,rgba(212,168,41,.10) 0%,transparent 36%),
-        linear-gradient(150deg,#eceffe 0%,#f7f5ff 48%,#eef6f2 100%);
-      -webkit-font-smoothing:antialiased;
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--ink);
+      background: #f0f1f9;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .app{
-      width:100%;height:100vh;
-      display:flex;flex-direction:column;
-      gap:8px;padding:10px;
-      overflow:hidden;
+    /* ── APP SHELL ── */
+    .app {
+      width: 100%; height: 100vh;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 6px;
+      padding: 8px;
+      overflow: hidden;
     }
 
-    /* ── HEADER ── */
-    .header{
-      flex:0 0 auto;
-      min-height:82px;
-      display:flex;align-items:center;justify-content:space-between;
-      gap:18px;padding:10px 22px;
-      background:var(--panel);
-      border:1px solid rgba(255,255,255,.90);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(14px);
-    }
-    .header-left{min-width:0;display:flex;flex-direction:column;gap:4px;}
-    .semester-badge{
-      display:inline-flex;align-items:center;width:fit-content;
-      padding:5px 13px;border-radius:999px;
-      background:linear-gradient(135deg,rgba(108,111,212,.16),rgba(212,168,41,.14));
-      color:var(--navy-dark);font-size:12px;font-weight:800;letter-spacing:.45px;
-    }
-    .header h1{font-size:34px;line-height:1;color:var(--navy-dark);font-weight:800;}
-    .status-bar{display:flex;flex-wrap:wrap;gap:6px 18px;}
-    .status-item{font-size:13px;color:var(--muted);font-weight:700;white-space:nowrap;}
-    .status-item strong{color:var(--navy-dark);}
-    .header-right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
-    .clock-time{
-      font-family:'JetBrains Mono',monospace;
-      font-size:48px;line-height:1;
-      color:var(--navy-dark);font-weight:700;letter-spacing:1px;
-    }
-    .clock-date{font-size:16px;font-weight:700;color:var(--navy-mid);}
-    .mode-badge{
-      padding:5px 14px;border-radius:999px;
-      font-size:12px;font-weight:800;letter-spacing:.45px;
-      transition:background .45s ease,transform .45s var(--ease-soft),box-shadow .45s var(--ease-soft);
-    }
-    .mode-badge.mode-full{
-      background:linear-gradient(135deg,var(--navy),var(--accent));
-      color:#fff;box-shadow:0 6px 16px rgba(59,63,140,.15);
-    }
-    .mode-badge.mode-live{
-      background:linear-gradient(135deg,#e53935,#ef6c00);
-      color:#fff;box-shadow:0 8px 18px rgba(229,57,53,.18);
-      animation:live-breathe 3s ease-in-out infinite;
-    }
-    @keyframes live-breathe{
-      0%,100%{transform:translateY(0) scale(1)}
-      50%{transform:translateY(-1px) scale(1.02)}
-    }
-    .mode-progress-bar{
-      min-width:160px;height:4px;border-radius:999px;
-      background:rgba(60,64,180,.12);overflow:hidden;
-    }
-    .mode-progress-fill{
-      height:100%;
-      background:linear-gradient(90deg,var(--navy),var(--accent));
-      transition:width 1s linear;
+    /* ══════════════════════════════════
+       HEADER
+    ══════════════════════════════════ */
+    .header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 20px;
+      padding: 12px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
     }
 
-    /* ── TICKER ── */
-    .ticker{
-      flex:0 0 auto;min-height:46px;
-      display:flex;align-items:center;padding:0 16px;
-      background:var(--panel);
-      border:1px solid rgba(255,255,255,.86);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(12px);
-      overflow:hidden;
-    }
-    .ticker-label{
-      flex-shrink:0;margin-right:16px;
-      padding:5px 12px;border-radius:999px;
-      background:linear-gradient(135deg,var(--navy),var(--accent));
-      color:#fff;font-size:12px;font-weight:800;letter-spacing:.35px;
-    }
-    /* FIX: indikator refresh status di ticker kanan */
-    .ticker-right{
-      flex-shrink:0;margin-left:12px;
-      display:flex;align-items:center;gap:8px;
-    }
-    .refresh-indicator{
-      font-size:11px;font-weight:700;color:var(--muted);
-      white-space:nowrap;transition:opacity .3s;
-    }
-    .refresh-indicator.refreshing{color:var(--navy-mid);}
-    .refresh-dot{
-      width:6px;height:6px;border-radius:50%;
-      background:var(--muted);flex-shrink:0;
-      transition:background .3s;
-    }
-    .refresh-dot.ok{background:#4caf50;}
-    .refresh-dot.err{background:#e53935;}
-    .refresh-dot.refreshing{
-      background:var(--navy-mid);
-      animation:dot-spin .8s linear infinite;
-    }
-    @keyframes dot-spin{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
-    .ticker-viewport{
-      flex:1;height:26px;
-      display:flex;align-items:center;
-      overflow:hidden;position:relative;
-    }
-    .ticker-flip-stack{position:relative;width:100%;height:100%;isolation:isolate;}
-    .ticker-item{
-      position:absolute;inset:0;
-      display:flex;align-items:center;
-      font-size:16px;font-weight:700;color:#3a4070;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-      opacity:0;transform:translate3d(0,-118%,0);
-      transition:transform 1.08s var(--ease-smooth),opacity 1.08s ease;
-      will-change:transform,opacity;
-    }
-    .ticker-item.active{opacity:1;transform:translate3d(0,0,0);}
-    .ticker-item.next{opacity:0;transform:translate3d(0,-118%,0);}
-    .ticker-item.out-down{opacity:0;transform:translate3d(0,118%,0);}
-    .ticker-item.in-down{opacity:1;transform:translate3d(0,0,0);}
-    .ticker-item.no-anim{transition:none!important;}
+    .header-left { display: flex; flex-direction: column; gap: 3px; }
 
-    /* ── TABLE PANEL ── */
-    .table-panel{
-      flex:1 1 auto;min-height:0;
-      padding:6px;
-      background:var(--panel);
-      border:1px solid rgba(255,255,255,.88);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(12px);
-      overflow:hidden;position:relative;
-    }
-    .view-container{
-      width:100%;height:100%;
-      position:relative;overflow:hidden;
-      border-radius:14px;
-    }
-    .view-pane{
-      position:absolute;inset:0;
-      opacity:0;
-      transform:translate3d(0,10px,0) scale(.996);
-      transition:opacity .62s var(--ease-soft),transform .62s var(--ease-soft);
-      overflow:hidden;will-change:opacity,transform;
-    }
-    .view-pane.active{opacity:1;transform:translate3d(0,0,0) scale(1);z-index:1;}
-    .view-pane.inactive{opacity:0;transform:translate3d(0,12px,0) scale(.992);z-index:0;pointer-events:none;}
-
-    /* ── FULL TABLE LAYOUT ── */
-    #viewFull{
-      display:flex;
-      flex-direction:column;
+    .eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: .6px;
+      text-transform: uppercase; color: var(--accent);
     }
 
-    .tbl-header-band{
-      flex:0 0 auto;
-      overflow:hidden;
-      background:rgba(255,255,255,.96);
-      border-radius:14px 14px 0 0;
-      box-shadow:0 2px 0 rgba(213,216,239,.9);
-      position:relative;z-index:2;
+    .header h1 {
+      font-size: 22px; font-weight: 800; line-height: 1.1;
+      color: var(--ink);
     }
 
-    .tbl-header-inner{
-      overflow:hidden;
-      width:100%;
+    .status-bar {
+      display: flex; flex-wrap: wrap; gap: 4px 16px;
+      margin-top: 2px;
     }
 
-    .tbl-body-band{
-      flex:1 1 auto;
-      min-height:0;
-      overflow-x:hidden;
-      overflow-y:auto;
-      border-radius:0 0 14px 14px;
-      background:rgba(255,255,255,.88);
-      scrollbar-width:thin;
-      scrollbar-color:rgba(89,96,184,.45) rgba(213,216,239,.3);
+    .status-item {
+      font-size: 12px; color: var(--ink-3); font-weight: 500;
     }
-    .tbl-body-band::-webkit-scrollbar{width:8px;}
-    .tbl-body-band::-webkit-scrollbar-track{background:rgba(213,216,239,.3);border-radius:999px;}
-    .tbl-body-band::-webkit-scrollbar-thumb{background:rgba(89,96,184,.45);border-radius:999px;}
+    .status-item strong { color: var(--ink-2); font-weight: 700; }
 
-    /* ── SHARED TABLE STYLES ── */
-    table.schedule{
-      border-collapse:separate;border-spacing:0;
-      table-layout:fixed;
-      width:100%;
+    /* clock block */
+    .header-right {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
     }
 
-    table.schedule th,
-    table.schedule td{
-      border-right:1px solid var(--grid);
-      border-bottom:1px solid var(--grid);
-      text-align:center;vertical-align:middle;
-      overflow:hidden;padding:0 4px;
+    .clock-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 38px; font-weight: 700; letter-spacing: -1px;
+      color: var(--ink); line-height: 1;
     }
-    table.schedule tr > *:first-child{border-left:1px solid var(--grid);}
-    table.schedule.head-tbl thead tr:first-child > *{border-top:1px solid var(--grid);}
 
-    table.schedule thead th{
-      font-weight:800;color:#fff;
-      background:linear-gradient(180deg,#7679cc 0%,#5558a8 100%);
-      white-space:nowrap;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
+    .clock-date {
+      font-size: 12px; font-weight: 600; color: var(--ink-3);
     }
-    table.schedule thead th.rh-f6{background:var(--rh-f6-bg);color:var(--rh-f6-t);}
-    table.schedule thead th.rh-f4{background:var(--rh-f4-bg);color:var(--rh-f4-t);}
-    table.schedule thead th.rh-def{background:var(--rh-def-bg);color:var(--rh-def-t);}
 
-    table.schedule.body-tbl tbody tr:first-child > *{border-top:none;}
-
-    td.session-cell{background:#f6f7fd;font-weight:800;color:#3a4070;}
-    td.session-empty{background:#f6f7fd;}
-    td.time-cell{
-      background:#f3f4fb;
-      font-family:'JetBrains Mono',monospace;
-      font-weight:700;color:#4a5280;
-      white-space:nowrap;
+    .mode-pill {
+      margin-top: 4px;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 700; letter-spacing: .3px;
+      transition: background .35s, color .35s;
     }
-    td.empty-cell{background:var(--empty);}
-    td.special-time{background:#eef6e8;font-weight:700;color:#3a6020;}
-    td.special-cell{background:#eef6e8;color:#3a6020;font-weight:800;}
-
-    td.course-cell{
-      font-weight:700;padding:2px 4px;
-      line-height:1.16;
-      max-width:0;
+    .mode-pill.full {
+      background: var(--accent-dim); color: var(--accent);
     }
-    .c-code{font-weight:700;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .c-name{font-weight:800;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.14;}
-    .c-meta{opacity:.88;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:1px;}
+    .mode-pill.live {
+      background: var(--live-dim); color: var(--live);
+    }
+    .mode-pill .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+    }
+    .mode-pill.full .dot { background: var(--accent); }
+    .mode-pill.live .dot {
+      background: var(--live);
+      animation: pulse-dot 2.2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(1.4); opacity: .7; }
+    }
+
+    .mode-track {
+      width: 100%; height: 3px; border-radius: 2px;
+      background: var(--surface-3); overflow: hidden;
+      margin-top: 3px;
+    }
+    .mode-fill {
+      height: 100%; border-radius: 2px;
+      background: var(--accent);
+      transition: width 1s linear;
+    }
+    .mode-pill.live ~ .mode-track .mode-fill { background: var(--live); }
+
+    /* ══════════════════════════════════
+       TICKER
+    ══════════════════════════════════ */
+    .ticker {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 14px;
+      height: 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .ticker-badge {
+      flex-shrink: 0;
+      padding: 3px 10px; border-radius: 999px;
+      background: var(--accent); color: #fff;
+      font-size: 10px; font-weight: 800; letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .ticker-vp {
+      flex: 1; height: 20px;
+      position: relative; overflow: hidden;
+    }
+
+    .ticker-item {
+      position: absolute; inset: 0;
+      display: flex; align-items: center;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      opacity: 0; transform: translateY(-100%);
+      transition: transform .9s cubic-bezier(.22,.82,.24,1), opacity .9s ease;
+      will-change: transform, opacity;
+    }
+    .ticker-item.active { opacity: 1; transform: translateY(0); }
+    .ticker-item.out    { opacity: 0; transform: translateY(100%); }
+    .ticker-item.reset  { transition: none !important; }
+
+    .ticker-right {
+      flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+    }
+    .refresh-text { font-size: 11px; font-weight: 600; color: var(--ink-3); white-space: nowrap; }
+    .refresh-dot  { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); transition: background .3s; }
+    .refresh-dot.ok         { background: #4caf50; }
+    .refresh-dot.err        { background: var(--live); }
+    .refresh-dot.refreshing { background: var(--accent); animation: blink .7s linear infinite; }
+    @keyframes blink { 0%,100%{opacity:1}50%{opacity:.25} }
+
+    /* ══════════════════════════════════
+       TABLE PANEL
+    ══════════════════════════════════ */
+    .table-panel {
+      min-height: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
+      position: relative; overflow: hidden;
+    }
+
+    .view-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
+
+    .view-pane {
+      position: absolute; inset: 0;
+      opacity: 0; transform: translateY(6px) scale(.998);
+      transition: opacity .5s ease, transform .5s cubic-bezier(.22,.82,.24,1);
+      overflow: hidden; will-change: opacity, transform;
+    }
+    .view-pane.active  { opacity: 1; transform: none; z-index: 1; }
+    .view-pane.inactive{ opacity: 0; z-index: 0; pointer-events: none; }
+
+    /* ── FULL TABLE ── */
+    #viewFull { display: flex; flex-direction: column; }
+
+    .tbl-head-wrap {
+      flex: 0 0 auto;
+      background: var(--surface);
+      border-bottom: 1.5px solid var(--border-2);
+      overflow: hidden;
+      position: relative; z-index: 2;
+    }
+
+    .tbl-body-wrap {
+      flex: 1 1 auto; min-height: 0;
+      overflow-x: hidden; overflow-y: auto;
+      background: var(--surface);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(100,105,200,.25) transparent;
+    }
+    .tbl-body-wrap::-webkit-scrollbar        { width: 5px; }
+    .tbl-body-wrap::-webkit-scrollbar-track  { background: transparent; }
+    .tbl-body-wrap::-webkit-scrollbar-thumb  { background: rgba(100,105,200,.25); border-radius: 3px; }
+
+    /* ── TABLE STYLES ── */
+    table.sched {
+      border-collapse: separate; border-spacing: 0;
+      table-layout: fixed; width: 100%;
+    }
+
+    table.sched th, table.sched td {
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center; vertical-align: middle;
+      overflow: hidden; padding: 0 4px;
+    }
+    table.sched tr > *:first-child { border-left: 1px solid var(--border); }
+    table.sched.tbl-h thead tr:first-child > * { border-top: 1px solid var(--border); }
+
+    /* header cells */
+    table.sched thead th {
+      font-weight: 700; color: var(--ink);
+      background: var(--surface-2);
+      white-space: nowrap;
+      font-size: 11px; letter-spacing: .3px;
+    }
+
+    /* colored room headers */
+    table.sched thead th.rh-f6 { background: #dceefb; color: #124a7a; }
+    table.sched thead th.rh-f4 { background: #d4f0e4; color: #0a3a20; }
+    table.sched thead th.rh-def{ background: var(--surface-3); color: var(--ink-2); }
+
+    table.sched.tbl-b tbody tr:first-child > * { border-top: none; }
+
+    td.cell-session { background: var(--surface-2); font-weight: 700; color: var(--ink-2); }
+    td.cell-sess-empty { background: var(--surface-2); }
+    td.cell-time {
+      background: var(--surface-2);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500; color: var(--ink-3);
+      white-space: nowrap;
+    }
+    td.cell-empty { background: var(--surface); }
+
+    td.cell-special-time {
+      background: #f0faf3; font-weight: 600; color: #2a6030;
+    }
+    td.cell-special {
+      background: #f0faf3; color: #2a6030; font-weight: 700;
+    }
+
+    td.cell-course {
+      font-weight: 600; padding: 3px 5px;
+      line-height: 1.2; max-width: 0;
+    }
+    .cc-code { font-weight: 600; opacity: .65; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cc-name { font-weight: 700; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .cc-meta { opacity: .75; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-top: 1px; }
 
     /* ── ACTIVE ROW HIGHLIGHT ── */
-    /* FIX: hanya gunakan class toggle, tidak rebuild DOM */
-    tr.current-row td{
-      border-top:2.5px solid rgba(212,168,41,.92)!important;
-      border-bottom:2.5px solid rgba(212,168,41,.92)!important;
+    tr.cur-row td {
+      border-top: 2px solid var(--gold) !important;
+      border-bottom: 2px solid var(--gold) !important;
     }
-    td.time-cell.current-time{
-      background:linear-gradient(180deg,#fbf3d9,#f7e9bd);
-      color:#6b5010;font-weight:800;
-      box-shadow:inset 0 0 0 1px rgba(212,168,41,.22);
-      animation:active-glow 3s ease-in-out infinite;
+    td.cell-time.cur-time {
+      background: var(--gold-dim);
+      color: var(--gold);
+      font-weight: 700;
     }
-    td.course-cell.current-course{
-      box-shadow:inset 0 0 0 2.5px rgba(212,168,41,.9),0 8px 20px rgba(212,168,41,.10);
-      animation:active-glow 3s ease-in-out infinite;
-    }
-    td.empty-cell.current-course{
-      box-shadow:inset 0 0 0 2.5px rgba(212,168,41,.9);
-    }
-    @keyframes active-glow{
-      0%,100%{filter:brightness(1);}
-      50%{filter:brightness(1.03);}
+    td.cell-course.cur-course,
+    td.cell-empty.cur-course {
+      box-shadow: inset 0 0 0 2px rgba(201,146,42,.55);
     }
 
     /* ── LIVE VIEW ── */
-    .live-view{
-      width:100%;height:100%;
-      display:flex;flex-direction:column;
-      gap:0;padding:10px 12px;
-      overflow:hidden;
-    }
-    .live-header{
-      display:flex;align-items:center;gap:10px;
-      padding-bottom:8px;border-bottom:2px solid var(--grid);
-      flex-shrink:0;animation:headerIn .5s var(--ease-soft);
-    }
-    @keyframes headerIn{from{opacity:0;transform:translate3d(0,8px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
-    .live-dot{
-      width:12px;height:12px;border-radius:50%;
-      background:#e53935;flex-shrink:0;
-      animation:live-dot-soft 2.5s ease-in-out infinite;
-    }
-    @keyframes live-dot-soft{
-      0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(229,57,53,.18);}
-      50%{transform:scale(1.12);box-shadow:0 0 0 8px rgba(229,57,53,0);}
-    }
-    .live-header-title{font-size:20px;font-weight:800;color:var(--navy-dark);}
-    .live-header-sub{font-size:14px;font-weight:600;color:var(--muted);}
-    .live-cards{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-      gap:10px;
-      flex:1;
-      align-content:start;
-      height:100%;
-    }
-    .live-card{
-      min-width:0;max-width:none;min-height:0;
-      background:rgba(255,255,255,.95);
-      border:1px solid var(--grid);border-radius:16px;
-      box-shadow:0 6px 18px rgba(60,64,180,.10);
-      padding:10px 12px;
-      display:flex;flex-direction:column;gap:4px;
-      justify-content:center;
-      position:relative;overflow:hidden;
-      animation:cardIn .58s var(--ease-soft) both;
-    }
-    @keyframes cardIn{
-      from{opacity:0;transform:translate3d(0,12px,0) scale(.99)}
-      to{opacity:1;transform:translate3d(0,0,0) scale(1)}
-    }
-    .live-card::before{
-      content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
-      background:linear-gradient(180deg,var(--navy),var(--accent));
-      border-radius:16px 0 0 16px;
-    }
-    .live-card-room{font-size:10px;font-weight:800;letter-spacing:.35px;color:var(--accent);text-transform:uppercase;}
-    .live-card-code{font-size:11px;font-weight:700;color:var(--muted);}
-    .live-card-name{font-size:15px;font-weight:800;color:var(--navy-dark);line-height:1.18;}
-    .live-card-meta{font-size:12px;font-weight:600;color:var(--muted);}
-    .live-card-time{
-      margin-top:4px;width:fit-content;padding:3px 8px;border-radius:999px;
-      background:var(--gold-soft);color:var(--gold);
-      font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;
-    }
-    .live-empty{
-      flex:1;display:flex;align-items:center;justify-content:center;
-      flex-direction:column;gap:8px;color:var(--muted);
-      animation:cardIn .45s var(--ease-soft);
-    }
-    .live-empty-icon{font-size:44px;opacity:.4;}
-    .live-empty-text{font-size:18px;font-weight:700;}
-    .live-empty-sub{font-size:14px;}
-
-    .live-cards.dense-7{grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:9px;}
-    .live-cards.dense-9{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;}
-    .live-cards.dense-9 .live-card{padding:9px 10px;border-radius:14px;}
-    .live-cards.dense-9 .live-card-room{font-size:9px;}
-    .live-cards.dense-9 .live-card-code{font-size:10px;}
-    .live-cards.dense-9 .live-card-name{font-size:13px;}
-    .live-cards.dense-9 .live-card-meta{font-size:11px;}
-    .live-cards.dense-9 .live-card-time{font-size:11px;padding:2px 7px;}
-
-    /* FIX: toast / banner untuk error & fallback */
-    .toast{
-      position:fixed;bottom:18px;right:18px;
-      max-width:340px;padding:12px 16px;
-      background:#1c2360;color:#fff;
-      border-radius:12px;
-      font-size:13px;font-weight:700;line-height:1.5;
-      box-shadow:0 8px 24px rgba(28,35,96,.25);
-      z-index:9999;
-      animation:toastIn .4s var(--ease-soft);
-      display:none;
-    }
-    .toast.show{display:block;}
-    .toast.warn{background:#7b4b00;}
-    .toast.err{background:#7b1d1d;}
-    @keyframes toastIn{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
-
-    .error-box{
-      margin:10px;padding:14px;border-radius:12px;
-      background:#fff0f0;border:1px solid #efaaaa;
-      color:#7b1d1d;font-size:14px;line-height:1.5;
+    .live-view {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      gap: 0; padding: 12px 14px;
+      overflow: hidden;
     }
 
-    @media (prefers-reduced-motion:reduce){
-      *,*::before,*::after{animation:none!important;transition:none!important;}
+    .live-head {
+      display: flex; align-items: center; gap: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .live-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--live);
+      animation: pulse-dot 2.5s ease-in-out infinite;
+    }
+    .live-head-title { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .live-head-sub   { font-size: 12px; font-weight: 500; color: var(--ink-3); margin-left: auto; }
+
+    .live-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 8px;
+      padding-top: 10px;
+      align-content: start;
+    }
+
+    .live-card {
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 3px;
+      position: relative; overflow: hidden;
+      background: var(--surface);
+      animation: card-in .45s cubic-bezier(.22,.82,.24,1) both;
+    }
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .live-card::before {
+      content: ''; position: absolute;
+      left: 0; top: 0; bottom: 0; width: 3px;
+      background: var(--accent);
+    }
+    .live-room { font-size: 10px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--accent); }
+    .live-code { font-size: 11px; font-weight: 600; color: var(--ink-3); }
+    .live-name { font-size: 13px; font-weight: 700; line-height: 1.2; }
+    .live-meta { font-size: 11px; color: var(--ink-3); }
+    .live-time {
+      margin-top: 5px; width: fit-content;
+      padding: 2px 8px; border-radius: 999px;
+      background: var(--gold-dim); color: var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+    }
+
+    .live-empty {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 6px; color: var(--ink-3);
+      animation: card-in .4s ease;
+    }
+    .live-empty-icon { font-size: 36px; opacity: .35; }
+    .live-empty-text { font-size: 16px; font-weight: 700; }
+    .live-empty-sub  { font-size: 13px; }
+
+    /* ── ERROR / TOAST ── */
+    .err-box {
+      margin: 10px; padding: 12px 14px;
+      border-radius: var(--r);
+      background: #fff2f2; border: 1px solid #f5c6c6;
+      color: #7b1d1d; font-size: 13px; line-height: 1.5;
+    }
+
+    .toast {
+      position: fixed; bottom: 14px; right: 14px;
+      max-width: 320px; padding: 10px 14px;
+      background: var(--ink); color: #fff;
+      border-radius: var(--r);
+      font-size: 12px; font-weight: 600; line-height: 1.5;
+      box-shadow: var(--shadow);
+      z-index: 9999; display: none;
+      animation: toast-in .35s cubic-bezier(.22,.82,.24,1);
+    }
+    .toast.show { display: block; }
+    .toast.warn { background: #7b4b00; }
+    .toast.err  { background: #7b1d1d; }
+    @keyframes toast-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
 <body>
 <div class="app">
 
-  <section class="header">
+  <!-- HEADER -->
+  <header class="header">
     <div class="header-left">
-      <span class="semester-badge">Semester Genap 2025/2026</span>
-      <h1>Jadwal Perkuliahan Mahasiswa</h1>
-      <div class="status-bar" id="statusBar">Memuat data...</div>
+      <span class="eyebrow">Semester Genap 2025/2026</span>
+      <h1>Jadwal Perkuliahan</h1>
+      <div class="status-bar" id="statusBar">Memuat data…</div>
     </div>
     <div class="header-right">
       <div class="clock-time" id="clockTime">--:--:--</div>
       <div class="clock-date" id="clockDate">--</div>
-      <div class="mode-badge mode-full" id="modeBadge">📅 SEMUA SESI</div>
-      <div class="mode-progress-bar"><div class="mode-progress-fill" id="modeProgress" style="width:100%"></div></div>
-    </div>
-  </section>
-
-  <section class="ticker">
-    <div class="ticker-label">INFO PERKULIAHAN</div>
-    <div class="ticker-viewport">
-      <div class="ticker-flip-stack">
-        <div class="ticker-item active" id="tickerCurrent">Memuat informasi...</div>
-        <div class="ticker-item next"   id="tickerNext"></div>
+      <div class="mode-pill full" id="modePill">
+        <span class="dot"></span>
+        <span id="modeLabel">SEMUA SESI</span>
+      </div>
+      <div class="mode-track">
+        <div class="mode-fill" id="modeFill" style="width:100%"></div>
       </div>
     </div>
-    <!-- FIX: indikator refresh status -->
-    <div class="ticker-right">
-      <div class="refresh-indicator" id="refreshIndicator">--</div>
-      <div class="refresh-dot" id="refreshDot"></div>
-    </div>
-  </section>
+  </header>
 
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-badge">INFO</div>
+    <div class="ticker-vp">
+      <div class="ticker-item active" id="tickerA">Memuat informasi…</div>
+      <div class="ticker-item"        id="tickerB"></div>
+    </div>
+    <div class="ticker-right">
+      <span class="refresh-text" id="refreshTxt">--</span>
+      <span class="refresh-dot"  id="refreshDot"></span>
+    </div>
+  </div>
+
+  <!-- TABLE PANEL -->
   <section class="table-panel">
-    <div class="view-container" id="viewContainer">
+    <div class="view-wrap">
 
       <div class="view-pane active" id="viewFull">
-        <div class="tbl-header-band" id="tblHeaderBand">
-          <div class="tbl-header-inner" id="tblHeaderInner"></div>
-        </div>
-        <div class="tbl-body-band" id="tblBodyBand">
-          <div class="error-box" id="tblBodyPlaceholder">Memuat jadwal...</div>
+        <div class="tbl-head-wrap"><div id="tblHead"></div></div>
+        <div class="tbl-body-wrap" id="tblBody">
+          <div class="err-box">Memuat jadwal…</div>
         </div>
       </div>
 
@@ -460,7 +459,6 @@
 
 </div>
 
-<!-- FIX: toast untuk notifikasi -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -468,91 +466,71 @@
 // CONFIG
 // ═══════════════════════════════════════════════════════════
 const CONFIG = {
-  csvUrl:           'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
-  autoRefreshMs:    60_000,
-  fallbackDays:     ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
-  roomHeaderClasses:{ F6:'rh-f6', F4:'rh-f4' },
-  modeSwitchMs:     21_000,
-  tickerFallback:   'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
-  tickerFlipMs:     7_000,
-  tickerAnimMs:     1_080,
-  // FIX: konfigurasi timezone eksplisit agar konsisten di semua browser/server
-  timezone:         'Asia/Jakarta',
-  // FIX: retry CSV
-  fetchRetryCount:  3,
-  fetchRetryMs:     2_000,
-  // Kolom wajib yang harus ada di CSV agar data valid
-  requiredHeaders:  ['JENIS_DATA','AKTIF','HARI','KODE_RUANG','NAMA_MK'],
+  csvUrl:          'https://docs.google.com/spreadsheets/d/e/2PACX-1vTq4oJ8i4bEvzChaPSP-r_pPaX-kKwbHMROmnL4k5uKaGBv3nVTYD4ktLN_0IzYeQ/pub?output=csv',
+  autoRefreshMs:   60_000,
+  fallbackDays:    ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+  roomHeaderClasses: { F6:'rh-f6', F4:'rh-f4' },
+  modeSwitchMs:    21_000,
+  tickerFallback:  'Selamat datang. Hadir tepat waktu dan perhatikan informasi akademik terbaru.',
+  tickerFlipMs:    7_000,
+  tickerAnimMs:    900,
+  timezone:        'Asia/Jakarta',
+  fetchRetryCount: 3,
+  fetchRetryMs:    2_000,
+  requiredHeaders: ['JENIS_DATA','AKTIF','HARI','KODE_RUANG','NAMA_MK'],
 };
 
 // ═══════════════════════════════════════════════════════════
-// STATE — dikelola melalui setter agar lebih terstruktur
+// STATE
 // ═══════════════════════════════════════════════════════════
 const state = {
-  data:            null,
-  selectedDay:     'Senin',
-  csvHash:         '',
-  liveSlotKey:     '',
-  currentMode:     'full',
-  modeTimer:       null,
-  modeRemainMs:    CONFIG.modeSwitchMs,
-  tickerItems:     [],
-  tickerIndex:     0,
-  tickerTimer:     null,
-  tickerAnimating: false,
-  // FIX: dimensi di-cache oleh ResizeObserver
-  cachedWidth:     0,
-  cachedHeight:    0,
-  // FIX: state tab visibility
-  isVisible:       true,
-  // FIX: timestamp data terakhir berhasil
-  lastSuccessAt:   null,
-  // FIX: apakah tabel sudah pernah dirender (untuk update baris vs full render)
-  tableRendered:   false,
+  data: null, selectedDay: 'Senin', csvHash: '',
+  liveSlotKey: '', currentMode: 'full',
+  modeTimer: null, modeRemainMs: CONFIG.modeSwitchMs,
+  tickerItems: [], tickerIndex: 0,
+  tickerTimer: null, tickerAnimating: false,
+  cachedW: 0, cachedH: 0,
+  isVisible: true, lastSuccessAt: null, tableRendered: false,
 };
 
 // ═══════════════════════════════════════════════════════════
-// DOM REFS
+// DOM
 // ═══════════════════════════════════════════════════════════
 const el = {
-  statusBar:          document.getElementById('statusBar'),
-  clockTime:          document.getElementById('clockTime'),
-  clockDate:          document.getElementById('clockDate'),
-  tickerCurrent:      document.getElementById('tickerCurrent'),
-  tickerNext:         document.getElementById('tickerNext'),
-  viewFull:           document.getElementById('viewFull'),
-  viewLive:           document.getElementById('viewLive'),
-  tblHeaderInner:     document.getElementById('tblHeaderInner'),
-  tblBodyBand:        document.getElementById('tblBodyBand'),
-  liveView:           document.getElementById('liveView'),
-  modeBadge:          document.getElementById('modeBadge'),
-  modeProgress:       document.getElementById('modeProgress'),
-  refreshIndicator:   document.getElementById('refreshIndicator'),
-  refreshDot:         document.getElementById('refreshDot'),
-  toast:              document.getElementById('toast'),
+  statusBar:   document.getElementById('statusBar'),
+  clockTime:   document.getElementById('clockTime'),
+  clockDate:   document.getElementById('clockDate'),
+  tickerA:     document.getElementById('tickerA'),
+  tickerB:     document.getElementById('tickerB'),
+  viewFull:    document.getElementById('viewFull'),
+  viewLive:    document.getElementById('viewLive'),
+  tblHead:     document.getElementById('tblHead'),
+  tblBody:     document.getElementById('tblBody'),
+  liveView:    document.getElementById('liveView'),
+  modePill:    document.getElementById('modePill'),
+  modeLabel:   document.getElementById('modeLabel'),
+  modeFill:    document.getElementById('modeFill'),
+  refreshTxt:  document.getElementById('refreshTxt'),
+  refreshDot:  document.getElementById('refreshDot'),
+  toast:       document.getElementById('toast'),
 };
 
 // ═══════════════════════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════════════════════
 const n   = v => String(v ?? '').trim();
-const nk  = v => n(v).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g, '').toUpperCase();
+const nk  = v => n(v).normalize('NFKD').replace(/[^a-zA-Z0-9/]+/g,'').toUpperCase();
 const esc = v => String(v ?? '')
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-const isYes = v => { const x = n(v).toLowerCase(); return x === '' || ['ya','y','true','1','aktif'].includes(x); };
+const isYes = v => { const x = n(v).toLowerCase(); return x===''||['ya','y','true','1','aktif'].includes(x); };
 
-// FIX: waktu menggunakan timezone eksplisit dari CONFIG
-function getNowInTZ() {
-  return new Date(new Date().toLocaleString('en-US', { timeZone: CONFIG.timezone }));
-}
-const nowMinutes     = () => { const d = getNowInTZ(); return d.getHours() * 60 + d.getMinutes(); };
-const currentDayName = () => {
-  return new Intl.DateTimeFormat('id-ID', { weekday:'long', timeZone: CONFIG.timezone }).format(new Date());
-};
+function getNow() { return new Date(new Date().toLocaleString('en-US',{timeZone:CONFIG.timezone})); }
+const nowMins = () => { const d=getNow(); return d.getHours()*60+d.getMinutes(); };
+const todayName = () => new Intl.DateTimeFormat('id-ID',{weekday:'long',timeZone:CONFIG.timezone}).format(new Date());
 
-function getCanonicalKey(k) {
-  const m = {
+function getCanonical(k) {
+  const m={
     JENISDATA:'JENIS_DATA',AKTIF:'AKTIF',HARI:'HARI',SESI:'SESI',
     IDSLOT:'ID_SLOT',IDSLOTMULAI:'ID_SLOT_MULAI',IDSLOTSELESAI:'ID_SLOT_SELESAI',
     LABELWAKTU:'LABEL_WAKTU',TIPEBARIS:'TIPE_BARIS',URUTANSLOT:'URUTAN_SLOT',
@@ -563,202 +541,155 @@ function getCanonicalKey(k) {
     WARNABG:'WARNA_BG',WARNATEXT:'WARNA_TEXT',
     TANGGALINFO:'TANGGAL_INFO',JENISINFO:'JENIS_INFO',KETERANGANINFO:'KETERANGAN_INFO',
   };
-  return m[nk(k)] || k;
+  return m[nk(k)]||k;
 }
 
-function parseTimeLabelToMinutes(label) {
-  const c   = n(label).replace(/–/g, '-');
-  const pts = c.split('-').map(x => n(x));
-  if (pts.length < 2) return null;
-  const p = s => { const m = s.match(/(\d{1,2})[.:](\d{2})/); return m ? (+m[1] * 60 + +m[2]) : null; };
-  const s = p(pts[0]), e = p(pts[1]);
-  return (s !== null && e !== null) ? { start: s, end: e } : null;
+function parseTime(label) {
+  const c = n(label).replace(/–/g,'-');
+  const pts = c.split('-').map(x=>n(x));
+  if(pts.length<2) return null;
+  const p = s=>{ const m=s.match(/(\d{1,2})[.:](\d{2})/); return m?(+m[1]*60+ +m[2]):null; };
+  const s=p(pts[0]),e=p(pts[1]);
+  return (s!==null&&e!==null)?{start:s,end:e}:null;
 }
 
-// FIX: toast notifikasi
-let toastTimer = null;
-function showToast(msg, type = '', durationMs = 4000) {
-  el.toast.textContent = msg;
-  el.toast.className   = `toast show${type ? ' ' + type : ''}`;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.toast.className = 'toast'; }, durationMs);
+let toastT=null;
+function showToast(msg,type='',ms=4000){
+  el.toast.textContent=msg;
+  el.toast.className=`toast show${type?' '+type:''}`;
+  clearTimeout(toastT);
+  if(ms>0) toastT=setTimeout(()=>{el.toast.className='toast';},ms);
 }
 
-// FIX: update refresh indicator
-function setRefreshState(state_) {
-  // state_: 'ok' | 'err' | 'refreshing'
-  const now = getNowInTZ();
-  const tf  = new Intl.DateTimeFormat('id-ID', { hour:'2-digit', minute:'2-digit', timeZone: CONFIG.timezone });
-  el.refreshDot.className       = `refresh-dot ${state_}`;
-  el.refreshIndicator.className = `refresh-indicator${state_ === 'refreshing' ? ' refreshing' : ''}`;
-  if (state_ === 'refreshing') {
-    el.refreshIndicator.textContent = 'Memperbarui…';
-  } else if (state_ === 'ok') {
-    state.lastSuccessAt = now;
-    el.refreshIndicator.textContent = `Diperbarui ${tf.format(now)}`;
+function setRefresh(s){
+  const tf=new Intl.DateTimeFormat('id-ID',{hour:'2-digit',minute:'2-digit',timeZone:CONFIG.timezone});
+  el.refreshDot.className=`refresh-dot ${s}`;
+  if(s==='refreshing'){
+    el.refreshTxt.textContent='Memperbarui…';
+  } else if(s==='ok'){
+    state.lastSuccessAt=getNow();
+    el.refreshTxt.textContent=`Diperbarui ${tf.format(state.lastSuccessAt)}`;
   } else {
-    el.refreshIndicator.textContent = state.lastSuccessAt
-      ? `Gagal — terakhir ${tf.format(state.lastSuccessAt)}`
-      : 'Gagal memuat';
+    el.refreshTxt.textContent=state.lastSuccessAt?`Gagal — terakhir ${tf.format(state.lastSuccessAt)}`:'Gagal memuat';
   }
 }
 
 // ═══════════════════════════════════════════════════════════
 // DATA MODEL
 // ═══════════════════════════════════════════════════════════
-function buildObjectsFromCsv(csvText) {
-  const rows = Papa.parse(csvText, { delimiter:',', quoteChar:'"', escapeChar:'"', skipEmptyLines:false }).data || [];
-  const hi   = rows.findIndex(r => nk(r?.[0]) === 'JENISDATA');
-  if (hi === -1) throw new Error('Header JENIS_DATA tidak ditemukan di spreadsheet.');
-  const headers = rows[hi].map(getCanonicalKey);
-
-  // FIX: validasi kolom wajib
-  const missing = CONFIG.requiredHeaders.filter(h => !headers.includes(h));
-  if (missing.length) {
-    console.warn('[Jadwal] Kolom tidak ditemukan:', missing.join(', '));
-  }
-
-  return rows.slice(hi + 1)
-    .filter(r => r.some(c => n(c) !== ''))
-    .map(r => { const o = {}; headers.forEach((h, i) => { if (h) o[h] = r[i] ?? ''; }); return o; });
+function buildObjects(csv) {
+  const rows=Papa.parse(csv,{delimiter:',',quoteChar:'"',escapeChar:'"',skipEmptyLines:false}).data||[];
+  const hi=rows.findIndex(r=>nk(r?.[0])==='JENISDATA');
+  if(hi===-1) throw new Error('Header JENIS_DATA tidak ditemukan.');
+  const headers=rows[hi].map(getCanonical);
+  return rows.slice(hi+1)
+    .filter(r=>r.some(c=>n(c)!==''))
+    .map(r=>{const o={};headers.forEach((h,i)=>{if(h)o[h]=r[i]??'';});return o;});
 }
 
-function buildDataModel(csvText) {
-  const rows      = buildObjectsFromCsv(csvText);
-  const rooms     = rows.filter(r => n(r.JENIS_DATA).toUpperCase() === 'RUANG'  && isYes(r.AKTIF)).sort((a,b) => (+a.URUTAN_KOLOM_RUANG||0) - (+b.URUTAN_KOLOM_RUANG||0));
-  const slots     = rows.filter(r => n(r.JENIS_DATA).toUpperCase() === 'SLOT'   && isYes(r.AKTIF)).sort((a,b) => (+a.URUTAN_SLOT||+a.ID_SLOT||0) - (+b.URUTAN_SLOT||+b.ID_SLOT||0));
-  const schedules = rows.filter(r => n(r.JENIS_DATA).toUpperCase() === 'JADWAL' && isYes(r.AKTIF));
-  const infos     = rows.filter(r => n(r.JENIS_DATA).toUpperCase() === 'INFO'   && isYes(r.AKTIF));
-
-  const daysSet = new Set();
-  slots.forEach(r     => { if (n(r.HARI)) daysSet.add(n(r.HARI)); });
-  schedules.forEach(r => { if (n(r.HARI)) daysSet.add(n(r.HARI)); });
-  const ordered = CONFIG.fallbackDays.filter(d => daysSet.has(d));
-  const extra   = [...daysSet].filter(d => !ordered.includes(d));
-  return { rooms, slots, schedules, infos, days: [...ordered, ...extra] };
+function buildModel(csv) {
+  const rows=buildObjects(csv);
+  const rooms=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='RUANG'&&isYes(r.AKTIF)).sort((a,b)=>(+a.URUTAN_KOLOM_RUANG||0)-(+b.URUTAN_KOLOM_RUANG||0));
+  const slots=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='SLOT'&&isYes(r.AKTIF)).sort((a,b)=>(+a.URUTAN_SLOT||+a.ID_SLOT||0)-(+b.URUTAN_SLOT||+b.ID_SLOT||0));
+  const schedules=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='JADWAL'&&isYes(r.AKTIF));
+  const infos=rows.filter(r=>n(r.JENIS_DATA).toUpperCase()==='INFO'&&isYes(r.AKTIF));
+  const dset=new Set();
+  slots.forEach(r=>{if(n(r.HARI))dset.add(n(r.HARI));});
+  schedules.forEach(r=>{if(n(r.HARI))dset.add(n(r.HARI));});
+  const ord=CONFIG.fallbackDays.filter(d=>dset.has(d));
+  const ext=[...dset].filter(d=>!ord.includes(d));
+  return {rooms,slots,schedules,infos,days:[...ord,...ext]};
 }
 
-function getSlotsForDay(day) {
-  const dl = n(day).toLowerCase();
-  const sp = state.data.slots.filter(r => n(r.HARI).toLowerCase() === dl);
-  if (sp.length) return sp;
-  const gl = state.data.slots.filter(r => !n(r.HARI));
-  return gl.length ? gl : state.data.slots;
+function slotsForDay(day){
+  const dl=n(day).toLowerCase();
+  const sp=state.data.slots.filter(r=>n(r.HARI).toLowerCase()===dl);
+  if(sp.length) return sp;
+  const gl=state.data.slots.filter(r=>!n(r.HARI));
+  return gl.length?gl:state.data.slots;
 }
 
-function getScheduleItem(day, roomCode, slotId) {
-  const dl = n(day).toLowerCase(), rc = n(roomCode), sid = +slotId;
-  return state.data.schedules.find(item =>
-    n(item.HARI).toLowerCase() === dl && n(item.KODE_RUANG) === rc &&
-    sid >= +item.ID_SLOT_MULAI && sid <= (+(item.ID_SLOT_SELESAI || item.ID_SLOT_MULAI))
-  ) || null;
+function schedItem(day,roomCode,slotId){
+  const dl=n(day).toLowerCase(),rc=n(roomCode),sid=+slotId;
+  return state.data.schedules.find(it=>n(it.HARI).toLowerCase()===dl&&n(it.KODE_RUANG)===rc&&sid>=+it.ID_SLOT_MULAI&&sid<=(+(it.ID_SLOT_SELESAI||it.ID_SLOT_MULAI)))||null;
 }
 
-function getCurrentActiveSlotId(day) {
-  if (!state.data || n(day) !== currentDayName()) return null;
-  const cur = nowMinutes();
-  for (const slot of getSlotsForDay(day)) {
-    if (n(slot.TIPE_BARIS).toUpperCase() !== 'KULIAH') continue;
-    const p = parseTimeLabelToMinutes(slot.LABEL_WAKTU);
-    if (p && cur >= p.start && cur < p.end) return +slot.ID_SLOT;
+function activeSlotId(day){
+  if(!state.data||n(day)!==todayName()) return null;
+  const cur=nowMins();
+  for(const s of slotsForDay(day)){
+    if(n(s.TIPE_BARIS).toUpperCase()!=='KULIAH') continue;
+    const p=parseTime(s.LABEL_WAKTU);
+    if(p&&cur>=p.start&&cur<p.end) return +s.ID_SLOT;
   }
   return null;
 }
 
-const getCurrentAcademicDay = days => {
-  const c = currentDayName();
-  return days.includes(c) ? c : (days[0] || 'Senin');
-};
+const academicDay = days => { const c=todayName(); return days.includes(c)?c:(days[0]||'Senin'); };
 
-// FIX: mkColor membaca dari kolom WARNA_BG/WARNA_TEXT di data jadwal jika tersedia,
-//      lalu fallback ke hash otomatis dari kode MK agar prefix baru tidak hilang warna
-const COLOR_PALETTE = [
+// ── COLOR ──
+const PALETTE=[
   {bg:'#EEF4FA',t:'#1A3050'},{bg:'#EDF7F1',t:'#0E3020'},
   {bg:'#FFF9EC',t:'#3A2800'},{bg:'#FAF0E8',t:'#3A1808'},
   {bg:'#F2EEF9',t:'#1E103A'},{bg:'#EEF6F1',t:'#0C3220'},
   {bg:'#EEF5F6',t:'#0C2A30'},{bg:'#FAEFF0',t:'#3A0C10'},
   {bg:'#F0F4E8',t:'#203010'},{bg:'#F5EEF8',t:'#2C0C38'},
-  {bg:'#FEF9E7',t:'#3A2A00'},{bg:'#E8F8F5',t:'#0C3028'},
 ];
 
-function strHashIndex(str, len) {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
-  return Math.abs(h) % len;
+function strHash(str,len){
+  let h=0;
+  for(let i=0;i<str.length;i++) h=(Math.imul(31,h)+str.charCodeAt(i))|0;
+  return Math.abs(h)%len;
 }
 
-function mkColor(scheduleItem) {
-  // Prioritas 1: warna eksplisit dari kolom spreadsheet
-  if (scheduleItem && n(scheduleItem.WARNA_BG) && n(scheduleItem.WARNA_TEXT)) {
-    return { bg: n(scheduleItem.WARNA_BG), t: n(scheduleItem.WARNA_TEXT) };
-  }
-  // Prioritas 2: prefix kode MK yang dikenal
-  const code = n(scheduleItem?.KODE_MK || '').toUpperCase().replace(/\s+/g,'');
-  const knownMap = {
+function mkColor(item){
+  if(item&&n(item.WARNA_BG)&&n(item.WARNA_TEXT)) return {bg:n(item.WARNA_BG),t:n(item.WARNA_TEXT)};
+  const code=n(item?.KODE_MK||'').toUpperCase().replace(/\s+/g,'');
+  const known={
     'TI1':{bg:'#EEF4FA',t:'#1A3050'},'TI2':{bg:'#EDF7F1',t:'#0E3020'},
     'TI3':{bg:'#FFF9EC',t:'#3A2800'},'TI4':{bg:'#FAF0E8',t:'#3A1808'},
     'TI5':{bg:'#F2EEF9',t:'#1E103A'},'TI6':{bg:'#EEF6F1',t:'#0C3220'},
     'TI7':{bg:'#EEF5F6',t:'#0C2A30'},'TI8':{bg:'#FAEFF0',t:'#3A0C10'},
   };
-  const prefix = code.match(/^([A-Z]+\d)/)?.[1] || '';
-  if (prefix && knownMap[prefix]) return knownMap[prefix];
-  // Prioritas 3: hash otomatis dari kode MK — prefix baru tetap dapat warna konsisten
-  if (code) return COLOR_PALETTE[strHashIndex(code, COLOR_PALETTE.length)];
-  return { bg:'#F3F4FA', t:'#1A1D3A' };
+  const pfx=code.match(/^([A-Z]+\d)/)?.[1]||'';
+  if(pfx&&known[pfx]) return known[pfx];
+  if(code) return PALETTE[strHash(code,PALETTE.length)];
+  return {bg:'#F3F4FA',t:'#1A1D3A'};
 }
 
-function roomHClass(room) {
-  const g = n(room.GRUP_WARNA_RUANG).toUpperCase();
-  return CONFIG.roomHeaderClasses[g] || 'rh-def';
-}
-
-// ═══════════════════════════════════════════════════════════
-// FIX: localStorage fallback — data terakhir yang berhasil
-// ═══════════════════════════════════════════════════════════
-const LS_KEY = 'jadwal_csv_cache_v2';
-
-function saveCsvToCache(csvText) {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify({ csv: csvText, ts: Date.now() }));
-  } catch(e) { /* storage penuh, abaikan */ }
-}
-
-function loadCsvFromCache() {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch(e) { return null; }
+function roomHClass(room){
+  const g=n(room.GRUP_WARNA_RUANG).toUpperCase();
+  return CONFIG.roomHeaderClasses[g]||'rh-def';
 }
 
 // ═══════════════════════════════════════════════════════════
-// FIX: hash sekali, tidak dobel
+// LOCAL STORAGE FALLBACK
 // ═══════════════════════════════════════════════════════════
-async function hashText(t) {
-  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
-  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
+const LS='jadwal_v3';
+function saveCache(csv){ try{localStorage.setItem(LS,JSON.stringify({csv,ts:Date.now()}));}catch(e){} }
+function loadCache(){ try{ const r=localStorage.getItem(LS); return r?JSON.parse(r):null; }catch(e){return null;} }
+
+async function hashText(t){
+  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
 // ═══════════════════════════════════════════════════════════
-// FIX: ResizeObserver — cache dimensi, render hanya saat berubah
+// RESIZE OBSERVER
 // ═══════════════════════════════════════════════════════════
-let resizeRenderPending = false;
-const ro = new ResizeObserver(entries => {
-  for (const entry of entries) {
-    const { width, height } = entry.contentRect;
-    // Hanya re-render jika dimensi benar-benar berubah signifikan (>2px)
-    if (Math.abs(width - state.cachedWidth) > 2 || Math.abs(height - state.cachedHeight) > 2) {
-      state.cachedWidth  = width;
-      state.cachedHeight = height;
-      if (!resizeRenderPending) {
-        resizeRenderPending = true;
-        requestAnimationFrame(() => {
-          resizeRenderPending = false;
-          if (!state.data) return;
-          // Resize selalu butuh full rebuild karena ukuran font berubah
-          state.tableRendered = false;
-          if (state.currentMode === 'full') renderFullTable(state.selectedDay);
-          else renderLiveView(state.selectedDay);
+let rPending=false;
+const ro=new ResizeObserver(entries=>{
+  for(const e of entries){
+    const{width:w,height:h}=e.contentRect;
+    if(Math.abs(w-state.cachedW)>2||Math.abs(h-state.cachedH)>2){
+      state.cachedW=w; state.cachedH=h;
+      if(!rPending){
+        rPending=true;
+        requestAnimationFrame(()=>{
+          rPending=false;
+          if(!state.data) return;
+          state.tableRendered=false;
+          state.currentMode==='full'?renderFull(state.selectedDay):renderLive(state.selectedDay);
         });
       }
     }
@@ -767,523 +698,412 @@ const ro = new ResizeObserver(entries => {
 ro.observe(el.viewFull);
 
 // ═══════════════════════════════════════════════════════════
-// AUTO-SCROLL KE BARIS AKTIF
-// FIX: gunakan MutationObserver sekali untuk scroll setelah DOM selesai
+// SCROLL
 // ═══════════════════════════════════════════════════════════
-function scrollToActiveRow(force = false) {
-  const band   = el.tblBodyBand;
-  const target = band.querySelector('tr.current-row');
-  if (!band || !target) { if (force) band?.scrollTo({ top:0, behavior:'smooth' }); return; }
-
-  const bandRect   = band.getBoundingClientRect();
-  const targetRect = target.getBoundingClientRect();
-  const scrollTop  = band.scrollTop;
-  const rowTop     = scrollTop + (targetRect.top  - bandRect.top);
-  const rowBot     = rowTop + targetRect.height;
-  const marginTop  = 10, marginBot = 20;
-  const visible    = rowTop >= scrollTop + marginTop && rowBot <= scrollTop + band.clientHeight - marginBot;
-
-  if (force || !visible) {
-    const desired   = rowTop + targetRect.height / 2 - band.clientHeight / 2;
-    const maxScroll = Math.max(0, band.scrollHeight - band.clientHeight);
-    band.scrollTo({ top: Math.max(0, Math.min(maxScroll, desired)), behavior:'smooth' });
+function scrollActive(force=false){
+  const band=el.tblBody;
+  const tgt=band.querySelector('tr.cur-row');
+  if(!tgt){if(force)band?.scrollTo({top:0,behavior:'smooth'});return;}
+  const br=band.getBoundingClientRect(),tr=tgt.getBoundingClientRect();
+  const st=band.scrollTop,top=st+(tr.top-br.top),bot=top+tr.height;
+  if(force||!(top>=st+10&&bot<=st+band.clientHeight-20)){
+    const want=top+tr.height/2-band.clientHeight/2;
+    const max=Math.max(0,band.scrollHeight-band.clientHeight);
+    band.scrollTo({top:Math.max(0,Math.min(max,want)),behavior:'smooth'});
   }
 }
 
-// FIX: scroll setelah DOM benar-benar selesai via MutationObserver
-function scrollAfterRender() {
-  const band = el.tblBodyBand;
-  if (!band) return;
-  // Jika sudah ada tbody, langsung scroll
-  if (band.querySelector('tbody')) { scrollToActiveRow(true); return; }
-  // Tunggu DOM dengan MutationObserver, timeout fallback 800ms
-  let done = false;
-  const mo = new MutationObserver(() => {
-    if (band.querySelector('tbody') && !done) {
-      done = true; mo.disconnect(); scrollToActiveRow(true);
-    }
+function scrollAfterRender(){
+  const band=el.tblBody;
+  if(!band) return;
+  if(band.querySelector('tbody')){scrollActive(true);return;}
+  let done=false;
+  const mo=new MutationObserver(()=>{
+    if(band.querySelector('tbody')&&!done){done=true;mo.disconnect();scrollActive(true);}
   });
-  mo.observe(band, { childList:true, subtree:true });
-  setTimeout(() => { if (!done) { done = true; mo.disconnect(); scrollToActiveRow(true); } }, 800);
+  mo.observe(band,{childList:true,subtree:true});
+  setTimeout(()=>{if(!done){done=true;mo.disconnect();scrollActive(true);}},800);
 }
 
 // ═══════════════════════════════════════════════════════════
-// FIX: UPDATE HIGHLIGHT BARIS — tanpa rebuild DOM
-// Dipanggil setiap detik saat mode full dan slot aktif tidak berubah
+// HIGHLIGHT (no DOM rebuild)
 // ═══════════════════════════════════════════════════════════
-function updateActiveRowHighlight(activeSlotId) {
-  const band = el.tblBodyBand;
-  if (!band) return;
-
-  // Hapus highlight lama
-  band.querySelectorAll('tr.current-row').forEach(r => r.classList.remove('current-row'));
-  band.querySelectorAll('td.current-time').forEach(td => td.classList.remove('current-time'));
-  band.querySelectorAll('td.current-course').forEach(td => td.classList.remove('current-course'));
-
-  if (!activeSlotId) return;
-
-  // Tambahkan highlight baru berdasarkan data-slot attribute
-  band.querySelectorAll(`tr[data-slot="${activeSlotId}"]`).forEach(row => {
-    row.classList.add('current-row');
-    row.querySelectorAll('td.time-cell').forEach(td => td.classList.add('current-time'));
-    row.querySelectorAll('td.course-cell, td.empty-cell').forEach(td => td.classList.add('current-course'));
+function updateHighlight(aid){
+  const band=el.tblBody;
+  if(!band) return;
+  band.querySelectorAll('tr.cur-row').forEach(r=>r.classList.remove('cur-row'));
+  band.querySelectorAll('td.cur-time').forEach(td=>td.classList.remove('cur-time'));
+  band.querySelectorAll('td.cur-course').forEach(td=>td.classList.remove('cur-course'));
+  if(!aid) return;
+  band.querySelectorAll(`tr[data-slot="${aid}"]`).forEach(row=>{
+    row.classList.add('cur-row');
+    row.querySelectorAll('td.cell-time').forEach(td=>td.classList.add('cur-time'));
+    row.querySelectorAll('td.cell-course,td.cell-empty').forEach(td=>td.classList.add('cur-course'));
   });
 }
 
 // ═══════════════════════════════════════════════════════════
 // RENDER FULL TABLE
-// FIX: jika tabel sudah ada dan hanya highlight berubah, cukup updateActiveRowHighlight
 // ═══════════════════════════════════════════════════════════
-function renderFullTable(day, forceRebuild = false) {
-  if (!state.data) {
-    el.tblHeaderInner.innerHTML = '';
-    el.tblBodyBand.innerHTML    = '<div class="error-box">Data belum tersedia.</div>';
+function renderFull(day,force=false){
+  if(!state.data){
+    el.tblHead.innerHTML='';
+    el.tblBody.innerHTML='<div class="err-box">Data belum tersedia.</div>';
     return;
   }
+  const slots=slotsForDay(day),rooms=state.data.rooms;
+  const aid=activeSlotId(day);
 
-  const slots        = getSlotsForDay(day);
-  const rooms        = state.data.rooms;
-  const activeSlotId = getCurrentActiveSlotId(day);
+  if(!rooms.length){el.tblBody.innerHTML='<div class="err-box">Data RUANG tidak ditemukan.</div>';return;}
+  if(!slots.length){el.tblBody.innerHTML='<div class="err-box">Data SLOT tidak ditemukan.</div>';return;}
 
-  if (!rooms.length) { el.tblBodyBand.innerHTML = '<div class="error-box">Data RUANG tidak ditemukan.</div>'; return; }
-  if (!slots.length) { el.tblBodyBand.innerHTML = '<div class="error-box">Data SLOT tidak ditemukan.</div>'; return; }
-
-  // FIX: jika tabel sudah ter-render dan hari tidak berubah, cukup update highlight
-  if (state.tableRendered && !forceRebuild) {
-    updateActiveRowHighlight(activeSlotId);
-    scrollToActiveRow(false);
-    return;
+  if(state.tableRendered&&!force){
+    updateHighlight(aid);scrollActive(false);return;
   }
 
-  // ── Sizing dari cache ResizeObserver ──
-  const cH = Math.max(360, state.cachedHeight || el.viewFull.clientHeight - 4);
-  const cW = Math.max(200, state.cachedWidth  || el.viewFull.clientWidth  - 4);
+  const cH=Math.max(360,state.cachedH||el.viewFull.clientHeight-4);
+  const cW=Math.max(200,state.cachedW||el.viewFull.clientWidth-4);
 
-  const thH      = Math.max(38, Math.min(54, Math.floor(cH * 0.065)));
-  const rowH     = Math.max(38, Math.min(62, Math.floor(cH * 0.076)));
-  const specialH = Math.max(22, Math.min(32, Math.floor(rowH * 0.56)));
-  const sesiW    = 52;
-  const jamW     = 108;
-  const roomCols = rooms.length;
-  const roomW    = Math.max(60, Math.floor((cW - sesiW - jamW - 8) / Math.max(roomCols, 1)));
+  const thH=Math.max(36,Math.min(48,Math.floor(cH*.06)));
+  const rowH=Math.max(38,Math.min(60,Math.floor(cH*.074)));
+  const specH=Math.max(20,Math.min(30,Math.floor(rowH*.52)));
+  const sesiW=48, jamW=106;
+  const roomW=Math.max(60,Math.floor((cW-sesiW-jamW-8)/Math.max(rooms.length,1)));
 
-  const fHeader = Math.max(10, Math.min(16, Math.floor(roomW * 0.115)));
-  const fBase   = Math.max(9,  Math.min(13, Math.floor(roomW * 0.096)));
-  const fCode   = Math.max(8,  Math.min(11, Math.floor(fBase * 0.90)));
-  const fMeta   = Math.max(7,  Math.min(10, Math.floor(fBase * 0.83)));
+  const fHd=Math.max(10,Math.min(15,Math.floor(roomW*.11)));
+  const fBase=Math.max(9,Math.min(13,Math.floor(roomW*.093)));
+  const fCode=Math.max(8,Math.min(11,Math.floor(fBase*.88)));
+  const fMeta=Math.max(7,Math.min(10,Math.floor(fBase*.8)));
 
-  const colGroup = `
-    <colgroup>
-      <col style="width:${sesiW}px">
-      <col style="width:${jamW}px">
-      ${rooms.map(() => `<col>`).join('')}
-    </colgroup>`;
+  const cols=`<colgroup><col style="width:${sesiW}px"><col style="width:${jamW}px">${rooms.map(()=>'<col>').join('')}</colgroup>`;
 
-  // ── Header table ──
-  const headerTableHtml = `
-    <table class="schedule head-tbl" style="width:100%;font-size:${fBase}px;">
-      ${colGroup}
-      <thead>
-        <tr style="height:${thH}px;">
-          <th style="font-size:${fHeader}px;">SESI</th>
-          <th style="font-size:${fHeader}px;">JAM</th>
-          ${rooms.map(r => `<th class="${roomHClass(r)}" style="font-size:${fHeader}px;">${esc(r.NAMA_TAMPIL_RUANG || r.KODE_RUANG)}</th>`).join('')}
-        </tr>
-      </thead>
-    </table>`;
+  // header
+  el.tblHead.innerHTML=`<table class="sched tbl-h" style="width:100%;font-size:${fBase}px;">${cols}<thead>
+    <tr style="height:${thH}px;">
+      <th style="font-size:${fHd}px;">SESI</th>
+      <th style="font-size:${fHd}px;">JAM</th>
+      ${rooms.map(r=>`<th class="${roomHClass(r)}" style="font-size:${fHd}px;">${esc(r.NAMA_TAMPIL_RUANG||r.KODE_RUANG)}</th>`).join('')}
+    </tr>
+  </thead></table>`;
 
-  // ── Body rows ──
-  const sessionCount    = new Map();
-  const renderedSession = new Set();
-  slots.forEach(s => {
-    if (n(s.TIPE_BARIS).toUpperCase() === 'KULIAH') {
-      const k = n(s.SESI) || '-';
-      sessionCount.set(k, (sessionCount.get(k) || 0) + 1);
+  // body
+  const sCnt=new Map(), rSess=new Set();
+  slots.forEach(s=>{
+    if(n(s.TIPE_BARIS).toUpperCase()==='KULIAH'){
+      const k=n(s.SESI)||'-'; sCnt.set(k,(sCnt.get(k)||0)+1);
     }
   });
 
-  let bodyRows = '';
-  for (const slot of slots) {
-    const type  = n(slot.TIPE_BARIS).toUpperCase();
-    const sid   = +slot.ID_SLOT;
-    const isCur = (type === 'KULIAH') && (activeSlotId === sid);
-    const rH    = (type === 'KULIAH') ? rowH : specialH;
-
-    // FIX: tambahkan data-slot attribute agar updateActiveRowHighlight bisa target per baris
-    bodyRows += `<tr class="${isCur ? 'current-row' : ''}" data-slot="${sid}">`;
-
-    if (type === 'KULIAH') {
-      const sesi = n(slot.SESI) || '-';
-      if (!renderedSession.has(sesi)) {
-        bodyRows += `<td class="session-cell" rowspan="${sessionCount.get(sesi) || 1}" style="height:${rH}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
-        renderedSession.add(sesi);
+  let rows='';
+  for(const slot of slots){
+    const type=n(slot.TIPE_BARIS).toUpperCase();
+    const sid=+slot.ID_SLOT;
+    const isCur=(type==='KULIAH')&&(aid===sid);
+    const rH=(type==='KULIAH')?rowH:specH;
+    rows+=`<tr class="${isCur?'cur-row':''}" data-slot="${sid}">`;
+    if(type==='KULIAH'){
+      const sesi=n(slot.SESI)||'-';
+      if(!rSess.has(sesi)){
+        rows+=`<td class="cell-session" rowspan="${sCnt.get(sesi)||1}" style="height:${rH}px;font-size:${fBase}px;">${esc(sesi)}</td>`;
+        rSess.add(sesi);
       }
-      bodyRows += `<td class="time-cell${isCur ? ' current-time' : ''}" style="height:${rH}px;font-size:${Math.max(9, fBase * 0.95)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
-      for (const room of rooms) {
-        const item = getScheduleItem(day, room.KODE_RUANG, sid);
-        if (item) {
-          const c = mkColor(item);
-          bodyRows += `<td class="course-cell${isCur ? ' current-course' : ''}" style="height:${rH}px;background:${c.bg};color:${c.t};">
-            <div class="c-code" style="font-size:${fCode}px;">${esc(item.KODE_MK || '')}${item.KELAS ? ` (${esc(item.KELAS)})` : ''}</div>
-            <div class="c-name" style="font-size:${fBase}px;">${esc(item.NAMA_MK || '')}</div>
-            ${item.DOSEN           ? `<div class="c-meta" style="font-size:${fMeta}px;">👤 ${esc(item.DOSEN)}</div>` : ''}
-            ${item.PROGRAM_ANGKATAN? `<div class="c-meta" style="font-size:${fMeta}px;">${esc(item.PROGRAM_ANGKATAN)}</div>` : ''}
+      rows+=`<td class="cell-time${isCur?' cur-time':''}" style="height:${rH}px;font-size:${Math.max(9,fBase*.93)}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      for(const room of rooms){
+        const item=schedItem(day,room.KODE_RUANG,sid);
+        if(item){
+          const c=mkColor(item);
+          rows+=`<td class="cell-course${isCur?' cur-course':''}" style="height:${rH}px;background:${c.bg};color:${c.t};">
+            <div class="cc-code" style="font-size:${fCode}px;">${esc(item.KODE_MK||'')}${item.KELAS?` (${esc(item.KELAS)})`:''}  </div>
+            <div class="cc-name" style="font-size:${fBase}px;">${esc(item.NAMA_MK||'')}</div>
+            ${item.DOSEN?`<div class="cc-meta" style="font-size:${fMeta}px;">👤 ${esc(item.DOSEN)}</div>`:''}
+            ${item.PROGRAM_ANGKATAN?`<div class="cc-meta" style="font-size:${fMeta}px;">${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
           </td>`;
         } else {
-          bodyRows += `<td class="empty-cell${isCur ? ' current-course' : ''}" style="height:${rH}px;"></td>`;
+          rows+=`<td class="cell-empty${isCur?' cur-course':''}" style="height:${rH}px;"></td>`;
         }
       }
     } else {
-      bodyRows += `<td class="session-empty" style="height:${rH}px;"></td>`;
-      bodyRows += `<td class="special-time"  style="height:${rH}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
-      bodyRows += `<td class="special-cell"  colspan="${rooms.length}" style="height:${rH}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN) || 'Informasi akademik')}</td>`;
+      rows+=`<td class="cell-sess-empty" style="height:${rH}px;"></td>`;
+      rows+=`<td class="cell-special-time" style="height:${rH}px;font-size:${fMeta}px;">${esc(slot.LABEL_WAKTU)}</td>`;
+      rows+=`<td class="cell-special" colspan="${rooms.length}" style="height:${rH}px;font-size:${fMeta}px;">${esc(n(slot.CATATAN)||'Informasi akademik')}</td>`;
     }
-    bodyRows += `</tr>`;
+    rows+='</tr>';
   }
 
-  const bodyTableHtml = `
-    <table class="schedule body-tbl" style="width:100%;font-size:${fBase}px;">
-      ${colGroup}
-      <tbody>${bodyRows}</tbody>
-    </table>`;
-
-  // Inject HTML
-  el.tblHeaderInner.innerHTML = headerTableHtml;
-  el.tblBodyBand.innerHTML    = bodyTableHtml;
-
-  state.tableRendered = true;
-
-  // FIX: scroll via MutationObserver — tidak pakai setTimeout magic
+  el.tblBody.innerHTML=`<table class="sched tbl-b" style="width:100%;font-size:${fBase}px;">${cols}<tbody>${rows}</tbody></table>`;
+  state.tableRendered=true;
   scrollAfterRender();
 }
 
 // ═══════════════════════════════════════════════════════════
 // RENDER LIVE VIEW
 // ═══════════════════════════════════════════════════════════
-function renderLiveView(day) {
-  const activeSlotId = getCurrentActiveSlotId(day);
-  const slots        = state.data ? getSlotsForDay(day) : [];
-  const activeSlot   = slots.find(s => +s.ID_SLOT === activeSlotId);
-  const timeLabel    = activeSlot ? n(activeSlot.LABEL_WAKTU) : '';
+function renderLive(day){
+  const aid=activeSlotId(day);
+  const slots=state.data?slotsForDay(day):[];
+  const aSlot=slots.find(s=>+s.ID_SLOT===aid);
+  const tLabel=aSlot?n(aSlot.LABEL_WAKTU):'';
 
-  if (!activeSlotId || !state.data) {
-    el.liveView.innerHTML = `
-      <div class="live-empty">
-        <div class="live-empty-icon">🎓</div>
-        <div class="live-empty-text">Belum ada sesi aktif saat ini</div>
-        <div class="live-empty-sub">Perkuliahan berikutnya akan ditampilkan saat sesi dimulai</div>
-      </div>`;
+  if(!aid||!state.data){
+    el.liveView.innerHTML=`<div class="live-empty">
+      <div class="live-empty-icon">🎓</div>
+      <div class="live-empty-text">Belum ada sesi aktif</div>
+      <div class="live-empty-sub">Perkuliahan berikutnya ditampilkan saat sesi dimulai</div>
+    </div>`;
     return;
   }
 
-  const rooms     = state.data.rooms;
-  const liveItems = rooms.map(room => {
-    const item = getScheduleItem(day, room.KODE_RUANG, activeSlotId);
-    return item ? { room, item } : null;
-  }).filter(Boolean);
-
-  const densityClass = liveItems.length >= 9 ? ' dense-9' : (liveItems.length >= 7 ? ' dense-7' : '');
-  let html = `<div class="live-cards${densityClass}">`;
-
-  if (!liveItems.length) {
-    html += `<div class="live-empty"><div class="live-empty-icon">📭</div><div class="live-empty-text">Tidak ada mata kuliah di sesi ini</div></div>`;
+  const rooms=state.data.rooms;
+  const items=rooms.map(r=>{const it=schedItem(day,r.KODE_RUANG,aid);return it?{room:r,item:it}:null;}).filter(Boolean);
+  let html=`<div class="live-head"><div class="live-dot"></div><div class="live-head-title">Berlangsung Sekarang</div><div class="live-head-sub">Sesi ${aSlot?n(aSlot.SESI):''} · ${esc(tLabel)}</div></div>`;
+  html+=`<div class="live-grid">`;
+  if(!items.length){
+    html+=`<div class="live-empty"><div class="live-empty-icon">📭</div><div class="live-empty-text">Tidak ada mata kuliah di sesi ini</div></div>`;
   } else {
-    liveItems.forEach(({ room, item }, idx) => {
-      const c = mkColor(item);
-      html += `<div class="live-card" style="background:${c.bg};color:${c.t};animation-delay:${idx * 60}ms;">
-        <div class="live-card-room">${esc(room.NAMA_TAMPIL_RUANG || room.KODE_RUANG)}</div>
-        <div class="live-card-code">${esc(item.KODE_MK || '')}${item.KELAS ? ` · Kelas ${esc(item.KELAS)}` : ''}</div>
-        <div class="live-card-name" style="color:${c.t}">${esc(item.NAMA_MK || '')}</div>
-        ${item.DOSEN            ? `<div class="live-card-meta">👤 ${esc(item.DOSEN)}</div>` : ''}
-        ${item.PROGRAM_ANGKATAN ? `<div class="live-card-meta">🎓 ${esc(item.PROGRAM_ANGKATAN)}</div>` : ''}
-        <div class="live-card-time">⏱ ${esc(timeLabel)}</div>
+    items.forEach(({room,item},i)=>{
+      const c=mkColor(item);
+      html+=`<div class="live-card" style="border-color:${c.bg};animation-delay:${i*55}ms;">
+        <div class="live-room">${esc(room.NAMA_TAMPIL_RUANG||room.KODE_RUANG)}</div>
+        <div class="live-code">${esc(item.KODE_MK||'')}${item.KELAS?` · Kelas ${esc(item.KELAS)}`:''}</div>
+        <div class="live-name" style="color:${c.t}">${esc(item.NAMA_MK||'')}</div>
+        ${item.DOSEN?`<div class="live-meta">👤 ${esc(item.DOSEN)}</div>`:''}
+        ${item.PROGRAM_ANGKATAN?`<div class="live-meta">🎓 ${esc(item.PROGRAM_ANGKATAN)}</div>`:''}
+        <div class="live-time">⏱ ${esc(tLabel)}</div>
       </div>`;
     });
   }
-  html += `</div>`;
-  el.liveView.innerHTML = html;
+  html+=`</div>`;
+  el.liveView.innerHTML=html;
 }
 
 // ═══════════════════════════════════════════════════════════
 // STATUS BAR
 // ═══════════════════════════════════════════════════════════
-function updateStatus() {
-  if (!state.data) { el.statusBar.textContent = 'Memuat data spreadsheet...'; return; }
-  const slots    = getSlotsForDay(state.selectedDay);
-  const jadCount = state.data.schedules.filter(r => n(r.HARI).toLowerCase() === n(state.selectedDay).toLowerCase()).length;
-  const liveId   = getCurrentActiveSlotId(state.selectedDay);
-  const liveItem = liveId
-    ? state.data.schedules.find(r =>
-        n(r.HARI).toLowerCase() === n(state.selectedDay).toLowerCase() &&
-        liveId >= +r.ID_SLOT_MULAI && liveId <= (+(r.ID_SLOT_SELESAI || r.ID_SLOT_MULAI)))
-    : null;
-  const liveText = liveItem
-    ? `<strong>▶ ${esc(liveItem.NAMA_MK || 'Berlangsung')}</strong>`
-    : 'Belum ada perkuliahan berlangsung';
-  el.statusBar.innerHTML = [
+function updateStatus(){
+  if(!state.data){el.statusBar.textContent='Memuat data spreadsheet…';return;}
+  const slots=slotsForDay(state.selectedDay);
+  const jadC=state.data.schedules.filter(r=>n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase()).length;
+  const aid=activeSlotId(state.selectedDay);
+  const liveIt=aid?state.data.schedules.find(r=>n(r.HARI).toLowerCase()===n(state.selectedDay).toLowerCase()&&aid>=+r.ID_SLOT_MULAI&&aid<=(+(r.ID_SLOT_SELESAI||r.ID_SLOT_MULAI))):null;
+  const liveText=liveIt?`<strong>▶ ${esc(liveIt.NAMA_MK||'Berlangsung')}</strong>`:'Tidak ada sesi aktif';
+  el.statusBar.innerHTML=[
     `Hari: <strong>${esc(state.selectedDay)}</strong>`,
     `Ruang: <strong>${state.data.rooms.length}</strong>`,
     `Slot: <strong>${slots.length}</strong>`,
-    `Jadwal: <strong>${jadCount}</strong>`,
+    `Jadwal: <strong>${jadC}</strong>`,
     liveText,
-  ].map(x => `<span class="status-item">${x}</span>`).join('');
+  ].map(x=>`<span class="status-item">${x}</span>`).join('');
 }
 
 // ═══════════════════════════════════════════════════════════
 // TICKER
 // ═══════════════════════════════════════════════════════════
-function stopTickerFlip() { if (state.tickerTimer) { clearInterval(state.tickerTimer); state.tickerTimer = null; } }
+let tickActive=true; // A=true → tickerA is active
 
-function resetTickerNoAnim(text) {
-  el.tickerCurrent.className  = 'ticker-item active no-anim';
-  el.tickerCurrent.textContent = text;
-  el.tickerNext.className     = 'ticker-item next no-anim';
-  el.tickerNext.textContent   = '';
-  void el.tickerCurrent.offsetWidth;
-  requestAnimationFrame(() => {
-    el.tickerCurrent.className = 'ticker-item active';
-    el.tickerNext.className    = 'ticker-item next';
+function stopTicker(){ if(state.tickerTimer){clearInterval(state.tickerTimer);state.tickerTimer=null;} }
+
+function resetTicker(text){
+  el.tickerA.className='ticker-item reset';
+  el.tickerA.textContent=text;
+  el.tickerB.className='ticker-item reset';
+  el.tickerB.textContent='';
+  void el.tickerA.offsetWidth;
+  requestAnimationFrame(()=>{
+    el.tickerA.className='ticker-item active';
+    el.tickerB.className='ticker-item';
   });
+  tickActive=true;
 }
 
-function flipTicker() {
-  if (state.tickerAnimating || state.tickerItems.length <= 1) return;
-  state.tickerAnimating = true;
-  const nextIndex = (state.tickerIndex + 1) % state.tickerItems.length;
-  const nextText  = state.tickerItems[nextIndex];
-  el.tickerNext.className    = 'ticker-item next no-anim';
-  el.tickerNext.textContent  = nextText;
-  void el.tickerNext.offsetWidth;
-  el.tickerNext.className = 'ticker-item next';
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    el.tickerCurrent.className = 'ticker-item active out-down';
-    el.tickerNext.className    = 'ticker-item next in-down';
+function flipTicker(){
+  if(state.tickerAnimating||state.tickerItems.length<=1) return;
+  state.tickerAnimating=true;
+  const nIdx=(state.tickerIndex+1)%state.tickerItems.length;
+  const nxt=state.tickerItems[nIdx];
+  const cur=tickActive?el.tickerA:el.tickerB;
+  const nxtEl=tickActive?el.tickerB:el.tickerA;
+  nxtEl.className='ticker-item reset';
+  nxtEl.textContent=nxt;
+  void nxtEl.offsetWidth;
+  nxtEl.className='ticker-item';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    cur.classList.add('out');
+    nxtEl.classList.add('active');
   }));
-  setTimeout(() => {
-    resetTickerNoAnim(nextText);
-    state.tickerIndex     = nextIndex;
-    state.tickerAnimating = false;
-  }, CONFIG.tickerAnimMs);
+  setTimeout(()=>{
+    cur.className='ticker-item';
+    cur.textContent='';
+    tickActive=!tickActive;
+    state.tickerIndex=nIdx;
+    state.tickerAnimating=false;
+  },CONFIG.tickerAnimMs);
 }
 
-function startTickerFlip() {
-  stopTickerFlip();
-  if (state.tickerItems.length <= 1) return;
-  state.tickerTimer = setInterval(flipTicker, CONFIG.tickerFlipMs);
-}
+function startTicker(){ stopTicker(); if(state.tickerItems.length>1) state.tickerTimer=setInterval(flipTicker,CONFIG.tickerFlipMs); }
 
-function updateTicker() {
-  if (!state.data) {
-    state.tickerItems = [CONFIG.tickerFallback];
-    state.tickerIndex = 0;
-    resetTickerNoAnim(CONFIG.tickerFallback);
-    stopTickerFlip();
-    return;
-  }
-  const items = state.data.infos
-    .map(r => [n(r.TANGGAL_INFO), n(r.JENIS_INFO), n(r.KETERANGAN_INFO)].filter(Boolean).join(' - '))
-    .filter(Boolean);
-  state.tickerItems = items.length ? items : [CONFIG.tickerFallback];
-  state.tickerIndex = 0;
-  resetTickerNoAnim(state.tickerItems[0]);
-  startTickerFlip();
+function updateTicker(){
+  if(!state.data){ state.tickerItems=[CONFIG.tickerFallback]; resetTicker(CONFIG.tickerFallback); stopTicker(); return; }
+  const items=state.data.infos.map(r=>[n(r.TANGGAL_INFO),n(r.JENIS_INFO),n(r.KETERANGAN_INFO)].filter(Boolean).join(' — ')).filter(Boolean);
+  state.tickerItems=items.length?items:[CONFIG.tickerFallback];
+  state.tickerIndex=0;
+  resetTicker(state.tickerItems[0]);
+  startTicker();
 }
 
 // ═══════════════════════════════════════════════════════════
 // MODE SWITCHING
 // ═══════════════════════════════════════════════════════════
-function switchToMode(mode) {
-  state.currentMode  = mode;
-  state.modeRemainMs = CONFIG.modeSwitchMs;
-
-  if (mode === 'full') {
-    el.viewFull.classList.add('active');     el.viewFull.classList.remove('inactive');
-    el.viewLive.classList.remove('active');  el.viewLive.classList.add('inactive');
-    el.modeBadge.textContent = '📅 SEMUA SESI';
-    el.modeBadge.className   = 'mode-badge mode-full';
-    renderFullTable(state.selectedDay, true);   // force rebuild saat mode baru aktif
-    setTimeout(() => scrollToActiveRow(true), 680);
+function switchMode(mode){
+  state.currentMode=mode;
+  state.modeRemainMs=CONFIG.modeSwitchMs;
+  const pill=el.modePill;
+  if(mode==='full'){
+    el.viewFull.classList.add('active');    el.viewFull.classList.remove('inactive');
+    el.viewLive.classList.remove('active'); el.viewLive.classList.add('inactive');
+    pill.className='mode-pill full';
+    el.modeLabel.textContent='SEMUA SESI';
+    el.modeFill.parentElement.style.display='';
+    renderFull(state.selectedDay,true);
+    setTimeout(()=>scrollActive(true),600);
   } else {
-    el.viewLive.classList.add('active');     el.viewLive.classList.remove('inactive');
-    el.viewFull.classList.remove('active');  el.viewFull.classList.add('inactive');
-    el.modeBadge.textContent = '🔴 BERLANGSUNG';
-    el.modeBadge.className   = 'mode-badge mode-live';
-    renderLiveView(state.selectedDay);
+    el.viewLive.classList.add('active');    el.viewLive.classList.remove('inactive');
+    el.viewFull.classList.remove('active'); el.viewFull.classList.add('inactive');
+    pill.className='mode-pill live';
+    el.modeLabel.textContent='BERLANGSUNG';
+    renderLive(state.selectedDay);
   }
 }
 
-function startModeTimer() {
+function startModeTimer(){
   clearInterval(state.modeTimer);
-  state.modeRemainMs = CONFIG.modeSwitchMs;
-  state.modeTimer = setInterval(() => {
-    // FIX: jika tab tidak visible, jangan switch mode (browser sudah throttle)
-    if (!state.isVisible) return;
-    state.modeRemainMs -= 1000;
-    if (state.modeRemainMs <= 0) switchToMode(state.currentMode === 'full' ? 'live' : 'full');
-    el.modeProgress.style.width = Math.max(0, (state.modeRemainMs / CONFIG.modeSwitchMs) * 100) + '%';
-  }, 1000);
+  state.modeRemainMs=CONFIG.modeSwitchMs;
+  state.modeTimer=setInterval(()=>{
+    if(!state.isVisible) return;
+    state.modeRemainMs-=1000;
+    if(state.modeRemainMs<=0) switchMode(state.currentMode==='full'?'live':'full');
+    el.modeFill.style.width=Math.max(0,(state.modeRemainMs/CONFIG.modeSwitchMs)*100)+'%';
+  },1000);
 }
 
 // ═══════════════════════════════════════════════════════════
-// FIX: MASTER TICK — satu interval untuk semua kebutuhan per-detik
-// Menggantikan dua setInterval terpisah (clock + slot watcher)
+// MASTER TICK
 // ═══════════════════════════════════════════════════════════
-function startMasterTick() {
-  const tz = CONFIG.timezone;
-  const tf  = new Intl.DateTimeFormat('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone: tz });
-  const df  = new Intl.DateTimeFormat('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric', timeZone: tz });
-
-  function tick() {
-    const now = new Date();
-    el.clockTime.textContent = tf.format(now);
-    el.clockDate.textContent = df.format(now);
-
-    if (!state.data) return;
-
-    const days    = state.data.days.length ? state.data.days : CONFIG.fallbackDays;
-    const autoDay = getCurrentAcademicDay(days);
-
-    // Hari berubah → force full rebuild
-    if (autoDay !== state.selectedDay) {
-      state.selectedDay  = autoDay;
-      state.tableRendered = false;
+function startTick(){
+  const tf=new Intl.DateTimeFormat('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:CONFIG.timezone});
+  const df=new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric',timeZone:CONFIG.timezone});
+  function tick(){
+    const now=new Date();
+    el.clockTime.textContent=tf.format(now);
+    el.clockDate.textContent=df.format(now);
+    if(!state.data) return;
+    const days=state.data.days.length?state.data.days:CONFIG.fallbackDays;
+    const auto=academicDay(days);
+    if(auto!==state.selectedDay){
+      state.selectedDay=auto; state.tableRendered=false;
       updateStatus();
-      state.currentMode === 'full' ? renderFullTable(state.selectedDay, true) : renderLiveView(state.selectedDay);
+      state.currentMode==='full'?renderFull(state.selectedDay,true):renderLive(state.selectedDay);
       return;
     }
-
-    const activeId = getCurrentActiveSlotId(state.selectedDay);
-    const lk       = `${state.selectedDay}__${activeId || ''}`;
-
-    if (lk !== state.liveSlotKey) {
-      // Slot aktif berubah → rebuild tabel agar rowspan session cell benar
-      state.liveSlotKey   = lk;
-      state.tableRendered = false;
+    const aid=activeSlotId(state.selectedDay);
+    const lk=`${state.selectedDay}__${aid||''}`;
+    if(lk!==state.liveSlotKey){
+      state.liveSlotKey=lk; state.tableRendered=false;
       updateStatus();
-      state.currentMode === 'full'
-        ? renderFullTable(state.selectedDay, true)
-        : renderLiveView(state.selectedDay);
-    } else if (state.currentMode === 'full') {
-      // FIX: tidak rebuild DOM — cukup update class highlight
-      updateActiveRowHighlight(activeId);
-      scrollToActiveRow(false);
+      state.currentMode==='full'?renderFull(state.selectedDay,true):renderLive(state.selectedDay);
+    } else if(state.currentMode==='full'){
+      updateHighlight(aid); scrollActive(false);
     }
   }
-
-  tick();
-  setInterval(tick, 1000);
+  tick(); setInterval(tick,1000);
 }
 
 // ═══════════════════════════════════════════════════════════
-// FIX: Page Visibility API — pause/resume saat tab background
+// VISIBILITY
 // ═══════════════════════════════════════════════════════════
-document.addEventListener('visibilitychange', () => {
-  state.isVisible = !document.hidden;
-  if (state.isVisible) {
-    // Tab kembali aktif — recalculate state agar sinkron kembali
-    if (state.data) {
-      const days    = state.data.days.length ? state.data.days : CONFIG.fallbackDays;
-      state.selectedDay  = getCurrentAcademicDay(days);
-      state.liveSlotKey  = '';   // paksa refresh di tick berikutnya
-      state.tableRendered = false;
-    }
+document.addEventListener('visibilitychange',()=>{
+  state.isVisible=!document.hidden;
+  if(state.isVisible&&state.data){
+    const days=state.data.days.length?state.data.days:CONFIG.fallbackDays;
+    state.selectedDay=academicDay(days);
+    state.liveSlotKey='';
+    state.tableRendered=false;
   }
 });
 
 // ═══════════════════════════════════════════════════════════
-// CSV LOAD dengan retry dan localStorage fallback
+// FETCH CSV
 // ═══════════════════════════════════════════════════════════
-async function fetchCsvWithRetry() {
-  let lastErr;
-  for (let i = 0; i < CONFIG.fetchRetryCount; i++) {
-    try {
-      const r = await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`, { cache:'no-store' });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+async function fetchCsv(){
+  let last;
+  for(let i=0;i<CONFIG.fetchRetryCount;i++){
+    try{
+      const r=await fetch(`${CONFIG.csvUrl}&v=${Date.now()}`,{cache:'no-store'});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
       return await r.text();
-    } catch(e) {
-      lastErr = e;
-      if (i < CONFIG.fetchRetryCount - 1) {
-        await new Promise(res => setTimeout(res, CONFIG.fetchRetryMs));
-      }
+    }catch(e){
+      last=e;
+      if(i<CONFIG.fetchRetryCount-1) await new Promise(res=>setTimeout(res,CONFIG.fetchRetryMs));
     }
   }
-  throw lastErr;
+  throw last;
 }
 
-async function applyCsv(csvText, newHash) {
-  state.data          = buildDataModel(csvText);
-  // FIX: hash sudah dihitung di luar, tidak perlu hitung ulang
-  state.csvHash       = newHash || await hashText(csvText);
-  const days          = state.data.days.length ? state.data.days : CONFIG.fallbackDays;
-  state.selectedDay   = getCurrentAcademicDay(days);
-  state.liveSlotKey   = `${state.selectedDay}__${getCurrentActiveSlotId(state.selectedDay) || ''}`;
-  state.tableRendered = false;
-  saveCsvToCache(csvText);
-  updateTicker();
-  updateStatus();
-  renderFullTable(state.selectedDay, true);
-  renderLiveView(state.selectedDay);
+async function applyCSV(csv,hash){
+  state.data=buildModel(csv);
+  state.csvHash=hash||await hashText(csv);
+  const days=state.data.days.length?state.data.days:CONFIG.fallbackDays;
+  state.selectedDay=academicDay(days);
+  state.liveSlotKey=`${state.selectedDay}__${activeSlotId(state.selectedDay)||''}`;
+  state.tableRendered=false;
+  saveCache(csv);
+  updateTicker(); updateStatus();
+  renderFull(state.selectedDay,true);
+  renderLive(state.selectedDay);
 }
 
-// Auto-refresh CSV — FIX: hash sekali, tidak dobel
-setInterval(async () => {
-  if (!state.isVisible) return; // jangan refresh saat tab background
-  setRefreshState('refreshing');
-  try {
-    const csvText = await fetchCsvWithRetry();
-    const h       = await hashText(csvText);       // hash satu kali
-    if (h !== state.csvHash) {
-      await applyCsv(csvText, h);                  // teruskan hash, tidak hitung ulang
-      showToast('Data jadwal berhasil diperbarui.', '', 3000);
-    }
-    setRefreshState('ok');
-  } catch(e) {
-    console.warn('[Jadwal] Auto-refresh gagal:', e);
-    setRefreshState('err');
-    showToast('Gagal memperbarui data. Menampilkan data terakhir yang tersimpan.', 'warn', 5000);
+setInterval(async()=>{
+  if(!state.isVisible) return;
+  setRefresh('refreshing');
+  try{
+    const csv=await fetchCsv();
+    const h=await hashText(csv);
+    if(h!==state.csvHash){ await applyCSV(csv,h); showToast('Data jadwal berhasil diperbarui.','',3000); }
+    setRefresh('ok');
+  }catch(e){
+    console.warn('[Jadwal] Refresh gagal:',e);
+    setRefresh('err');
+    showToast('Gagal memperbarui data. Menampilkan data terakhir.','warn',5000);
   }
-}, CONFIG.autoRefreshMs);
+},CONFIG.autoRefreshMs);
 
 // ═══════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════
-(async function init() {
-  startMasterTick();
-
-  setRefreshState('refreshing');
-  try {
-    const csvText = await fetchCsvWithRetry();
-    const h       = await hashText(csvText);
-    await applyCsv(csvText, h);
-    setRefreshState('ok');
-    switchToMode('full');
+(async function init(){
+  startTick();
+  setRefresh('refreshing');
+  try{
+    const csv=await fetchCsv();
+    const h=await hashText(csv);
+    await applyCSV(csv,h);
+    setRefresh('ok');
+    switchMode('full');
     startModeTimer();
-  } catch(e) {
-    console.warn('[Jadwal] Gagal fetch CSV awal:', e);
-    setRefreshState('err');
-
-    // FIX: coba gunakan data dari localStorage sebagai fallback
-    const cached = loadCsvFromCache();
-    if (cached) {
-      const ageMin = Math.round((Date.now() - cached.ts) / 60000);
-      showToast(`Tidak dapat memuat data terbaru. Menampilkan data dari ${ageMin} menit lalu.`, 'warn', 7000);
-      try {
-        const h = await hashText(cached.csv);
-        await applyCsv(cached.csv, h);
-        switchToMode('full');
-        startModeTimer();
-        return;
-      } catch(e2) {
-        console.warn('[Jadwal] Gagal load cache:', e2);
-      }
+  }catch(e){
+    console.warn('[Jadwal] Gagal fetch:',e);
+    setRefresh('err');
+    const cached=loadCache();
+    if(cached){
+      const age=Math.round((Date.now()-cached.ts)/60000);
+      showToast(`Data terbaru tidak tersedia. Menampilkan data dari ${age} menit lalu.`,'warn',7000);
+      try{
+        const h=await hashText(cached.csv);
+        await applyCSV(cached.csv,h);
+        switchMode('full'); startModeTimer(); return;
+      }catch(e2){ console.warn('[Jadwal] Cache gagal:',e2); }
     }
-
-    // Tidak ada data sama sekali
-    el.tblBodyBand.innerHTML = `<div class="error-box">
-      Gagal memuat jadwal: ${esc(e.message)}<br><br>
-      Pastikan Google Sheets sudah di-publish sebagai CSV publik, lalu muat ulang halaman.
-    </div>`;
-    showToast('Gagal memuat data jadwal.', 'err', 0);
+    el.tblBody.innerHTML=`<div class="err-box">Gagal memuat jadwal: ${esc(e.message)}<br><br>Pastikan Google Sheets sudah dipublish sebagai CSV publik, lalu muat ulang halaman.</div>`;
+    showToast('Gagal memuat data jadwal.','err',0);
   }
 })();
 </script>
