@@ -643,18 +643,38 @@ function strHash(str,len){
 }
 
 function mkColor(item){
-  if(item&&n(item.WARNA_BG)&&n(item.WARNA_TEXT)) return {bg:n(item.WARNA_BG),t:n(item.WARNA_TEXT)};
+  // Warna otomatis dari KODE_MK dengan palet pastel lembut.
+  // Contoh: TI401, TI402, TI499 => grup TI4xx dan warnanya sama.
+  // TIDA, TIUX, dan TIPR dibuat satu kelompok warna yang sama.
   const code=n(item?.KODE_MK||'').toUpperCase().replace(/\s+/g,'');
+
+  const group = (() => {
+    if(code.startsWith('TIDA') || code.startsWith('TIUX') || code.startsWith('TIPR')) return 'SPECIAL_TIx';
+    if(code.startsWith('AS') || code.startsWith('TW')) return 'PRAKTIKUM';
+    const m = code.match(/^([A-Z]+)(\d)/);
+    return m ? `${m[1]}${m[2]}xx` : 'DEFAULT';
+  })();
+
   const known={
-    'TI1':{bg:'#EEF4FA',t:'#1A3050'},'TI2':{bg:'#EDF7F1',t:'#0E3020'},
-    'TI3':{bg:'#FFF9EC',t:'#3A2800'},'TI4':{bg:'#FAF0E8',t:'#3A1808'},
-    'TI5':{bg:'#F2EEF9',t:'#1E103A'},'TI6':{bg:'#EEF6F1',t:'#0C3220'},
-    'TI7':{bg:'#EEF5F6',t:'#0C2A30'},'TI8':{bg:'#FAEFF0',t:'#3A0C10'},
+    'TI1xx':       {bg:'#EEF6FF',t:'#243447'},
+    'TI2xx':       {bg:'#EEF9F1',t:'#243447'},
+    'TI3xx':       {bg:'#FFF8E8',t:'#243447'},
+    'TI4xx':       {bg:'#FDF1EA',t:'#243447'},
+    'TI5xx':       {bg:'#F4EFFB',t:'#243447'},
+    'TI6xx':       {bg:'#EEF7F7',t:'#243447'},
+    'TI7xx':       {bg:'#F5EFF8',t:'#243447'},
+    'TI8xx':       {bg:'#FCEFF1',t:'#243447'},
+
+    // TIDA, TIUX, dan TIPR sengaja disamakan.
+    'SPECIAL_TIx': {bg:'#EFF3FF',t:'#243447'},
+
+    // Praktikum/asistensi tetap pastel, bukan merah tajam.
+    'PRAKTIKUM':   {bg:'#FBEDEE',t:'#243447'},
+
+    'DEFAULT':     {bg:'#F5F6FA',t:'#243447'},
   };
-  const pfx=code.match(/^([A-Z]+\d)/)?.[1]||'';
-  if(pfx&&known[pfx]) return known[pfx];
-  if(code) return PALETTE[strHash(code,PALETTE.length)];
-  return {bg:'#F3F4FA',t:'#1A1D3A'};
+
+  return known[group] || PALETTE[strHash(group || code, PALETTE.length)] || known.DEFAULT;
 }
 
 function roomHClass(room){
